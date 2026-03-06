@@ -1,0 +1,1462 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cotizador de Cursos - Misión Admisión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- pdfMake CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
+
+    <style>
+      body {
+        box-sizing: border-box;
+      }
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .quote-card {
+        animation: slideIn 0.3s ease-out;
+      }
+    </style>
+  </head>
+  <body class="h-full bg-slate-50">
+    <div id="app" class="w-full min-h-screen flex items-center justify-center p-4">
+      <div class="w-full max-w-5xl bg-white shadow-xl rounded-2xl p-6 md:p-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+          <div class="flex justify-center mb-2">
+            <img src="data:image/jpeg;base64,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" alt="Misión Admisión · Cursos Propedéuticos" class="h-10 md:h-14 w-auto" />
+          </div>
+          <p class="text-slate-600 text-sm md:text-base">
+            Cotizador de cursos EXANI I / EXANI II
+          </p>
+        </header>
+
+        <!-- Form + Results -->
+        <div class="grid gap-8 lg:grid-cols-2">
+          <!-- Form Card -->
+          <section class="border border-slate-200 rounded-2xl p-4 md:p-6 bg-slate-50/60">
+            <h2 class="text-xl font-semibold text-slate-800 mb-4">
+              Datos del alumno(a)
+            </h2>
+
+            <form id="quote-form" class="space-y-4">
+              <div>
+                <label for="specialist" class="block text-sm font-medium text-slate-700 mb-1">
+                  Especialista académica asignada
+                </label>
+                <select
+                  id="specialist"
+                  required
+                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Selecciona una especialista</option>
+                  <option value="Giuliana Quesada">Giuliana Quesada</option>
+                  <option value="María Ramírez">María Ramírez</option>
+                  <option value="Mayte Delgado">Mayte Delgado</option>
+                  <option value="Natalia Escalante">Natalia Escalante</option>
+                  <option value="Rosa Tzec">Rosa Tzec</option>
+                  <option value="Susana Hipólito">Susana Hipólito</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="student-name" class="block text-sm font-medium text-slate-700 mb-1">
+                  Nombre del alumno(a)
+                </label>
+                <input
+                  type="text"
+                  id="student-name"
+                  required
+                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Ingresa el nombre completo"
+                />
+              </div>
+
+              <div>
+                <label for="syllabus" class="block text-sm font-medium text-slate-700 mb-1">
+                  Temario
+                </label>
+                <select
+                  id="syllabus"
+                  required
+                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Selecciona un temario</option>
+                  <option value="EXANI I">EXANI I</option>
+                  <option value="EXANI II">EXANI II</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="campus" class="block text-sm font-medium text-slate-700 mb-1">
+                  Campus
+                </label>
+                <select
+                  id="campus"
+                  required
+                  disabled
+                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                >
+                  <option value="">Selecciona un campus</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="course-date" class="block text-sm font-medium text-slate-700 mb-1">
+                  Curso
+                </label>
+                <select
+                  id="course-date"
+                  required
+                  disabled
+                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                >
+                  <option value="">Selecciona un curso</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold py-2.5 mt-2 hover:bg-indigo-700 transition-colors"
+              >
+                <span>⚙️</span>
+                <span>Generar cotización</span>
+              </button>
+            </form>
+          </section>
+
+          <!-- Results -->
+          <section id="quote-results" class="hidden">
+            <!-- Payment Options -->
+            <div class="space-y-4 mb-4">
+              <div class="grid gap-4">
+                <!-- Cash Payment -->
+                <article class="quote-card border border-emerald-100 rounded-2xl p-4 bg-emerald-50/70">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-base font-semibold text-emerald-900">
+                      Pago de contado
+                    </h3>
+                    <span class="text-xl">💵</span>
+                  </div>
+                  <p class="text-xs text-emerald-800 mb-1">Precio total</p>
+                  <p id="cash-price" class="text-2xl font-extrabold text-emerald-900">$6,600.00</p>
+                  <ul class="mt-3 text-xs text-emerald-900 space-y-1">
+                    <li>✅ Pago único</li>
+                    <li>✅ Mejor precio disponible</li>
+                  </ul>
+                </article>
+
+                <!-- Installment Payment -->
+                <article class="quote-card border border-indigo-100 rounded-2xl p-4 bg-indigo-50/70">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-base font-semibold text-indigo-900">
+                      Promoción del mes
+                    </h3>
+                    <span class="text-xl">📅</span>
+                  </div>
+
+                  <p class="text-xs text-indigo-800 mb-1">Precio total</p>
+                  <p id="total-installment" class="text-2xl font-extrabold text-indigo-900">
+                    $7,150.00
+                  </p>
+
+                  <div class="mt-3 space-y-3 border-t border-indigo-100 pt-3">
+                    <div>
+                      <label
+                        for="registration-fee"
+                        class="block text-xs font-medium text-indigo-900 mb-1"
+                      >
+                        Inscripción
+                      </label>
+                      <div class="flex items-center gap-1">
+                        <span class="text-xs text-indigo-900">$</span>
+                        <input
+                          type="number"
+                          id="registration-fee"
+                          value="1500"
+                          min="1000"
+                          step="100"
+                          class="flex-1 px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                        />
+                      </div>
+                      <p
+                        id="registration-error"
+                        class="hidden text-[11px] text-red-600 mt-1"
+                      >
+                        ⚠️ La inscripción no debe ser inferior a $1,000.00
+                      </p>
+                    </div>
+
+                    <div>
+                      <label
+                        for="num-payments"
+                        class="block text-xs font-medium text-indigo-900 mb-1"
+                      >
+                        Mensualidades (1 a 5*)
+                      </label>
+                      <input
+                        type="number"
+                        id="num-payments"
+                        value="4"
+                        min="1"
+                        max="5"
+                        class="w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                      />
+                      <p
+                        id="payments-error"
+                        class="hidden text-[11px] text-red-600 mt-1"
+                      >
+                        ⚠️ <span id="payments-error-text"></span>
+                      </p>
+                    </div>
+
+                    <div class="bg-white/70 border border-dashed border-indigo-200 rounded-xl px-3 py-2">
+                      <p class="text-xs text-indigo-900">
+                        Pago mensual estimado:
+                        <span id="monthly-payment" class="font-bold">
+                          $1,500.00
+                        </span>
+                      </p>
+                    </div>
+                    <p class="text-[10px] text-indigo-700">
+                      * Se pueden agendar hasta 5 mensualidades, solo cuidar que las mensualidades no excedan el mes de abril de 2027
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="border border-slate-200 rounded-2xl p-4 mb-4 bg-slate-50/70">
+              <h3 class="text-base font-semibold text-slate-800 mb-3">
+                Resumen de cotización
+              </h3>
+              <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <dt class="font-medium text-slate-600">Alumno(a)</dt>
+                  <dd id="summary-name" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Temario</dt>
+                  <dd id="summary-syllabus" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Especialista académica</dt>
+                  <dd id="summary-specialist" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Teléfono de contacto</dt>
+                  <dd id="summary-specialist-phone" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Campus</dt>
+                  <dd id="summary-campus" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Curso</dt>
+                  <dd id="summary-date" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Horario</dt>
+                  <dd id="summary-schedule" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Días</dt>
+                  <dd id="summary-days" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Modalidad</dt>
+                  <dd id="summary-modality" class="font-semibold text-slate-900">-</dd>
+                </div>
+                <div>
+                  <dt class="font-medium text-slate-600">Dirección</dt>
+                  <dd id="summary-address" class="font-semibold text-slate-900">-</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- Export Button -->
+            <button
+              id="export-pdf"
+              class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold py-2.5 hover:bg-emerald-700 transition-colors"
+            >
+              <span>📄</span>
+              <span>Exportar cotización a PDF</span>
+            </button>
+
+            <p class="mt-2 text-[11px] text-slate-500 text-center">
+              * Se generará un PDF descargable con los datos capturados.
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script>
+
+      // ==== CONFIGURACIÓN DE PRECIOS POR TEMARIO / MODALIDAD / MES ====
+      const pricingRules = [
+  {
+    "temario": "EXANI II",
+    "modality": "Virtual",
+    "from": "2026-03-01",
+    "to": "2026-03-31",
+    "cash": 4750.0,
+    "installment": 4750.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Virtual",
+    "from": "2026-03-01",
+    "to": "2026-03-31",
+    "cash": 4125.0,
+    "installment": 4125.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Presencial",
+    "from": "2026-03-01",
+    "to": "2026-03-31",
+    "cash": 5750.0,
+    "installment": 5750.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Presencial",
+    "from": "2026-03-01",
+    "to": "2026-03-31",
+    "cash": 4875.0,
+    "installment": 4875.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Virtual",
+    "from": "2026-04-01",
+    "to": "2026-04-30",
+    "cash": 4875.0,
+    "installment": 5225.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Virtual",
+    "from": "2026-04-01",
+    "to": "2026-04-30",
+    "cash": 4125.0,
+    "installment": 4125.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Presencial",
+    "from": "2026-04-01",
+    "to": "2026-04-30",
+    "cash": 5750.0,
+    "installment": 6325.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Presencial",
+    "from": "2026-04-01",
+    "to": "2026-04-30",
+    "cash": 4875.0,
+    "installment": 4875.0
+  }
+];
+      function todayIso() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + day;
+      }
+
+      function findPricing(temario, modality, dateIso) {
+        const date = dateIso || todayIso();
+
+        // 1) Búsqueda exacta por temario y modalidad
+        let match = pricingRules.find(rule =>
+          rule.temario === temario &&
+          rule.modality === modality &&
+          date >= rule.from &&
+          date <= rule.to
+        );
+
+        // 2) Fallback: reglas generales por modalidad (temario = "*"), si en el futuro existieran
+        if (!match) {
+          match = pricingRules.find(rule =>
+            rule.temario === "*" &&
+            rule.modality === modality &&
+            date >= rule.from &&
+            date <= rule.to
+          );
+        }
+
+        // 3) Fallback final: primera regla de la tabla
+        return match || pricingRules[0];
+      }
+
+function formatIsoToDMY(iso) {
+        if (!iso) return "";
+        const parts = iso.split("-");
+        if (parts.length !== 3) return iso;
+        const [y, m, d] = parts;
+        return String(d).padStart(2, "0") + "/" + String(m).padStart(2, "0") + "/" + y;
+      }
+
+      function showToast(message, type = "error", duration = 3000) {
+        const div = document.createElement("div");
+        div.textContent = message;
+        div.style.position = "fixed";
+        div.style.left = "50%";
+        div.style.top = "16px";
+        div.style.transform = "translateX(-50%)";
+        div.style.zIndex = "9999";
+        div.style.padding = "10px 18px";
+        div.style.borderRadius = "999px";
+        div.style.fontSize = "13px";
+        div.style.fontWeight = "600";
+        div.style.color = "#fff";
+        div.style.boxShadow = "0 10px 30px rgba(15,23,42,0.25)";
+        div.style.background = type === "success" ? "#059669" : "#dc2626";
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), duration);
+      }
+
+
+
+const specialists = {
+  "Giuliana Quesada": { name: "Giuliana Quesada", phone: "9991218880" },
+  "María Ramírez":    { name: "María Ramírez",    phone: "2294667823" },
+  "Mayte Delgado":    { name: "Mayte Delgado",    phone: "9991071130" },
+  "Natalia Escalante":{ name: "Natalia Escalante",phone: "9994962237" },
+  "Rosa Tzec":        { name: "Rosa Tzec",        phone: "9993389839" },
+  "Susana Hipólito":  { name: "Susana Hipólito",  phone: "9992924519" }
+};
+
+
+const courseData = {
+  "EXANI I": {
+    "Mérida - Centro": [
+      {
+        "id": "course_001",
+        "name": "05 DE SEPTIEMBRE",
+        "date": "2026-09-05",
+        "schedule": "08:00 a 14:20",
+        "days": "Sábados",
+        "modality": "Virtual",
+        "address": "Virtual",
+        "locationUrl": "A través de Google Meet",
+        "endDate": "2027-04-17"
+      },
+      {
+        "id": "course_002",
+        "name": "06 DE SEPTIEMBRE",
+        "date": "2026-09-06",
+        "schedule": "08:00 a 14:20",
+        "days": "Domingos",
+        "modality": "Presencial",
+        "address": "C. 69 606, Centro, 97000 Mérida, Yuc.",
+        "locationUrl": "https://maps.app.goo.gl/V4ycjqUVp2NHQG4A8",
+        "endDate": "2027-04-18"
+      },
+      {
+        "id": "course_011",
+        "name": "02 DE OCTUBRE",
+        "date": "2026-10-02",
+        "schedule": "16:30 a 19:30",
+        "days": "Miércoles y viernes",
+        "modality": "Presencial",
+        "address": "C. 69 606, Centro, 97000 Mérida, Yuc.",
+        "locationUrl": "https://maps.app.goo.gl/V4ycjqUVp2NHQG4A8",
+        "endDate": "2027-05-07"
+      }
+    ],
+    "Virtual": [
+      {
+        "id": "course_012",
+        "name": "24 DE OCTUBRE",
+        "date": "2026-10-24",
+        "schedule": "08:00 a 14:20",
+        "days": "Sábados",
+        "modality": "Virtual",
+        "address": "Virtual",
+        "locationUrl": "A través de Google Meet",
+        "endDate": "2027-04-17"
+      }
+    ]
+  },
+  "EXANI II": {
+    "Mérida - Centro": [
+      {
+        "id": "course_003",
+        "name": "26 DE SEPTIEMBRE",
+        "date": "2026-09-26",
+        "schedule": "08:00 a 12:30",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "C. 69 606, Centro, 97000 Mérida, Yuc.",
+        "locationUrl": "https://maps.app.goo.gl/V4ycjqUVp2NHQG4A8",
+        "endDate": "2027-05-08"
+      },
+      {
+        "id": "course_004",
+        "name": "26 DE SEPTIEMBRE",
+        "date": "2026-09-26",
+        "schedule": "13:00 a 17:30",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "C. 69 606, Centro, 97000 Mérida, Yuc.",
+        "locationUrl": "https://maps.app.goo.gl/V4ycjqUVp2NHQG4A8",
+        "endDate": "2027-05-08"
+      },
+      {
+        "id": "course_007",
+        "name": "27 DE SEPTIEMBRE",
+        "date": "2026-09-27",
+        "schedule": "08:00 a 12:30",
+        "days": "Domingos",
+        "modality": "Presencial",
+        "address": "C. 69 606, Centro, 97000 Mérida, Yuc.",
+        "locationUrl": "https://maps.app.goo.gl/V4ycjqUVp2NHQG4A8",
+        "endDate": "2027-05-09"
+      },
+      {
+        "id": "course_008",
+        "name": "01 DE OCTUBRE",
+        "date": "2026-10-01",
+        "schedule": "08:00 a 11:00",
+        "days": "Lunes y jueves",
+        "modality": "Presencial",
+        "address": "C. 69 606, Centro, 97000 Mérida, Yuc.",
+        "locationUrl": "https://maps.app.goo.gl/V4ycjqUVp2NHQG4A8",
+        "endDate": "2027-04-22"
+      },
+      {
+        "id": "course_009",
+        "name": "01 DE OCTUBRE",
+        "date": "2026-10-01",
+        "schedule": "16:30 a 19:30",
+        "days": "Lunes y jueves",
+        "modality": "Presencial",
+        "address": "C. 69 606, Centro, 97000 Mérida, Yuc.",
+        "locationUrl": "https://maps.app.goo.gl/V4ycjqUVp2NHQG4A8",
+        "endDate": "2027-04-22"
+      }
+    ],
+    "Virtual": [
+      {
+        "id": "course_005",
+        "name": "26 DE SEPTIEMBRE",
+        "date": "2026-09-26",
+        "schedule": "08:00 a 12:30",
+        "days": "Sábados",
+        "modality": "Virtual",
+        "address": "Virtual",
+        "locationUrl": "A través de Google Meet",
+        "endDate": "2027-05-08"
+      },
+      {
+        "id": "course_006",
+        "name": "26 DE SEPTIEMBRE",
+        "date": "2026-09-26",
+        "schedule": "13:00 a 17:30",
+        "days": "Sábados",
+        "modality": "Virtual",
+        "address": "Virtual",
+        "locationUrl": "A través de Google Meet",
+        "endDate": "2027-05-08"
+      },
+      {
+        "id": "course_010",
+        "name": "01 DE OCTUBRE",
+        "date": "2026-10-01",
+        "schedule": "16:00 a 19:00",
+        "days": "Lunes y jueves",
+        "modality": "Virtual",
+        "address": "Virtual",
+        "locationUrl": "A través de Google Meet",
+        "endDate": "2027-04-22"
+      }
+    ]
+  }
+};
+
+
+      let quoteData = null;
+      let currentPricing = null;
+
+      function getPricingForQuote() {
+        if (!quoteData) return null;
+        const course = getSelectedCourseDetails();
+        if (!course) return null;
+        const today = todayIso();
+        const temario = quoteData.syllabus;
+        const modality = course.modality;
+        return findPricing(temario, modality, today);
+      }
+
+      function updateDisplayPrices() {
+        if (!currentPricing) return;
+        const cashPriceEl = document.getElementById("cash-price");
+        const totalInstallmentEl = document.getElementById("total-installment");
+
+        cashPriceEl.textContent = currentPricing.cash.toLocaleString("es-MX", {
+          style: "currency",
+          currency: "MXN"
+        });
+
+        totalInstallmentEl.textContent = currentPricing.installment.toLocaleString("es-MX", {
+          style: "currency",
+          currency: "MXN"
+        });
+      }
+
+      function updateCampusOptions() {
+        const syllabus = document.getElementById("syllabus").value;
+        const campusSelect = document.getElementById("campus");
+        const courseSelect = document.getElementById("course-date");
+
+        campusSelect.innerHTML = '<option value="">Selecciona un campus</option>';
+        courseSelect.innerHTML = '<option value="">Selecciona un curso</option>';
+        courseSelect.disabled = true;
+
+        if (syllabus && courseData[syllabus]) {
+          const campuses = Object.keys(courseData[syllabus]).sort((a, b) =>
+            a.localeCompare(b, "es", { sensitivity: "base" })
+          );
+          campuses.forEach(campus => {
+            const opt = document.createElement("option");
+            opt.value = campus;
+            opt.textContent = campus;
+            campusSelect.appendChild(opt);
+          });
+          campusSelect.disabled = false;
+        } else {
+          campusSelect.disabled = true;
+        }
+      }
+
+      
+      function updateCourseOptions() {
+        const syllabus = document.getElementById("syllabus").value;
+        const campus = document.getElementById("campus").value;
+        const courseSelect = document.getElementById("course-date");
+
+        courseSelect.innerHTML = '<option value="">Selecciona un curso</option>';
+
+        if (syllabus && campus && courseData[syllabus] && courseData[syllabus][campus]) {
+          const courses = courseData[syllabus][campus]
+            .slice()
+            .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+
+          courses.forEach(course => {
+            const opt = document.createElement("option");
+            opt.value = course.id;
+            opt.textContent = course.name;
+            opt.dataset.courseName = course.name;
+            courseSelect.appendChild(opt);
+          });
+          courseSelect.disabled = false;
+        } else {
+          courseSelect.disabled = true;
+        }
+
+        updatePaymentLimits();
+      }
+
+      
+      
+      function updatePaymentLimits() {
+        const numPaymentsInput = document.getElementById("num-payments");
+        const paymentsError = document.getElementById("payments-error");
+        const paymentsErrorText = document.getElementById("payments-error-text");
+
+        numPaymentsInput.max = "5";
+        numPaymentsInput.min = "1";
+
+        const current = parseInt(numPaymentsInput.value || "0", 10);
+
+        if (current < 1) {
+          paymentsErrorText.textContent = "El mínimo permitido es 1 mensualidad.";
+          paymentsError.classList.remove("hidden");
+          numPaymentsInput.style.borderColor = "#dc2626";
+        } else if (current > 5) {
+          paymentsErrorText.textContent = "El máximo permitido es 5 mensualidades.";
+          paymentsError.classList.remove("hidden");
+          numPaymentsInput.style.borderColor = "#dc2626";
+        } else {
+          paymentsError.classList.add("hidden");
+          numPaymentsInput.style.borderColor = "#c7d2fe";
+        }
+      }
+
+      function calculateInstallments() {
+
+
+        const registrationInput = document.getElementById("registration-fee");
+        const paymentsInput = document.getElementById("num-payments");
+        const registrationError = document.getElementById("registration-error");
+        const monthlySpan = document.getElementById("monthly-payment");
+        const totalSpan = document.getElementById("total-installment");
+
+        let registration = parseFloat(registrationInput.value || "0");
+        let numPayments = parseInt(paymentsInput.value || "0", 10);
+
+        if (registration < 1000) {
+          registrationError.classList.remove("hidden");
+          registrationInput.style.borderColor = "#dc2626";
+        } else {
+          registrationError.classList.add("hidden");
+          registrationInput.style.borderColor = "#c7d2fe";
+        }
+
+        if (!numPayments || numPayments < 1) {
+          numPayments = 1;
+        }
+
+        const remaining = currentPricing.installment - registration;
+        const monthly = remaining / numPayments;
+
+        monthlySpan.textContent = monthly.toLocaleString("es-MX", {
+          style: "currency",
+          currency: "MXN"
+        });
+        totalSpan.textContent = currentPricing.installment.toLocaleString("es-MX", {
+          style: "currency",
+          currency: "MXN"
+        });
+      }
+
+      
+      function getSelectedCourseDetails() {
+        if (!quoteData) return null;
+        const { syllabus, campus, courseId } = quoteData;
+        const byTemario = courseData[syllabus];
+        if (!byTemario) return null;
+        const courses = byTemario[campus];
+        if (!courses) return null;
+        return courses.find(c => c.id === courseId) || null;
+      }
+
+      function getAlternativeCourses(limit = 3) {
+        const selectedCourse = getSelectedCourseDetails();
+        if (!quoteData || !selectedCourse) return [];
+
+        const temario = quoteData.syllabus;
+        const selectedDate = selectedCourse.date;
+        const selectedId = selectedCourse.id;
+        const targetModality = selectedCourse.modality;
+
+        const campuses = courseData[temario] || {};
+        const allCourses = Object.entries(campuses).flatMap(([campusName, campusCourses]) =>
+          campusCourses.map(course => ({
+            ...course,
+            campus: campusName
+          }))
+        );
+
+        return allCourses
+          .filter(course =>
+            course.id !== selectedId &&
+            course.modality === targetModality &&
+            course.date >= selectedDate
+          )
+          .sort((a, b) => {
+            if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+            return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
+          })
+          .slice(0, limit);
+      }
+
+      function generatePDF() {
+
+        if (!quoteData) {
+          showToast("Primero genera una cotización.", "error");
+          return;
+        }
+
+        const registration = parseFloat(
+          document.getElementById("registration-fee").value || "0"
+        );
+        const numPayments = parseInt(
+          document.getElementById("num-payments").value || "0",
+          10
+        );
+
+        if (registration < 1000 || numPayments < 1) {
+          showToast("Corrige los datos de inscripción y mensualidades antes de exportar.", "error");
+          return;
+        }
+
+        if (typeof pdfMake === "undefined") {
+          showToast("Librería de PDF no disponible (pdfMake).", "error");
+          return;
+        }
+
+        if (!currentPricing) {
+          showToast("No se encontró información de precios para esta cotización.", "error");
+          return;
+        }
+
+        const course = getSelectedCourseDetails();
+        const remaining = currentPricing.installment - registration;
+        const monthly = remaining / numPayments;
+
+        const today = new Date();
+        const dateStr =
+          String(today.getDate()).padStart(2, "0") +
+          "/" +
+          String(today.getMonth() + 1).padStart(2, "0") +
+          "/" +
+          today.getFullYear();
+
+        const courseStart = course ? formatIsoToDMY(course.date) : "";
+        const courseEnd = course ? formatIsoToDMY(course.endDate) : "";
+        const alternativeCourses = getAlternativeCourses(3);
+
+        const specialistName = quoteData.specialistName || "";
+        const specialistPhone = quoteData.specialistPhone || "";
+
+        // Colores corporativos
+        const primaryColor = "#4d2668";      // Morado principal Misión Admisión
+        const lightPurple = "#f5f3ff";       // Lila suave para recuadros
+        const borderGray = "#e5e7eb";
+
+        // Colores de acento
+        const accentYellow = "#fff600";
+        const accentDarkBlue = "#2d3289";
+        const accentLightBlue = "#007dff";
+
+        const logoWhite = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABIAQQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//2Q==";
+
+        const docDefinition = {
+          pageMargins: [40, 90, 40, 60],
+          header: function(currentPage, pageCount) {
+            return {
+              margin: [40, 20, 40, 10],
+              table: {
+                widths: ["*"],
+                body: [
+                  [
+                    {
+                      border: [false, false, false, false],
+                      fillColor: primaryColor,
+                      margin: [12, 10, 12, 10],
+                      columns: [
+                        {
+                          width: "*",
+                          text: "Misión Admisión",
+                          style: "headerTitle",
+                          margin: [0, 6, 0, 6],
+                          color: "#ffffff",
+                          alignment: "center"
+                        },
+                        {
+                          width: "auto",
+                          alignment: "right",
+                          stack: [
+                            { text: "Cotización de curso EXANI I / EXANI II", style: "headerSubtitleWhite" },
+                            { text: "Especialista académica: " + (specialistName || "-"), style: "headerContactWhite" },
+                            { text: "Tel. " + (specialistPhone || "-"), style: "headerContactWhite" },
+                            { text: "Fecha de emisión: " + dateStr, style: "headerContactWhite" }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      border: [false, false, false, false],
+                      fillColor: accentYellow,
+                      text: " ",
+                      margin: [0, 0, 0, 0]
+                    }
+                  ]
+                ]
+              },
+              layout: "noBorders"
+            };
+          },          footer: function(currentPage, pageCount) {
+            return {
+              margin: [40, 0, 40, 20],
+              columns: [
+                {
+                  text: "Esta cotización tiene una vigencia de 15 días a partir de su emisión.",
+                  style: "footerText"
+                },
+                {
+                  text: "Página " + currentPage + " de " + pageCount,
+                  style: "footerText",
+                  alignment: "right"
+                }
+              ]
+            };
+          },
+          content: [
+            {
+              canvas: [
+                {
+                  type: "line",
+                  x1: 0,
+                  y1: 0,
+                  x2: 515,
+                  y2: 0,
+                  lineWidth: 2,
+                  lineColor: primaryColor
+                }
+              ],
+              margin: [0, 0, 0, 16]
+            },
+            {
+              text:
+                "Con base en nuestra conversación, le comparto esta cotización esperando que le sea de utilidad para tomar la mejor decisión sobre el curso de preparación.",
+              style: "bodyIntro",
+              bold: true,
+              margin: [0, 0, 0, 10]
+            },
+            {
+              text: "Datos del alumno(a)",
+              style: "blockTitle",
+              margin: [0, 0, 0, 4]
+            },
+            {
+              style: "prospectInfo",
+              margin: [0, 0, 0, 16],
+              stack: [
+                {
+                  text: [
+                    { text: "Nombre del alumno(a): ", bold: true },
+                    { text: quoteData.studentName || "-", bold: false }
+                  ],
+                  margin: [0, 1, 0, 1]
+                },
+                {
+                  text: [
+                    { text: "Temario de interés: ", bold: true },
+                    { text: quoteData.syllabus || "-", bold: false }
+                  ],
+                  margin: [0, 1, 0, 1]
+                },
+                {
+                  text: [
+                    { text: "Campus de interés: ", bold: true },
+                    { text: quoteData.campus || "-", bold: false }
+                  ],
+                  margin: [0, 1, 0, 1]
+                },
+                {
+                  text: [
+                    { text: "Curso seleccionado: ", bold: true },
+                    { text: quoteData.courseName || "-", bold: false }
+                  ],
+                  margin: [0, 1, 0, 1]
+                }
+              ]
+            },
+            {
+              text: "Le comparto a continuación los datos importantes para el curso seleccionado:",
+              style: "bodyText",
+              bold: true,
+              margin: [0, 0, 0, 6]
+            },
+
+            {
+              table: {
+                widths: ["auto", "*", "auto", "*"],
+                body: [
+                  [
+                    { text: "Detalles del curso", style: "blockTitle", colSpan: 4, margin: [8, 6, 8, 6] },
+                    {},
+                    {},
+                    {}
+                  ],
+                  [
+                    { text: "Fecha de inicio", style: "labelCell" },
+                    { text: courseStart || "-", style: "valueCell" },
+                    { text: "Fecha de término", style: "labelCell" },
+                    { text: courseEnd || "-", style: "valueCell" }
+                  ],
+                  [
+                    { text: "Modalidad", style: "labelCell" },
+                    { text: course ? course.modality : "-", style: "valueCell" },
+                    { text: "Días", style: "labelCell" },
+                    { text: course ? course.days : "-", style: "valueCell" }
+                  ],
+                  [
+                    { text: "Horario", style: "labelCell" },
+                    { text: course ? course.schedule : "-", style: "valueCell" },
+                    { text: "Dirección", style: "labelCell" },
+                    { text: course ? course.address : "-", style: "valueCell" }
+                  ],
+                  [
+                    { text: "Ubicación", style: "labelCell" },
+                    { text: course && course.locationUrl ? course.locationUrl : "-", style: "valueCell", colSpan: 3 },
+                    {},
+                    {}
+                  ]
+                ]
+              },
+              layout: {
+                fillColor: function (rowIndex, node, columnIndex) {
+                  return rowIndex === 0 ? lightPurple : null;
+                },
+                hLineColor: function () { return borderGray; },
+                vLineColor: function () { return borderGray; }
+              },
+              margin: [0, 0, 0, 10]
+            },
+            {
+              text: "Los esquemas de pago que hoy tenemos disponibles son:",
+              style: "bodyText",
+              bold: true,
+              margin: [0, 4, 0, 4]
+            },
+            {
+              columns: [
+                {
+                  width: "*",
+                  table: {
+                    widths: ["*"],
+                    body: [
+                      [
+                        { text: "Pago de contado", style: "blockTitle", margin: [8, 6, 8, 6] }
+                      ],
+                      [
+                        {
+                          text:
+                            "Precio total: " +
+                            currentPricing.cash.toLocaleString("es-MX", {
+                              style: "currency",
+                              currency: "MXN"
+                            }),
+                          style: "valueCell"
+                        }
+                      ],
+                      [
+                        {
+                          text: "· Pago único",
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "· Mejor precio disponible",
+                          style: "optionBodyCompact"
+                        }
+                      ]
+                    ]
+                  },
+                  layout: {
+                    hLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
+                    },
+                    vLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
+                    },
+                    hLineColor: function () { return borderGray; },
+                    vLineColor: function () { return borderGray; }
+                  }
+                },
+                {
+                  width: "*",
+                  table: {
+                    widths: ["*"],
+                    body: [
+                      [
+                        { text: "Promoción del mes", style: "blockTitle", margin: [8, 6, 8, 6] }
+                      ],
+                      [
+                        {
+                          text:
+                            "Precio total: " +
+                            currentPricing.installment.toLocaleString("es-MX", {
+                              style: "currency",
+                              currency: "MXN"
+                            }),
+                          style: "valueCell"
+                        }
+                      ],
+                      [
+                        {
+                          text:
+                            "Inscripción: " +
+                            registration.toLocaleString("es-MX", {
+                              style: "currency",
+                              currency: "MXN"
+                            }),
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text:
+                            numPayments +
+                            " mensualidades de: " +
+                            monthly.toLocaleString("es-MX", {
+                              style: "currency",
+                              currency: "MXN"
+                            }),
+                          style: "optionBodyCompact"
+                        }
+                      ]
+                    ]
+                  },
+                  layout: {
+                    hLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
+                    },
+                    vLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
+                    },
+                    hLineColor: function () { return borderGray; },
+                    vLineColor: function () { return borderGray; }
+                  }
+                }
+              ],
+              columnGap: 16,
+              margin: [0, 0, 0, 24]
+            },
+            {
+              margin: [0, 0, 0, 8],
+              table: {
+                widths: ["*"],
+                body: [
+                  [
+                    {
+                      border: [false, false, false, false],
+                      fillColor: lightPurple,
+                      margin: [10, 10, 10, 10],
+                      stack: [
+                        { text: "Datos para depósito o transferencia", style: "blockTitle", margin: [0, 0, 0, 4] },
+                        { text: "BBVA Bancomer", style: "bankName", margin: [0, 2, 0, 2] },
+                        { text: "CLABE: 012910001106113871", style: "valueCell" },
+                        { text: "Beneficiario: Grupo KX S.A. de C.V.", style: "valueCell", margin: [0, 0, 0, 6] },
+                        {
+                          text:
+                            "En concepto o motivo de pago, anotar el nombre del alumno y compartir la captura del comprobante por WhatsApp, donde sean visibles los siguientes datos:",
+                          style: "optionBody",
+                          margin: [0, 4, 0, 4]
+                        },
+                        {
+                          ul: [
+                            "Fecha",
+                            "Hora",
+                            "Folio o referencia",
+                            "Concepto o motivo de pago con nombre del alumno"
+                          ],
+                          style: "optionBody",
+                          margin: [8, 0, 0, 0]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              },
+              layout: "noBorders"
+            },
+            {
+              margin: [0, 8, 0, 0],
+              columns: [
+                {
+                  width: "*",
+                  stack: [
+                    {
+                      canvas: [
+                        {
+                          type: "line",
+                          x1: 0,
+                          y1: 0,
+                          x2: 220,
+                          y2: 0,
+                          lineWidth: 0.8,
+                          lineColor: "#4b5563"
+                        }
+                      ],
+                      margin: [0, 0, 0, 6]
+                    },
+                    {
+                      text: quoteData.specialistName || "Especialista académica",
+                      style: "footerText",
+                      bold: true,
+                      fontSize: 10,
+                      margin: [0, 1, 0, 1]
+                    },
+                    {
+                      text: "especialista@misionadmision.com",
+                      style: "footerText",
+                      bold: true,
+                      fontSize: 9,
+                      margin: [0, 1, 0, 1]
+                    },
+                    {
+                      text: [
+                        {
+                          text: "WhatsApp",
+                          link: "https://wa.me/52" + (specialistPhone || ""),
+                          color: accentLightBlue,
+                          decoration: "underline"
+                        },
+                        { text: "  ·  Horarios de atención", color: "#6b7280" }
+                      ],
+                      style: "footerText",
+                      bold: true,
+                      fontSize: 9,
+                      margin: [0, 1, 0, 1]
+                    },
+                    {
+                      text: "De lunes a viernes de 8:30 a 13:30 y de 14:30 a 17:30",
+                      style: "footerText",
+                      bold: true,
+                      fontSize: 9,
+                      margin: [0, 1, 0, 1]
+                    },
+                    {
+                      text: "Sábados de 8:30 a 13:30",
+                      style: "footerText",
+                      bold: true,
+                      fontSize: 9,
+                      margin: [0, 1, 0, 1]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              pageBreak: "before",
+              margin: [0, 12, 0, 12],
+              table: {
+                widths: ["*"],
+                body: [
+                  [
+                    {
+                      fillColor: lightPurple,
+                      margin: [12, 10, 12, 10],
+                      stack: [
+                        {
+                          text: "IMPORTANTE",
+                          style: "altCalloutTitle",
+                          margin: [0, 0, 0, 4]
+                        },
+                        {
+                          text: "Si el curso seleccionado si no se ajusta a sus necesidades, estas opciones son cursos alternativos disponibles dentro de la misma modalidad para que pueda elegir la que mejor se ajuste a sus horarios.",
+                          style: "altCalloutText"
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              },
+              layout: {
+                hLineWidth: function(i, node) { return 0.8; },
+                vLineWidth: function(i, node) { return 0.8; },
+                hLineColor: function() { return primaryColor; },
+                vLineColor: function() { return primaryColor; }
+              }
+            },
+            ...(
+              alternativeCourses.length
+                ? alternativeCourses.flatMap((alt, idxAlt) => ([
+                    {
+                      table: {
+                        widths: ["auto", "*", "auto", "*"],
+                        body: [
+                          [
+                            { text: "Curso alternativo " + (idxAlt + 1), style: "blockTitle", colSpan: 4, margin: [8, 6, 8, 6] },
+                            {},
+                            {},
+                            {}
+                          ],
+                          [
+                            { text: "Curso", style: "labelCell" },
+                            { text: alt.name || "-", style: "valueCell" },
+                            { text: "Campus", style: "labelCell" },
+                            { text: alt.campus || "-", style: "valueCell" }
+                          ],
+                          [
+                            { text: "Inicio", style: "labelCell" },
+                            { text: formatIsoToDMY(alt.date) || "-", style: "valueCell" },
+                            { text: "Días / horario", style: "labelCell" },
+                            { text: ((alt.days || "-") + " · " + (alt.schedule || "-")), style: "valueCell" }
+                          ],
+                          [
+                            { text: "Dirección", style: "labelCell" },
+                            { text: alt.address || "-", style: "valueCell", colSpan: 3 },
+                            {},
+                            {}
+                          ]
+                        ]
+                      },
+                      layout: {
+                        fillColor: function (rowIndex, node, columnIndex) {
+                          return rowIndex === 0 ? lightPurple : null;
+                        },
+                        hLineColor: function () { return borderGray; },
+                        vLineColor: function () { return borderGray; }
+                      },
+                      margin: [0, 0, 0, idxAlt === alternativeCourses.length - 1 ? 12 : 8]
+                    }
+                  ]))
+                : [
+                    {
+                      table: {
+                        widths: ["*"],
+                        body: [
+                          [
+                            { text: "Cursos alternativos sugeridos", style: "blockTitle", margin: [8, 6, 8, 6] }
+                          ],
+                          [
+                            { text: "Por el momento no contamos con otras opciones registradas en esta misma modalidad.", style: "valueCell" }
+                          ]
+                        ]
+                      },
+                      layout: {
+                        fillColor: function (rowIndex, node, columnIndex) {
+                          return rowIndex === 0 ? lightPurple : null;
+                        },
+                        hLineColor: function () { return borderGray; },
+                        vLineColor: function () { return borderGray; }
+                      },
+                      margin: [0, 0, 0, 12]
+                    }
+                  ]
+            )
+          ],
+
+
+          styles: {
+            headerTitle: { fontSize: 24, bold: true, color: primaryColor },
+            headerSubtitle: { fontSize: 11, color: "#111827" },
+            headerContact: { fontSize: 9, color: "#6b7280" },
+            headerSubtitleWhite: { fontSize: 11, color: "#e5e7eb" },
+            headerContactWhite: { fontSize: 9, color: "#e5e7eb" },
+            blockTitle: { fontSize: 11, bold: true, color: "#4b5563" },
+            bankName: { fontSize: 11, bold: true, color: accentDarkBlue },
+            labelCell: { fontSize: 9, bold: true, color: "#6b7280", margin: [6, 3, 4, 3] },
+            valueCell: { fontSize: 9, color: "#111827", margin: [6, 3, 4, 3] },
+            optionBody: { fontSize: 9, color: "#374151", margin: [6, 2, 4, 2] },
+            optionBodyCompact: { fontSize: 8.5, color: "#374151", margin: [6, 1, 4, 1] },
+            footerText: { fontSize: 8, color: "#6b7280" },
+            bodyIntro: { fontSize: 9, color: "#374151" },
+            bodyText: { fontSize: 9, color: "#374151" },
+            altCalloutTitle: { fontSize: 13, bold: true, color: primaryColor },
+            altCalloutText: { fontSize: 10.5, bold: true, color: "#111827" },
+            prospectInfo: { fontSize: 9, color: "#111827" }
+          },
+          defaultStyle: {
+            fontSize: 9
+          }
+        };
+;
+
+        const safeName =
+          (quoteData.studentName || "curso")
+            .toString()
+            .trim()
+            .replace(/[^a-z0-9_\-]+/gi, "_") || "curso";
+
+        const fileName = "Descripcion_de_curso_para_" + safeName + ".pdf";
+
+        const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+        pdfDocGenerator.download(fileName);
+
+        showToast("PDF generado, revisa tus descargas.", "success");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+
+        const specialistSelect = document.getElementById("specialist");
+        const syllabusSelect = document.getElementById("syllabus");
+        const campusSelect = document.getElementById("campus");
+        const courseSelect = document.getElementById("course-date");
+        const quoteForm = document.getElementById("quote-form");
+        const quoteResults = document.getElementById("quote-results");
+        const registrationInput = document.getElementById("registration-fee");
+        const numPaymentsInput = document.getElementById("num-payments");
+        const exportBtn = document.getElementById("export-pdf");
+
+        syllabusSelect.addEventListener("change", () => {
+          updateCampusOptions();
+        });
+
+        campusSelect.addEventListener("change", () => {
+          updateCourseOptions();
+        });
+
+        courseSelect.addEventListener("change", () => {
+          updatePaymentLimits();
+        });
+
+        registrationInput.addEventListener("input", () => {
+          calculateInstallments();
+        });
+
+        numPaymentsInput.addEventListener("input", () => {
+          updatePaymentLimits();
+          calculateInstallments();
+        });
+
+        quoteForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const studentName = document.getElementById("student-name").value.trim();
+          const syllabus = syllabusSelect.value;
+          const campus = campusSelect.value;
+          const courseOption = courseSelect.options[courseSelect.selectedIndex];
+          const specialistKey = specialistSelect.value;
+          const specialist = specialists[specialistKey] || { name: specialistKey, phone: "" };
+
+          if (!studentName || !specialistKey || !syllabus || !campus || !courseOption.value) {
+            showToast("Completa todos los datos del formulario.", "error");
+            return;
+          }
+
+          quoteData = {
+            studentName,
+            syllabus,
+            campus,
+            courseId: courseOption.value,
+            courseName: courseOption.dataset.courseName || courseOption.textContent,
+            specialistKey,
+            specialistName: specialist.name || specialistKey,
+            specialistPhone: specialist.phone || ""
+          };
+
+          const course = getSelectedCourseDetails();
+
+          document.getElementById("summary-name").textContent = quoteData.studentName;
+          document.getElementById("summary-syllabus").textContent = quoteData.syllabus;
+          document.getElementById("summary-campus").textContent = quoteData.campus;
+          document.getElementById("summary-date").textContent = quoteData.courseName;
+          document.getElementById("summary-schedule").textContent = course ? course.schedule : "-";
+          document.getElementById("summary-days").textContent = course ? course.days : "-";
+          document.getElementById("summary-modality").textContent = course ? course.modality : "-";
+          document.getElementById("summary-address").textContent = course ? course.address : "-";
+          document.getElementById("summary-specialist").textContent = quoteData.specialistName || "-";
+          document.getElementById("summary-specialist-phone").textContent = quoteData.specialistPhone || "-";
+
+          currentPricing = getPricingForQuote();
+          if (!currentPricing) {
+            showToast("No se encontró una regla de precio para esta combinación de temario, modalidad y fecha.", "error");
+            return;
+          }
+
+          updateDisplayPrices();
+          quoteResults.classList.remove("hidden");
+          calculateInstallments();
+        });
+
+        exportBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          generatePDF();
+        });
+      });
+    
+</script>
+  </body>
+</html>
