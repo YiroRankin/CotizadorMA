@@ -122,6 +122,20 @@
                 </select>
               </div>
 
+              <div>
+                <label for="course-schedule" class="block text-sm font-medium text-slate-700 mb-1">
+                  Horario
+                </label>
+                <select
+                  id="course-schedule"
+                  required
+                  disabled
+                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                >
+                  <option value="">Selecciona un horario</option>
+                </select>
+              </div>
+
               <button
                 type="submit"
                 class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold py-2.5 mt-2 hover:bg-indigo-700 transition-colors"
@@ -136,98 +150,133 @@
           <section id="quote-results" class="hidden">
             <!-- Payment Options -->
             <div class="space-y-4 mb-4">
-              <div class="grid gap-4">
+              <div class="grid gap-4 md:grid-cols-3 items-stretch">
                 <!-- Cash Payment -->
-                <article class="quote-card border border-emerald-100 rounded-2xl p-4 bg-emerald-50/70">
-                  <div class="flex items-center justify-between mb-2">
+                <article class="quote-card border border-emerald-100 rounded-2xl p-0 bg-emerald-50/70 flex flex-col h-full overflow-hidden">
+                  <div class="min-h-[64px] px-4 py-3 border-b border-emerald-100 flex items-center justify-between bg-white/40">
                     <h3 class="text-base font-semibold text-emerald-900">
                       Pago de contado
                     </h3>
                     <span class="text-xl">💵</span>
                   </div>
-                  <p class="text-xs text-emerald-800 mb-1">Precio total</p>
-                  <p id="cash-price" class="text-2xl font-extrabold text-emerald-900">$6,600.00</p>
-                  <ul class="mt-3 text-xs text-emerald-900 space-y-1">
-                    <li>✅ Pago único</li>
-                    <li>✅ Mejor precio disponible</li>
-                  </ul>
+                  <div class="flex-1 px-4 py-4">
+                    <p class="text-xs text-emerald-800 mb-1">Precio total</p>
+                    <p id="cash-price" class="text-2xl font-extrabold text-emerald-900">$6,600.00</p>
+                    <div class="mt-3 space-y-1 text-xs text-emerald-900">
+                      <p>Precio de lista: <span id="list-price-cash" class="font-semibold">$0.00</span></p>
+                      <p>Descuento aplicado: <span id="cash-discount" class="font-semibold">0%</span></p>
+                    </div>
+                    <ul class="mt-3 text-xs text-emerald-900 space-y-1">
+                      <li>✅ Pago único</li>
+                      <li>✅ Mejor precio disponible</li>
+                    </ul>
+                  </div>
                 </article>
 
-                <!-- Installment Payment -->
-                <article class="quote-card border border-indigo-100 rounded-2xl p-4 bg-indigo-50/70">
-                  <div class="flex items-center justify-between mb-2">
+                <!-- Plan de pagos -->
+                <article class="quote-card border border-indigo-100 rounded-2xl p-0 bg-indigo-50/70 flex flex-col h-full overflow-hidden">
+                  <div class="min-h-[64px] px-4 py-3 border-b border-indigo-100 flex items-center justify-between bg-white/40">
                     <h3 class="text-base font-semibold text-indigo-900">
-                      Promoción del mes
+                      Plan de pagos
                     </h3>
                     <span class="text-xl">📅</span>
                   </div>
 
-                  <p class="text-xs text-indigo-800 mb-1">Precio total</p>
-                  <p id="total-installment" class="text-2xl font-extrabold text-indigo-900">
-                    $7,150.00
-                  </p>
+                  <div class="flex-1 px-4 py-4">
+                    <p class="text-xs text-indigo-800 mb-1">Precio total</p>
+                    <p id="total-installment" class="text-2xl font-extrabold text-indigo-900">
+                      $7,150.00
+                    </p>
 
-                  <div class="mt-3 space-y-3 border-t border-indigo-100 pt-3">
-                    <div>
-                      <label
-                        for="registration-fee"
-                        class="block text-xs font-medium text-indigo-900 mb-1"
-                      >
-                        Inscripción
-                      </label>
-                      <div class="flex items-center gap-1">
-                        <span class="text-xs text-indigo-900">$</span>
+                    <div class="mt-3 space-y-3 border-t border-indigo-100 pt-3">
+                      <div class="space-y-1 text-xs text-indigo-900">
+                        <p>Precio de lista: <span id="list-price-plan" class="font-semibold">$0.00</span></p>
+                        <p>Descuento aplicado: <span id="plan-discount" class="font-semibold">0%</span></p>
+                      </div>
+                      <div>
+                        <label
+                          for="registration-fee"
+                          class="block text-xs font-medium text-indigo-900 mb-1"
+                        >
+                          Inscripción
+                        </label>
+                        <div class="flex items-center gap-1 w-full min-w-0">
+                          <span class="text-xs text-indigo-900 shrink-0">$</span>
+                          <input
+                            type="number"
+                            id="registration-fee"
+                            value="1500"
+                            min="1000"
+                            step="100"
+                            class="w-full min-w-0 px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                          />
+                        </div>
+                        <p
+                          id="registration-error"
+                          class="hidden text-[11px] text-red-600 mt-1"
+                        >
+                          ⚠️ La inscripción no debe ser inferior a $1,000.00
+                        </p>
+                      </div>
+
+                      <div>
+                        <label
+                          for="num-payments"
+                          class="block text-xs font-medium text-indigo-900 mb-1"
+                        >
+                          Mensualidades (1 a 5*)
+                        </label>
                         <input
                           type="number"
-                          id="registration-fee"
-                          value="1500"
-                          min="1000"
-                          step="100"
-                          class="flex-1 px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                          id="num-payments"
+                          value="4"
+                          min="1"
+                          max="5"
+                          class="w-full min-w-0 px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                         />
+                        <p
+                          id="payments-error"
+                          class="hidden text-[11px] text-red-600 mt-1"
+                        >
+                          ⚠️ <span id="payments-error-text"></span>
+                        </p>
                       </div>
-                      <p
-                        id="registration-error"
-                        class="hidden text-[11px] text-red-600 mt-1"
-                      >
-                        ⚠️ La inscripción no debe ser inferior a $1,000.00
-                      </p>
-                    </div>
 
-                    <div>
-                      <label
-                        for="num-payments"
-                        class="block text-xs font-medium text-indigo-900 mb-1"
-                      >
-                        Mensualidades (1 a 5*)
-                      </label>
-                      <input
-                        type="number"
-                        id="num-payments"
-                        value="4"
-                        min="1"
-                        max="5"
-                        class="w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                      />
-                      <p
-                        id="payments-error"
-                        class="hidden text-[11px] text-red-600 mt-1"
-                      >
-                        ⚠️ <span id="payments-error-text"></span>
+                      <div class="bg-white/70 border border-dashed border-indigo-200 rounded-xl px-3 py-2">
+                        <p class="text-xs text-indigo-900">
+                          Pago mensual estimado:
+                          <span id="monthly-payment" class="font-bold">
+                            $1,500.00
+                          </span>
+                        </p>
+                      </div>
+                      <p class="text-[10px] text-indigo-700 leading-4">
+                        * Se pueden agendar hasta 5 mensualidades, solo cuidar que las mensualidades no excedan el mes de abril de 2027
                       </p>
                     </div>
+                  </div>
+                </article>
 
-                    <div class="bg-white/70 border border-dashed border-indigo-200 rounded-xl px-3 py-2">
-                      <p class="text-xs text-indigo-900">
-                        Pago mensual estimado:
-                        <span id="monthly-payment" class="font-bold">
-                          $1,500.00
-                        </span>
-                      </p>
-                    </div>
-                    <p class="text-[10px] text-indigo-700">
-                      * Se pueden agendar hasta 5 mensualidades, solo cuidar que las mensualidades no excedan el mes de abril de 2027
+                <!-- MSI -->
+                <article class="quote-card border border-sky-100 rounded-2xl p-0 bg-sky-50/70 flex flex-col h-full overflow-hidden">
+                  <div class="min-h-[64px] px-4 py-3 border-b border-sky-100 flex items-center justify-between bg-white/40">
+                    <h3 class="text-base font-semibold text-sky-900">
+                      Meses sin intereses
+                    </h3>
+                    <span class="text-xl">💳</span>
+                  </div>
+
+                  <div class="flex-1 px-4 py-4">
+                    <p class="text-xs text-sky-800 mb-1">Precio de lista</p>
+                    <p id="msi-list-price" class="text-2xl font-extrabold text-sky-900">
+                      $0.00
                     </p>
+
+                    <div class="mt-3 space-y-1 border-t border-sky-100 pt-3 text-xs text-sky-900">
+                      <p>6 MSI: <span id="msi-6" class="font-semibold">$0.00</span></p>
+                      <p>9 MSI: <span id="msi-9" class="font-semibold">$0.00</span></p>
+                      <p>12 MSI: <span id="msi-12" class="font-semibold">$0.00</span></p>
+                    </div>
                   </div>
                 </article>
               </div>
@@ -305,67 +354,179 @@
       const pricingRules = [
   {
     "temario": "EXANI II",
-    "modality": "Virtual",
-    "from": "2026-03-01",
-    "to": "2026-03-31",
-    "cash": 4750.0,
-    "installment": 4750.0
-  },
-  {
-    "temario": "EXANI I",
-    "modality": "Virtual",
-    "from": "2026-03-01",
-    "to": "2026-03-31",
-    "cash": 4125.0,
-    "installment": 4125.0
-  },
-  {
-    "temario": "EXANI II",
     "modality": "Presencial",
     "from": "2026-03-01",
     "to": "2026-03-31",
+    "listPrice": 11500.0,
     "cash": 5750.0,
-    "installment": 5750.0
+    "cashDiscount": 50.0,
+    "installment": 5750.0,
+    "installmentDiscount": 50.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Virtual",
+    "from": "2026-03-01",
+    "to": "2026-03-31",
+    "listPrice": 9700.0,
+    "cash": 4850.0,
+    "cashDiscount": 50.0,
+    "installment": 4850.0,
+    "installmentDiscount": 50.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Presencial",
+    "from": "2026-04-01",
+    "to": "2026-04-30",
+    "listPrice": 11500.0,
+    "cash": 6325.0,
+    "cashDiscount": 45.0,
+    "installment": 6325.0,
+    "installmentDiscount": 45.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Virtual",
+    "from": "2026-04-01",
+    "to": "2026-04-30",
+    "listPrice": 9700.0,
+    "cash": 5335.0,
+    "cashDiscount": 45.0,
+    "installment": 5335.0,
+    "installmentDiscount": 45.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Presencial",
+    "from": "2026-05-01",
+    "to": "2026-05-31",
+    "listPrice": 11500.0,
+    "cash": 6900.0,
+    "cashDiscount": 40.0,
+    "installment": 6900.0,
+    "installmentDiscount": 40.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Virtual",
+    "from": "2026-05-01",
+    "to": "2026-05-31",
+    "listPrice": 9700.0,
+    "cash": 5820.0,
+    "cashDiscount": 40.0,
+    "installment": 5820.0,
+    "installmentDiscount": 40.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Presencial",
+    "from": "2026-06-01",
+    "to": "2026-06-30",
+    "listPrice": 11500.0,
+    "cash": 6900.0,
+    "cashDiscount": 40.0,
+    "installment": 7475.0,
+    "installmentDiscount": 35.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Virtual",
+    "from": "2026-06-01",
+    "to": "2026-06-30",
+    "listPrice": 9700.0,
+    "cash": 5820.0,
+    "cashDiscount": 40.0,
+    "installment": 6305.0,
+    "installmentDiscount": 35.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Presencial",
+    "from": "2026-07-01",
+    "to": "2026-08-31",
+    "listPrice": 11500.0,
+    "cash": 6900.0,
+    "cashDiscount": 40.0,
+    "installment": 8050.0,
+    "installmentDiscount": 30.0
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Virtual",
+    "from": "2026-07-01",
+    "to": "2026-08-31",
+    "listPrice": 9700.0,
+    "cash": 5820.0,
+    "cashDiscount": 40.0,
+    "installment": 6790.0,
+    "installmentDiscount": 30.0
   },
   {
     "temario": "EXANI I",
     "modality": "Presencial",
     "from": "2026-03-01",
-    "to": "2026-03-31",
-    "cash": 4875.0,
-    "installment": 4875.0
-  },
-  {
-    "temario": "EXANI II",
-    "modality": "Virtual",
-    "from": "2026-04-01",
     "to": "2026-04-30",
-    "cash": 4875.0,
-    "installment": 5225.0
+    "listPrice": 6700.0,
+    "cash": 5025.0,
+    "cashDiscount": 25.0,
+    "installment": 5025.0,
+    "installmentDiscount": 25.0
   },
   {
     "temario": "EXANI I",
     "modality": "Virtual",
-    "from": "2026-04-01",
+    "from": "2026-03-01",
     "to": "2026-04-30",
-    "cash": 4125.0,
-    "installment": 4125.0
-  },
-  {
-    "temario": "EXANI II",
-    "modality": "Presencial",
-    "from": "2026-04-01",
-    "to": "2026-04-30",
-    "cash": 5750.0,
-    "installment": 6325.0
+    "listPrice": 5700.0,
+    "cash": 4275.0,
+    "cashDiscount": 25.0,
+    "installment": 4275.0,
+    "installmentDiscount": 25.0
   },
   {
     "temario": "EXANI I",
     "modality": "Presencial",
-    "from": "2026-04-01",
-    "to": "2026-04-30",
-    "cash": 4875.0,
-    "installment": 4875.0
+    "from": "2026-05-01",
+    "to": "2026-06-30",
+    "listPrice": 6700.0,
+    "cash": 5360.0,
+    "cashDiscount": 20.0,
+    "installment": 5360.0,
+    "installmentDiscount": 20.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Virtual",
+    "from": "2026-05-01",
+    "to": "2026-06-30",
+    "listPrice": 5700.0,
+    "cash": 4560.0,
+    "cashDiscount": 20.0,
+    "installment": 4560.0,
+    "installmentDiscount": 20.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Presencial",
+    "from": "2026-07-01",
+    "to": "2026-08-31",
+    "listPrice": 6700.0,
+    "cash": 5360.0,
+    "cashDiscount": 20.0,
+    "installment": 5695.0,
+    "installmentDiscount": 15.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Virtual",
+    "from": "2026-07-01",
+    "to": "2026-08-31",
+    "listPrice": 5700.0,
+    "cash": 4560.0,
+    "cashDiscount": 20.0,
+    "installment": 4845.0,
+    "installmentDiscount": 15.0
   }
 ];
       function todayIso() {
@@ -379,25 +540,32 @@
       function findPricing(temario, modality, dateIso) {
         const date = dateIso || todayIso();
 
-        // 1) Búsqueda exacta por temario y modalidad
-        let match = pricingRules.find(rule =>
+        let exactMatches = pricingRules.filter(rule =>
           rule.temario === temario &&
-          rule.modality === modality &&
+          rule.modality === modality
+        );
+
+        let match = exactMatches.find(rule =>
           date >= rule.from &&
           date <= rule.to
         );
 
-        // 2) Fallback: reglas generales por modalidad (temario = "*"), si en el futuro existieran
         if (!match) {
-          match = pricingRules.find(rule =>
+          const genericMatches = pricingRules.filter(rule =>
             rule.temario === "*" &&
-            rule.modality === modality &&
+            rule.modality === modality
+          );
+          match = genericMatches.find(rule =>
             date >= rule.from &&
             date <= rule.to
           );
         }
 
-        // 3) Fallback final: primera regla de la tabla
+        if (!match && exactMatches.length) {
+          exactMatches = exactMatches.sort((a, b) => (a.to < b.to ? -1 : a.to > b.to ? 1 : 0));
+          match = exactMatches[exactMatches.length - 1];
+        }
+
         return match || pricingRules[0];
       }
 
@@ -407,6 +575,31 @@ function formatIsoToDMY(iso) {
         if (parts.length !== 3) return iso;
         const [y, m, d] = parts;
         return String(d).padStart(2, "0") + "/" + String(m).padStart(2, "0") + "/" + y;
+      }
+
+      function formatCurrencyMXN(value) {
+        return Number(value || 0).toLocaleString("es-MX", {
+          style: "currency",
+          currency: "MXN"
+        });
+      }
+
+      function getVigenciaQuincena(date = new Date()) {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const day = date.getDate();
+        const lastDay = new Date(year, month + 1, 0).getDate();
+
+        let dueDate;
+        if (day < 15) {
+          dueDate = new Date(year, month, 15);
+        } else if (day < lastDay) {
+          dueDate = new Date(year, month, lastDay);
+        } else {
+          dueDate = new Date(year, month + 1, 15);
+        }
+
+        return dueDate;
       }
 
       function showToast(message, type = "error", duration = 3000) {
@@ -605,22 +798,32 @@ const courseData = {
         if (!currentPricing) return;
         const cashPriceEl = document.getElementById("cash-price");
         const totalInstallmentEl = document.getElementById("total-installment");
+        const listPriceCashEl = document.getElementById("list-price-cash");
+        const listPricePlanEl = document.getElementById("list-price-plan");
+        const cashDiscountEl = document.getElementById("cash-discount");
+        const planDiscountEl = document.getElementById("plan-discount");
+        const msiListPriceEl = document.getElementById("msi-list-price");
+        const msi6El = document.getElementById("msi-6");
+        const msi9El = document.getElementById("msi-9");
+        const msi12El = document.getElementById("msi-12");
 
-        cashPriceEl.textContent = currentPricing.cash.toLocaleString("es-MX", {
-          style: "currency",
-          currency: "MXN"
-        });
-
-        totalInstallmentEl.textContent = currentPricing.installment.toLocaleString("es-MX", {
-          style: "currency",
-          currency: "MXN"
-        });
+        cashPriceEl.textContent = formatCurrencyMXN(currentPricing.cash);
+        totalInstallmentEl.textContent = formatCurrencyMXN(currentPricing.installment);
+        listPriceCashEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
+        listPricePlanEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
+        cashDiscountEl.textContent = (currentPricing.cashDiscount || 0) + "%";
+        planDiscountEl.textContent = (currentPricing.installmentDiscount || 0) + "%";
+        msiListPriceEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
+        msi6El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 6);
+        msi9El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 9);
+        msi12El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 12);
       }
 
       function updateCampusOptions() {
         const syllabus = document.getElementById("syllabus").value;
         const campusSelect = document.getElementById("campus");
         const courseSelect = document.getElementById("course-date");
+        const scheduleSelect = document.getElementById("course-schedule");
 
         campusSelect.innerHTML = '<option value="">Selecciona un campus</option>';
         courseSelect.innerHTML = '<option value="">Selecciona un curso</option>';
@@ -643,23 +846,34 @@ const courseData = {
       }
 
       
+      
       function updateCourseOptions() {
         const syllabus = document.getElementById("syllabus").value;
         const campus = document.getElementById("campus").value;
         const courseSelect = document.getElementById("course-date");
+        const scheduleSelect = document.getElementById("course-schedule");
 
         courseSelect.innerHTML = '<option value="">Selecciona un curso</option>';
+        scheduleSelect.innerHTML = '<option value="">Selecciona un horario</option>';
+        scheduleSelect.disabled = true;
 
         if (syllabus && campus && courseData[syllabus] && courseData[syllabus][campus]) {
           const courses = courseData[syllabus][campus]
             .slice()
             .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 
+          const grouped = new Map();
           courses.forEach(course => {
+            const key = course.name + "|" + course.date;
+            if (!grouped.has(key)) grouped.set(key, []);
+            grouped.get(key).push(course);
+          });
+
+          [...grouped.entries()].forEach(([key, groupedCourses]) => {
             const opt = document.createElement("option");
-            opt.value = course.id;
-            opt.textContent = course.name;
-            opt.dataset.courseName = course.name;
+            opt.value = key;
+            opt.textContent = groupedCourses[0].name;
+            opt.dataset.courseName = groupedCourses[0].name;
             courseSelect.appendChild(opt);
           });
           courseSelect.disabled = false;
@@ -667,12 +881,44 @@ const courseData = {
           courseSelect.disabled = true;
         }
 
+        updateScheduleOptions();
         updatePaymentLimits();
       }
 
-      
-      
+      function updateScheduleOptions() {
+        const syllabus = document.getElementById("syllabus").value;
+        const campus = document.getElementById("campus").value;
+        const selectedCourseKey = document.getElementById("course-date").value;
+        const scheduleSelect = document.getElementById("course-schedule");
+
+        scheduleSelect.innerHTML = '<option value="">Selecciona un horario</option>';
+
+        if (!(syllabus && campus && selectedCourseKey && courseData[syllabus] && courseData[syllabus][campus])) {
+          scheduleSelect.disabled = true;
+          return;
+        }
+
+        const matches = courseData[syllabus][campus]
+          .filter(course => (course.name + "|" + course.date) === selectedCourseKey)
+          .sort((a, b) => (a.schedule || "").localeCompare(b.schedule || "", "es", { sensitivity: "base" }));
+
+        matches.forEach(course => {
+          const opt = document.createElement("option");
+          opt.value = course.id;
+          opt.textContent = (course.days || "-") + " · " + (course.schedule || "-");
+          opt.dataset.courseName = course.name;
+          scheduleSelect.appendChild(opt);
+        });
+
+        scheduleSelect.disabled = false;
+
+        if (matches.length === 1) {
+          scheduleSelect.value = matches[0].id;
+        }
+      }
+
       function updatePaymentLimits() {
+
         const numPaymentsInput = document.getElementById("num-payments");
         const paymentsError = document.getElementById("payments-error");
         const paymentsErrorText = document.getElementById("payments-error-text");
@@ -816,12 +1062,26 @@ const courseData = {
           "/" +
           today.getFullYear();
 
+        const vigenciaDate = getVigenciaQuincena(today);
+        const vigenciaStr =
+          String(vigenciaDate.getDate()).padStart(2, "0") +
+          "/" +
+          String(vigenciaDate.getMonth() + 1).padStart(2, "0") +
+          "/" +
+          vigenciaDate.getFullYear();
+
         const courseStart = course ? formatIsoToDMY(course.date) : "";
         const courseEnd = course ? formatIsoToDMY(course.endDate) : "";
         const alternativeCourses = getAlternativeCourses(3);
 
         const specialistName = quoteData.specialistName || "";
         const specialistPhone = quoteData.specialistPhone || "";
+        const listPriceStr = formatCurrencyMXN(currentPricing.listPrice);
+        const cashPriceStr = formatCurrencyMXN(currentPricing.cash);
+        const planPriceStr = formatCurrencyMXN(currentPricing.installment);
+        const msi6Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 6);
+        const msi9Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 9);
+        const msi12Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 12);
 
         // Colores corporativos
         const primaryColor = "#4d2668";      // Morado principal Misión Admisión
@@ -887,7 +1147,7 @@ const courseData = {
               margin: [40, 0, 40, 20],
               columns: [
                 {
-                  text: "Esta cotización tiene una vigencia de 15 días a partir de su emisión.",
+                  text: "Esta cotización tiene vigencia hasta el " + vigenciaStr + ".",
                   style: "footerText"
                 },
                 {
@@ -999,6 +1259,12 @@ const courseData = {
                     { text: course && course.locationUrl ? course.locationUrl : "-", style: "valueCell", colSpan: 3 },
                     {},
                     {}
+                  ],
+                  [
+                    { text: "Precio de lista", style: "labelCell" },
+                    { text: listPriceStr, style: "valueCell", colSpan: 3 },
+                    {},
+                    {}
                   ]
                 ]
               },
@@ -1029,24 +1295,25 @@ const courseData = {
                       ],
                       [
                         {
-                          text:
-                            "Precio total: " +
-                            currentPricing.cash.toLocaleString("es-MX", {
-                              style: "currency",
-                              currency: "MXN"
-                            }),
-                          style: "valueCell"
-                        }
-                      ],
-                      [
-                        {
-                          text: "· Pago único",
+                          text: "Precio de lista: " + listPriceStr,
                           style: "optionBodyCompact"
                         }
                       ],
                       [
                         {
-                          text: "· Mejor precio disponible",
+                          text: "Hoy pagaría: " + cashPriceStr,
+                          style: "valueCell"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Descuento aplicado: " + (currentPricing.cashDiscount || 0) + "%",
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "· Pago único",
                           style: "optionBodyCompact"
                         }
                       ]
@@ -1069,39 +1336,80 @@ const courseData = {
                     widths: ["*"],
                     body: [
                       [
-                        { text: "Promoción del mes", style: "blockTitle", margin: [8, 6, 8, 6] }
+                        { text: "Plan de pagos", style: "blockTitle", margin: [8, 6, 8, 6] }
                       ],
                       [
                         {
-                          text:
-                            "Precio total: " +
-                            currentPricing.installment.toLocaleString("es-MX", {
-                              style: "currency",
-                              currency: "MXN"
-                            }),
-                          style: "valueCell"
-                        }
-                      ],
-                      [
-                        {
-                          text:
-                            "Inscripción: " +
-                            registration.toLocaleString("es-MX", {
-                              style: "currency",
-                              currency: "MXN"
-                            }),
+                          text: "Precio de lista: " + listPriceStr,
                           style: "optionBodyCompact"
                         }
                       ],
                       [
                         {
-                          text:
-                            numPayments +
-                            " mensualidades de: " +
-                            monthly.toLocaleString("es-MX", {
-                              style: "currency",
-                              currency: "MXN"
-                            }),
+                          text: "Hoy pagaría: " + planPriceStr,
+                          style: "valueCell"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Descuento aplicado: " + (currentPricing.installmentDiscount || 0) + "%",
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Inscripción: " + formatCurrencyMXN(registration),
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: numPayments + " mensualidades de: " + formatCurrencyMXN(monthly),
+                          style: "optionBodyCompact"
+                        }
+                      ]
+                    ]
+                  },
+                  layout: {
+                    hLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
+                    },
+                    vLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
+                    },
+                    hLineColor: function () { return borderGray; },
+                    vLineColor: function () { return borderGray; }
+                  }
+                },
+                {
+                  width: "*",
+                  table: {
+                    widths: ["*"],
+                    body: [
+                      [
+                        { text: "Meses sin intereses", style: "blockTitle", margin: [8, 6, 8, 6] }
+                      ],
+                      [
+                        {
+                          text: "Precio de lista: " + listPriceStr,
+                          style: "valueCell"
+                        }
+                      ],
+                      [
+                        {
+                          text: "6 MSI de: " + msi6Str,
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "9 MSI de: " + msi9Str,
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "12 MSI de: " + msi12Str,
                           style: "optionBodyCompact"
                         }
                       ]
@@ -1119,7 +1427,7 @@ const courseData = {
                   }
                 }
               ],
-              columnGap: 16,
+              columnGap: 12,
               margin: [0, 0, 0, 24]
             },
             {
@@ -1202,25 +1510,11 @@ const courseData = {
                           color: accentLightBlue,
                           decoration: "underline"
                         },
-                        { text: "  ·  Horarios de atención", color: "#6b7280" }
+                        { text: "  ·  Horarios de atención: De lunes a viernes de 8:30 a 13:30 y de 14:30 a 17:30 · Sábados de 8:30 a 13:30", color: "#6b7280" }
                       ],
                       style: "footerText",
                       bold: true,
-                      fontSize: 9,
-                      margin: [0, 1, 0, 1]
-                    },
-                    {
-                      text: "De lunes a viernes de 8:30 a 13:30 y de 14:30 a 17:30",
-                      style: "footerText",
-                      bold: true,
-                      fontSize: 9,
-                      margin: [0, 1, 0, 1]
-                    },
-                    {
-                      text: "Sábados de 8:30 a 13:30",
-                      style: "footerText",
-                      bold: true,
-                      fontSize: 9,
+                      fontSize: 8.5,
                       margin: [0, 1, 0, 1]
                     }
                   ]
@@ -1244,7 +1538,7 @@ const courseData = {
                           margin: [0, 0, 0, 4]
                         },
                         {
-                          text: "Si el curso seleccionado si no se ajusta a sus necesidades, estas opciones son cursos alternativos disponibles dentro de la misma modalidad para que pueda elegir la que mejor se ajuste a sus horarios.",
+                          text: "Si el curso seleccionado no se ajusta a sus necesidades, estas opciones corresponden a cursos alternativos disponibles dentro de la misma modalidad para que pueda elegir la opción que mejor se adapte a sus horarios.",
                           style: "altCalloutText"
                         }
                       ]
@@ -1374,6 +1668,7 @@ const courseData = {
         const syllabusSelect = document.getElementById("syllabus");
         const campusSelect = document.getElementById("campus");
         const courseSelect = document.getElementById("course-date");
+        const scheduleSelect = document.getElementById("course-schedule");
         const quoteForm = document.getElementById("quote-form");
         const quoteResults = document.getElementById("quote-results");
         const registrationInput = document.getElementById("registration-fee");
@@ -1389,6 +1684,11 @@ const courseData = {
         });
 
         courseSelect.addEventListener("change", () => {
+          updateScheduleOptions();
+          updatePaymentLimits();
+        });
+
+        scheduleSelect.addEventListener("change", () => {
           updatePaymentLimits();
         });
 
@@ -1408,10 +1708,11 @@ const courseData = {
           const syllabus = syllabusSelect.value;
           const campus = campusSelect.value;
           const courseOption = courseSelect.options[courseSelect.selectedIndex];
+          const scheduleOption = scheduleSelect.options[scheduleSelect.selectedIndex];
           const specialistKey = specialistSelect.value;
           const specialist = specialists[specialistKey] || { name: specialistKey, phone: "" };
 
-          if (!studentName || !specialistKey || !syllabus || !campus || !courseOption.value) {
+          if (!studentName || !specialistKey || !syllabus || !campus || !courseOption.value || !scheduleOption.value) {
             showToast("Completa todos los datos del formulario.", "error");
             return;
           }
@@ -1420,7 +1721,7 @@ const courseData = {
             studentName,
             syllabus,
             campus,
-            courseId: courseOption.value,
+            courseId: scheduleOption.value,
             courseName: courseOption.dataset.courseName || courseOption.textContent,
             specialistKey,
             specialistName: specialist.name || specialistKey,
