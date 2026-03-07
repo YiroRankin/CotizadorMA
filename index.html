@@ -1284,150 +1284,52 @@ const courseData = {
               margin: [0, 4, 0, 4]
             },
             {
-              columns: [
-                {
-                  width: "*",
-                  table: {
-                    widths: ["*"],
-                    body: [
-                      [
-                        { text: "Pago de contado", style: "blockTitle", margin: [8, 6, 8, 6] }
+              table: {
+                widths: ["*", "*", "*"],
+                body: [
+                  // Fila 1: Títulos con el fondo morado claro
+                  [
+                    { text: "Pago de contado", style: "blockTitle", margin: [8, 6, 8, 6], fillColor: lightPurple },
+                    { text: "Plan de pagos", style: "blockTitle", margin: [8, 6, 8, 6], fillColor: lightPurple },
+                    { text: "Meses sin intereses", style: "blockTitle", margin: [8, 6, 8, 6], fillColor: lightPurple }
+                  ],
+                  // Fila 2: Contenido de cada esquema agrupado en "stack"
+                  [
+                    {
+                      stack: [
+                        { text: "Precio de lista: " + listPriceStr, style: "optionBodyCompact" },
+                        { text: "Hoy pagaría: " + cashPriceStr, style: "valueCell", margin: [0, 4, 0, 4] },
+                        { text: "Descuento aplicado: " + (currentPricing.cashDiscount || 0) + "%", style: "optionBodyCompact" },
+                        { text: "· Pago único", style: "optionBodyCompact" }
                       ],
-                      [
-                        {
-                          text: "Precio de lista: " + listPriceStr,
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Hoy pagaría: " + cashPriceStr,
-                          style: "valueCell"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Descuento aplicado: " + (currentPricing.cashDiscount || 0) + "%",
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "· Pago único",
-                          style: "optionBodyCompact"
-                        }
-                      ]
-                    ]
-                  },
-                  layout: {
-                    hLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
+                      margin: [8, 8, 8, 8]
                     },
-                    vLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
+                    {
+                      stack: [
+                        { text: "Precio de lista: " + listPriceStr, style: "optionBodyCompact" },
+                        { text: "Hoy pagaría: " + planPriceStr, style: "valueCell", margin: [0, 4, 0, 4] },
+                        { text: "Descuento aplicado: " + (currentPricing.installmentDiscount || 0) + "%", style: "optionBodyCompact" },
+                        { text: "Inscripción: " + formatCurrencyMXN(registration), style: "optionBodyCompact" },
+                        { text: numPayments + " mensualidades de: " + formatCurrencyMXN(monthly), style: "optionBodyCompact" }
+                      ],
+                      margin: [8, 8, 8, 8]
                     },
-                    hLineColor: function () { return borderGray; },
-                    vLineColor: function () { return borderGray; }
-                  }
-                },
-                {
-                  width: "*",
-                  table: {
-                    widths: ["*"],
-                    body: [
-                      [
-                        { text: "Plan de pagos", style: "blockTitle", margin: [8, 6, 8, 6] }
+                    {
+                      stack: [
+                        { text: "Precio de lista: " + listPriceStr, style: "valueCell", margin: [0, 0, 0, 4] },
+                        { text: "6 MSI de: " + msi6Str, style: "optionBodyCompact" },
+                        { text: "9 MSI de: " + msi9Str, style: "optionBodyCompact" },
+                        { text: "12 MSI de: " + msi12Str, style: "optionBodyCompact" }
                       ],
-                      [
-                        {
-                          text: "Precio de lista: " + listPriceStr,
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Hoy pagaría: " + planPriceStr,
-                          style: "valueCell"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Descuento aplicado: " + (currentPricing.installmentDiscount || 0) + "%",
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Inscripción: " + formatCurrencyMXN(registration),
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: numPayments + " mensualidades de: " + formatCurrencyMXN(monthly),
-                          style: "optionBodyCompact"
-                        }
-                      ]
-                    ]
-                  },
-                  layout: {
-                    hLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
-                    },
-                    vLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
-                    },
-                    hLineColor: function () { return borderGray; },
-                    vLineColor: function () { return borderGray; }
-                  }
-                },
-                {
-                  width: "*",
-                  table: {
-                    widths: ["*"],
-                    body: [
-                      [
-                        { text: "Meses sin intereses", style: "blockTitle", margin: [8, 6, 8, 6] }
-                      ],
-                      [
-                        {
-                          text: "Precio de lista: " + listPriceStr,
-                          style: "valueCell"
-                        }
-                      ],
-                      [
-                        {
-                          text: "6 MSI de: " + msi6Str,
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "9 MSI de: " + msi9Str,
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "12 MSI de: " + msi12Str,
-                          style: "optionBodyCompact"
-                        }
-                      ]
-                    ]
-                  },
-                  layout: {
-                    hLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
-                    },
-                    vLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
-                    },
-                    hLineColor: function () { return borderGray; },
-                    vLineColor: function () { return borderGray; }
-                  }
-                }
-              ],
-              columnGap: 12,
+                      margin: [8, 8, 8, 8]
+                    }
+                  ]
+                ]
+              },
+              layout: {
+                hLineColor: function () { return borderGray; },
+                vLineColor: function () { return borderGray; }
+              },
               margin: [0, 0, 0, 24]
             },
             {
