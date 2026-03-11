@@ -150,135 +150,121 @@
           <section id="quote-results" class="hidden">
             <!-- Payment Options -->
             <div class="space-y-4 mb-4">
-              <div class="grid gap-4 md:grid-cols-3 items-stretch">
-                <!-- Cash Payment -->
-                <article class="quote-card border border-emerald-100 rounded-2xl p-0 bg-emerald-50/70 flex flex-col h-full overflow-hidden">
-                  <div class="min-h-[64px] px-4 py-3 border-b border-emerald-100 flex items-center justify-between bg-white/40">
-                    <h3 class="text-base font-semibold text-emerald-900">
-                      Pago de contado
-                    </h3>
-                    <span class="text-xl">💵</span>
+              <div class="grid gap-3 md:grid-cols-3">
+                <div class="border border-slate-200 bg-violet-50/80 rounded-t-xl px-4 py-3 min-h-[56px] flex items-center justify-between">
+                  <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700">Pago de contado</h3>
+                  <span class="text-base">💵</span>
+                </div>
+                <div class="border border-slate-200 bg-violet-50/80 rounded-t-xl px-4 py-3 min-h-[56px] flex items-center justify-between">
+                  <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700">Plan de pagos</h3>
+                  <span class="text-base">📅</span>
+                </div>
+                <div class="border border-slate-200 bg-violet-50/80 rounded-t-xl px-4 py-3 min-h-[56px] flex items-center justify-between">
+                  <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700">Meses sin intereses</h3>
+                  <span class="text-base">💳</span>
+                </div>
+              </div>
+
+              <div class="grid gap-3 md:grid-cols-3 items-stretch">
+                <div class="border border-slate-200 rounded-b-xl bg-emerald-50/70 px-4 py-4 min-h-[255px] flex flex-col">
+                  <p class="text-xs text-emerald-800 mb-1">Precio total</p>
+                  <p id="cash-price" class="text-2xl font-extrabold text-emerald-900">$6,600.00</p>
+                  <div class="mt-3 space-y-1 text-xs text-emerald-900">
+                    <p>Precio de lista: <span id="list-price-cash" class="font-semibold">$0.00</span></p>
+                    <p>Descuento aplicado: <span id="cash-discount" class="font-semibold">0%</span></p>
                   </div>
-                  <div class="flex-1 px-4 py-4">
-                    <p class="text-xs text-emerald-800 mb-1">Precio total</p>
-                    <p id="cash-price" class="text-2xl font-extrabold text-emerald-900">$6,600.00</p>
-                    <div class="mt-3 space-y-1 text-xs text-emerald-900">
-                      <p>Precio de lista: <span id="list-price-cash" class="font-semibold">$0.00</span></p>
-                      <p>Descuento aplicado: <span id="cash-discount" class="font-semibold">0%</span></p>
+                  <ul class="mt-3 text-xs text-emerald-900 space-y-1">
+                    <li>✅ Pago único</li>
+                    <li>✅ Mejor precio disponible</li>
+                  </ul>
+                </div>
+
+                <div class="border border-slate-200 rounded-b-xl bg-indigo-50/70 px-4 py-4 min-h-[255px] flex flex-col">
+                  <p class="text-xs text-indigo-800 mb-1">Precio total</p>
+                  <p id="total-installment" class="text-2xl font-extrabold text-indigo-900">
+                    $7,150.00
+                  </p>
+
+                  <div class="mt-3 space-y-3 border-t border-indigo-100 pt-3">
+                    <div class="space-y-1 text-xs text-indigo-900">
+                      <p>Precio de lista: <span id="list-price-plan" class="font-semibold">$0.00</span></p>
+                      <p>Descuento aplicado: <span id="plan-discount" class="font-semibold">0%</span></p>
                     </div>
-                    <ul class="mt-3 text-xs text-emerald-900 space-y-1">
-                      <li>✅ Pago único</li>
-                      <li>✅ Mejor precio disponible</li>
-                    </ul>
-                  </div>
-                </article>
-
-                <!-- Plan de pagos -->
-                <article class="quote-card border border-indigo-100 rounded-2xl p-0 bg-indigo-50/70 flex flex-col h-full overflow-hidden">
-                  <div class="min-h-[64px] px-4 py-3 border-b border-indigo-100 flex items-center justify-between bg-white/40">
-                    <h3 class="text-base font-semibold text-indigo-900">
-                      Plan de pagos
-                    </h3>
-                    <span class="text-xl">📅</span>
-                  </div>
-
-                  <div class="flex-1 px-4 py-4">
-                    <p class="text-xs text-indigo-800 mb-1">Precio total</p>
-                    <p id="total-installment" class="text-2xl font-extrabold text-indigo-900">
-                      $7,150.00
-                    </p>
-
-                    <div class="mt-3 space-y-3 border-t border-indigo-100 pt-3">
-                      <div class="space-y-1 text-xs text-indigo-900">
-                        <p>Precio de lista: <span id="list-price-plan" class="font-semibold">$0.00</span></p>
-                        <p>Descuento aplicado: <span id="plan-discount" class="font-semibold">0%</span></p>
-                      </div>
-                      <div>
-                        <label
-                          for="registration-fee"
-                          class="block text-xs font-medium text-indigo-900 mb-1"
-                        >
-                          Inscripción
-                        </label>
-                        <div class="flex items-center gap-1 w-full min-w-0">
-                          <span class="text-xs text-indigo-900 shrink-0">$</span>
-                          <input
-                            type="number"
-                            id="registration-fee"
-                            value="1500"
-                            min="1000"
-                            step="100"
-                            class="w-full min-w-0 px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                          />
-                        </div>
-                        <p
-                          id="registration-error"
-                          class="hidden text-[11px] text-red-600 mt-1"
-                        >
-                          ⚠️ La inscripción no debe ser inferior a $1,000.00
-                        </p>
-                      </div>
-
-                      <div>
-                        <label
-                          for="num-payments"
-                          class="block text-xs font-medium text-indigo-900 mb-1"
-                        >
-                          Mensualidades (1 a 5*)
-                        </label>
+                    <div>
+                      <label
+                        for="registration-fee"
+                        class="block text-xs font-medium text-indigo-900 mb-1"
+                      >
+                        Inscripción
+                      </label>
+                      <div class="flex items-center gap-1 w-full min-w-0">
+                        <span class="text-xs text-indigo-900 shrink-0">$</span>
                         <input
                           type="number"
-                          id="num-payments"
-                          value="4"
-                          min="1"
-                          max="5"
-                          class="w-full min-w-0 px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                          id="registration-fee"
+                          value="1500"
+                          min="1000"
+                          step="100"
+                          class="w-full min-w-0 max-w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                         />
-                        <p
-                          id="payments-error"
-                          class="hidden text-[11px] text-red-600 mt-1"
-                        >
-                          ⚠️ <span id="payments-error-text"></span>
-                        </p>
                       </div>
-
-                      <div class="bg-white/70 border border-dashed border-indigo-200 rounded-xl px-3 py-2">
-                        <p class="text-xs text-indigo-900">
-                          Pago mensual estimado:
-                          <span id="monthly-payment" class="font-bold">
-                            $1,500.00
-                          </span>
-                        </p>
-                      </div>
-                      <p class="text-[10px] text-indigo-700 leading-4">
-                        * Se pueden agendar hasta 5 mensualidades, solo cuidar que las mensualidades no excedan el mes de abril de 2027
+                      <p
+                        id="registration-error"
+                        class="hidden text-[11px] text-red-600 mt-1"
+                      >
+                        ⚠️ La inscripción no debe ser inferior a $1,000.00
                       </p>
                     </div>
-                  </div>
-                </article>
 
-                <!-- MSI -->
-                <article class="quote-card border border-sky-100 rounded-2xl p-0 bg-sky-50/70 flex flex-col h-full overflow-hidden">
-                  <div class="min-h-[64px] px-4 py-3 border-b border-sky-100 flex items-center justify-between bg-white/40">
-                    <h3 class="text-base font-semibold text-sky-900">
-                      Meses sin intereses
-                    </h3>
-                    <span class="text-xl">💳</span>
-                  </div>
-
-                  <div class="flex-1 px-4 py-4">
-                    <p class="text-xs text-sky-800 mb-1">Precio de lista</p>
-                    <p id="msi-list-price" class="text-2xl font-extrabold text-sky-900">
-                      $0.00
-                    </p>
-
-                    <div class="mt-3 space-y-1 border-t border-sky-100 pt-3 text-xs text-sky-900">
-                      <p>6 MSI: <span id="msi-6" class="font-semibold">$0.00</span></p>
-                      <p>9 MSI: <span id="msi-9" class="font-semibold">$0.00</span></p>
-                      <p>12 MSI: <span id="msi-12" class="font-semibold">$0.00</span></p>
+                    <div>
+                      <label
+                        for="num-payments"
+                        class="block text-xs font-medium text-indigo-900 mb-1"
+                      >
+                        Mensualidades (1 a 5*)
+                      </label>
+                      <input
+                        type="number"
+                        id="num-payments"
+                        value="4"
+                        min="1"
+                        max="5"
+                        class="w-full min-w-0 max-w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                      />
+                      <p
+                        id="payments-error"
+                        class="hidden text-[11px] text-red-600 mt-1"
+                      >
+                        ⚠️ <span id="payments-error-text"></span>
+                      </p>
                     </div>
+
+                    <div class="bg-white/70 border border-dashed border-indigo-200 rounded-xl px-3 py-2">
+                      <p class="text-xs text-indigo-900">
+                        Pago mensual estimado:
+                        <span id="monthly-payment" class="font-bold">
+                          $1,500.00
+                        </span>
+                      </p>
+                    </div>
+                    <p class="text-[10px] text-indigo-700 leading-4">
+                      * Se pueden agendar hasta 5 mensualidades, solo cuidar que las mensualidades no excedan el mes de abril de 2027
+                    </p>
                   </div>
-                </article>
+                </div>
+
+                <div class="border border-slate-200 rounded-b-xl bg-sky-50/70 px-4 py-4 min-h-[255px] flex flex-col">
+                  <p class="text-xs text-sky-800 mb-1">Precio de lista</p>
+                  <p id="msi-list-price" class="text-2xl font-extrabold text-sky-900">
+                    $0.00
+                  </p>
+
+                  <div class="mt-3 space-y-1 border-t border-sky-100 pt-3 text-xs text-sky-900">
+                    <p>6 MSI: <span id="msi-6" class="font-semibold">$0.00</span></p>
+                    <p>9 MSI: <span id="msi-9" class="font-semibold">$0.00</span></p>
+                    <p>12 MSI: <span id="msi-12" class="font-semibold">$0.00</span></p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -817,6 +803,11 @@ const courseData = {
         msi6El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 6);
         msi9El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 9);
         msi12El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 12);
+
+        const onlySixMSI = quoteData && quoteData.syllabus === "EXANI I";
+        if (msi6El && msi6El.parentElement) msi6El.parentElement.style.display = "";
+        if (msi9El && msi9El.parentElement) msi9El.parentElement.style.display = onlySixMSI ? "none" : "";
+        if (msi12El && msi12El.parentElement) msi12El.parentElement.style.display = onlySixMSI ? "none" : "";
       }
 
       function updateCampusOptions() {
@@ -1284,52 +1275,161 @@ const courseData = {
               margin: [0, 4, 0, 4]
             },
             {
-              table: {
-                widths: ["*", "*", "*"],
-                body: [
-                  // Fila 1: Títulos con el fondo morado claro
-                  [
-                    { text: "Pago de contado", style: "blockTitle", margin: [8, 6, 8, 6], fillColor: lightPurple },
-                    { text: "Plan de pagos", style: "blockTitle", margin: [8, 6, 8, 6], fillColor: lightPurple },
-                    { text: "Meses sin intereses", style: "blockTitle", margin: [8, 6, 8, 6], fillColor: lightPurple }
-                  ],
-                  // Fila 2: Contenido de cada esquema agrupado en "stack"
-                  [
-                    {
-                      stack: [
-                        { text: "Precio de lista: " + listPriceStr, style: "optionBodyCompact" },
-                        { text: "Hoy pagaría: " + cashPriceStr, style: "valueCell", margin: [0, 4, 0, 4] },
-                        { text: "Descuento aplicado: " + (currentPricing.cashDiscount || 0) + "%", style: "optionBodyCompact" },
-                        { text: "· Pago único", style: "optionBodyCompact" }
+              columns: [
+                {
+                  width: "*",
+                  table: {
+                    widths: ["*"],
+                    body: [
+                      [
+                        { text: "Pago de contado", style: "blockTitle", margin: [8, 6, 8, 6] }
                       ],
-                      margin: [8, 8, 8, 8]
+                      [
+                        {
+                          text: "Precio de lista: " + listPriceStr,
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Hoy pagaría: " + cashPriceStr,
+                          style: "valueCell"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Descuento aplicado: " + (currentPricing.cashDiscount || 0) + "%",
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "· Pago único",
+                          style: "optionBodyCompact"
+                        }
+                      ]
+                    ]
+                  },
+                  layout: {
+                    hLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
                     },
-                    {
-                      stack: [
-                        { text: "Precio de lista: " + listPriceStr, style: "optionBodyCompact" },
-                        { text: "Hoy pagaría: " + planPriceStr, style: "valueCell", margin: [0, 4, 0, 4] },
-                        { text: "Descuento aplicado: " + (currentPricing.installmentDiscount || 0) + "%", style: "optionBodyCompact" },
-                        { text: "Inscripción: " + formatCurrencyMXN(registration), style: "optionBodyCompact" },
-                        { text: numPayments + " mensualidades de: " + formatCurrencyMXN(monthly), style: "optionBodyCompact" }
-                      ],
-                      margin: [8, 8, 8, 8]
+                    vLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
                     },
-                    {
-                      stack: [
-                        { text: "Precio de lista: " + listPriceStr, style: "valueCell", margin: [0, 0, 0, 4] },
-                        { text: "6 MSI de: " + msi6Str, style: "optionBodyCompact" },
-                        { text: "9 MSI de: " + msi9Str, style: "optionBodyCompact" },
-                        { text: "12 MSI de: " + msi12Str, style: "optionBodyCompact" }
+                    hLineColor: function () { return borderGray; },
+                    vLineColor: function () { return borderGray; }
+                  }
+                },
+                {
+                  width: "*",
+                  table: {
+                    widths: ["*"],
+                    body: [
+                      [
+                        { text: "Plan de pagos", style: "blockTitle", margin: [8, 6, 8, 6] }
                       ],
-                      margin: [8, 8, 8, 8]
-                    }
-                  ]
-                ]
-              },
-              layout: {
-                hLineColor: function () { return borderGray; },
-                vLineColor: function () { return borderGray; }
-              },
+                      [
+                        {
+                          text: "Precio de lista: " + listPriceStr,
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Hoy pagaría: " + planPriceStr,
+                          style: "valueCell"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Descuento aplicado: " + (currentPricing.installmentDiscount || 0) + "%",
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Inscripción: " + formatCurrencyMXN(registration),
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: numPayments + " mensualidades de: " + formatCurrencyMXN(monthly),
+                          style: "optionBodyCompact"
+                        }
+                      ]
+                    ]
+                  },
+                  layout: {
+                    hLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
+                    },
+                    vLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
+                    },
+                    hLineColor: function () { return borderGray; },
+                    vLineColor: function () { return borderGray; }
+                  }
+                },
+                {
+                  width: "*",
+                  table: {
+                    widths: ["*"],
+                    body: [
+                      [
+                        { text: "Meses sin intereses", style: "blockTitle", margin: [8, 6, 8, 6] }
+                      ],
+                      [
+                        {
+                          text: "Precio de lista: " + listPriceStr,
+                          style: "valueCell"
+                        }
+                      ],
+                      ...(quoteData.syllabus === "EXANI I"
+                        ? [
+                            [
+                              {
+                                text: "6 MSI de: " + msi6Str,
+                                style: "optionBodyCompact"
+                              }
+                            ]
+                          ]
+                        : [
+                            [
+                              {
+                                text: "6 MSI de: " + msi6Str,
+                                style: "optionBodyCompact"
+                              }
+                            ],
+                            [
+                              {
+                                text: "9 MSI de: " + msi9Str,
+                                style: "optionBodyCompact"
+                              }
+                            ],
+                            [
+                              {
+                                text: "12 MSI de: " + msi12Str,
+                                style: "optionBodyCompact"
+                              }
+                            ]
+                          ])
+                    ]
+                  },
+                  layout: {
+                    hLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
+                    },
+                    vLineWidth: function (i, node) {
+                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
+                    },
+                    hLineColor: function () { return borderGray; },
+                    vLineColor: function () { return borderGray; }
+                  }
+                }
+              ],
+              columnGap: 12,
               margin: [0, 0, 0, 24]
             },
             {
