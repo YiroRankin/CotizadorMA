@@ -176,6 +176,7 @@
                   <ul class="mt-3 text-xs text-emerald-900 space-y-1">
                     <li>✅ Pago único</li>
                     <li>✅ Mejor precio disponible</li>
+                    <li id="cash-benefit-diagnostic" class="hidden">✅ Talleres de diagnóstico</li>
                   </ul>
                 </div>
 
@@ -190,6 +191,28 @@
                       <p>Precio de lista: <span id="list-price-plan" class="font-semibold">$0.00</span></p>
                       <p>Descuento aplicado: <span id="plan-discount" class="font-semibold">0%</span></p>
                     </div>
+
+                    <div>
+                      <label
+                        for="plan-discount-selector"
+                        class="block text-xs font-medium text-indigo-900 mb-1"
+                      >
+                        Vigencia / descuento del plan
+                      </label>
+                      <select
+                        id="plan-discount-selector"
+                        class="w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                      >
+                        <option value="">Selecciona una vigencia</option>
+                      </select>
+                      <p
+                        id="plan-discount-selector-note"
+                        class="text-[10px] text-indigo-700 leading-4 mt-1"
+                      >
+                        Se mostrará la vigencia actual y, cuando corresponda, la del mes siguiente.
+                      </p>
+                    </div>
+
                     <div>
                       <label
                         for="registration-fee"
@@ -245,6 +268,9 @@
                         <span id="monthly-payment" class="font-bold">
                           $1,500.00
                         </span>
+                      </p>
+                      <p class="text-[10px] text-indigo-700 leading-4 mt-1">
+                        * El monto mensual se redondea hacia arriba al siguiente múltiplo de $50.
                       </p>
                     </div>
                     <p class="text-[10px] text-indigo-700 leading-4">
@@ -366,8 +392,8 @@
     "from": "2026-04-01",
     "to": "2026-04-30",
     "listPrice": 11500.0,
-    "cash": 6325.0,
-    "cashDiscount": 45.0,
+    "cash": 6900.0,
+    "cashDiscount": 40.0,
     "installment": 6325.0,
     "installmentDiscount": 45.0
   },
@@ -376,10 +402,10 @@
     "modality": "Virtual",
     "from": "2026-04-01",
     "to": "2026-04-30",
-    "listPrice": 9700.0,
-    "cash": 5335.0,
-    "cashDiscount": 45.0,
-    "installment": 5335.0,
+    "listPrice": 9500.0,
+    "cash": 5700.0,
+    "cashDiscount": 40.0,
+    "installment": 5225.0,
     "installmentDiscount": 45.0
   },
   {
@@ -398,10 +424,10 @@
     "modality": "Virtual",
     "from": "2026-05-01",
     "to": "2026-05-31",
-    "listPrice": 9700.0,
-    "cash": 5820.0,
+    "listPrice": 9500.0,
+    "cash": 5700.0,
     "cashDiscount": 40.0,
-    "installment": 5820.0,
+    "installment": 5700.0,
     "installmentDiscount": 40.0
   },
   {
@@ -420,39 +446,17 @@
     "modality": "Virtual",
     "from": "2026-06-01",
     "to": "2026-06-30",
-    "listPrice": 9700.0,
-    "cash": 5820.0,
+    "listPrice": 9500.0,
+    "cash": 5700.0,
     "cashDiscount": 40.0,
-    "installment": 6305.0,
+    "installment": 6175.0,
     "installmentDiscount": 35.0
-  },
-  {
-    "temario": "EXANI II",
-    "modality": "Presencial",
-    "from": "2026-07-01",
-    "to": "2026-08-31",
-    "listPrice": 11500.0,
-    "cash": 6900.0,
-    "cashDiscount": 40.0,
-    "installment": 8050.0,
-    "installmentDiscount": 30.0
-  },
-  {
-    "temario": "EXANI II",
-    "modality": "Virtual",
-    "from": "2026-07-01",
-    "to": "2026-08-31",
-    "listPrice": 9700.0,
-    "cash": 5820.0,
-    "cashDiscount": 40.0,
-    "installment": 6790.0,
-    "installmentDiscount": 30.0
   },
   {
     "temario": "EXANI I",
     "modality": "Presencial",
     "from": "2026-03-01",
-    "to": "2026-04-30",
+    "to": "2026-03-31",
     "listPrice": 6700.0,
     "cash": 5025.0,
     "cashDiscount": 25.0,
@@ -463,7 +467,7 @@
     "temario": "EXANI I",
     "modality": "Virtual",
     "from": "2026-03-01",
-    "to": "2026-04-30",
+    "to": "2026-03-31",
     "listPrice": 5700.0,
     "cash": 4275.0,
     "cashDiscount": 25.0,
@@ -473,46 +477,68 @@
   {
     "temario": "EXANI I",
     "modality": "Presencial",
-    "from": "2026-05-01",
-    "to": "2026-06-30",
-    "listPrice": 6700.0,
-    "cash": 5360.0,
+    "from": "2026-04-01",
+    "to": "2026-04-30",
+    "listPrice": 6500.0,
+    "cash": 5200.0,
     "cashDiscount": 20.0,
-    "installment": 5360.0,
+    "installment": 4875.0,
+    "installmentDiscount": 25.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Virtual",
+    "from": "2026-04-01",
+    "to": "2026-04-30",
+    "listPrice": 5500.0,
+    "cash": 4400.0,
+    "cashDiscount": 20.0,
+    "installment": 4125.0,
+    "installmentDiscount": 25.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Presencial",
+    "from": "2026-05-01",
+    "to": "2026-05-31",
+    "listPrice": 6500.0,
+    "cash": 5200.0,
+    "cashDiscount": 20.0,
+    "installment": 5200.0,
     "installmentDiscount": 20.0
   },
   {
     "temario": "EXANI I",
     "modality": "Virtual",
     "from": "2026-05-01",
-    "to": "2026-06-30",
-    "listPrice": 5700.0,
-    "cash": 4560.0,
+    "to": "2026-05-31",
+    "listPrice": 5500.0,
+    "cash": 4400.0,
     "cashDiscount": 20.0,
-    "installment": 4560.0,
+    "installment": 4400.0,
     "installmentDiscount": 20.0
   },
   {
     "temario": "EXANI I",
     "modality": "Presencial",
-    "from": "2026-07-01",
-    "to": "2026-08-31",
-    "listPrice": 6700.0,
-    "cash": 5360.0,
+    "from": "2026-06-01",
+    "to": "2026-06-30",
+    "listPrice": 6500.0,
+    "cash": 5200.0,
     "cashDiscount": 20.0,
-    "installment": 5695.0,
-    "installmentDiscount": 15.0
+    "installment": 5200.0,
+    "installmentDiscount": 20.0
   },
   {
     "temario": "EXANI I",
     "modality": "Virtual",
-    "from": "2026-07-01",
-    "to": "2026-08-31",
-    "listPrice": 5700.0,
-    "cash": 4560.0,
+    "from": "2026-06-01",
+    "to": "2026-06-30",
+    "listPrice": 5500.0,
+    "cash": 4400.0,
     "cashDiscount": 20.0,
-    "installment": 4845.0,
-    "installmentDiscount": 15.0
+    "installment": 4400.0,
+    "installmentDiscount": 20.0
   }
 ];
       function todayIso() {
@@ -553,6 +579,137 @@
         }
 
         return match || pricingRules[0];
+      }
+
+      function getRuleKey(rule) {
+        if (!rule) return "";
+        return [rule.temario, rule.modality, rule.from, rule.to].join("|");
+      }
+
+      function parseIsoDate(iso) {
+        return new Date(iso + "T00:00:00");
+      }
+
+      function isWithinLast3DaysOfMonth(date = new Date()) {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const lastDay = new Date(year, month + 1, 0).getDate();
+        const remainingDays = lastDay - date.getDate();
+        return remainingDays <= 3;
+      }
+
+      function getMonthYearLabelFromRule(rule) {
+        if (!rule) return "";
+        const start = parseIsoDate(rule.from);
+        const end = parseIsoDate(rule.to);
+        const formatter = new Intl.DateTimeFormat("es-MX", { month: "long", year: "numeric" });
+
+        const startLabel = formatter.format(start);
+        const endLabel = formatter.format(end);
+
+        if (startLabel === endLabel) {
+          return startLabel.charAt(0).toUpperCase() + startLabel.slice(1);
+        }
+
+        return (
+          startLabel.charAt(0).toUpperCase() + startLabel.slice(1) +
+          " - " +
+          endLabel.charAt(0).toUpperCase() + endLabel.slice(1)
+        );
+      }
+
+      function shouldShowCashDiagnosticBenefit(rule) {
+        if (!rule) return false;
+        const month = parseIsoDate(rule.from).getMonth() + 1;
+        return [4, 5, 6].includes(month);
+      }
+
+      function roundUpToNearest(value, step) {
+        if (!Number.isFinite(value) || !Number.isFinite(step) || step <= 0) return 0;
+        return Math.ceil(value / step) * step;
+      }
+
+      function getPlanPricingOptions() {
+        if (!quoteData) return [];
+
+        const course = getSelectedCourseDetails();
+        if (!course) return [];
+
+        const temario = quoteData.syllabus;
+        const modality = course.modality;
+        const today = new Date();
+        const currentRule = findPricing(temario, modality, todayIso());
+
+        if (!currentRule) return [];
+
+        const options = [currentRule];
+
+        if (isWithinLast3DaysOfMonth(today)) {
+          const nextRule = pricingRules
+            .filter(rule =>
+              rule.temario === temario &&
+              rule.modality === modality &&
+              rule.from > currentRule.to
+            )
+            .sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0))[0];
+
+          if (nextRule && getRuleKey(nextRule) !== getRuleKey(currentRule)) {
+            options.push(nextRule);
+          }
+        }
+
+        return options;
+      }
+
+      let planPricingOptions = [];
+      let selectedPlanPricing = null;
+
+      function updatePlanDiscountOptions() {
+        const selector = document.getElementById("plan-discount-selector");
+        const note = document.getElementById("plan-discount-selector-note");
+
+        if (!selector) return;
+
+        planPricingOptions = getPlanPricingOptions();
+        selector.innerHTML = "";
+
+        if (!planPricingOptions.length) {
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "Sin vigencias disponibles";
+          selector.appendChild(opt);
+          selector.disabled = true;
+          selectedPlanPricing = null;
+          return;
+        }
+
+        planPricingOptions.forEach(rule => {
+          const opt = document.createElement("option");
+          opt.value = getRuleKey(rule);
+          opt.textContent = getMonthYearLabelFromRule(rule) + " · " + (rule.installmentDiscount || 0) + "%";
+          selector.appendChild(opt);
+        });
+
+        selector.disabled = false;
+        selector.value = getRuleKey(planPricingOptions[0]);
+        selectedPlanPricing = planPricingOptions[0];
+
+        if (note) {
+          note.textContent = planPricingOptions.length > 1
+            ? "Ya puedes cotizar con la vigencia actual o con la del siguiente mes."
+            : "Por ahora solo hay una vigencia disponible para este plan.";
+        }
+      }
+
+      function getSelectedPlanPricing() {
+        const selector = document.getElementById("plan-discount-selector");
+        if (!selector || !planPricingOptions.length) {
+          return selectedPlanPricing || currentPricing;
+        }
+
+        const selectedKey = selector.value;
+        const found = planPricingOptions.find(rule => getRuleKey(rule) === selectedKey);
+        return found || planPricingOptions[0] || selectedPlanPricing || currentPricing;
       }
 
 function formatIsoToDMY(iso) {
@@ -782,6 +939,9 @@ const courseData = {
 
       function updateDisplayPrices() {
         if (!currentPricing) return;
+
+        selectedPlanPricing = getSelectedPlanPricing() || currentPricing;
+
         const cashPriceEl = document.getElementById("cash-price");
         const totalInstallmentEl = document.getElementById("total-installment");
         const listPriceCashEl = document.getElementById("list-price-cash");
@@ -792,17 +952,22 @@ const courseData = {
         const msi6El = document.getElementById("msi-6");
         const msi9El = document.getElementById("msi-9");
         const msi12El = document.getElementById("msi-12");
+        const cashDiagnosticBenefitEl = document.getElementById("cash-benefit-diagnostic");
 
         cashPriceEl.textContent = formatCurrencyMXN(currentPricing.cash);
-        totalInstallmentEl.textContent = formatCurrencyMXN(currentPricing.installment);
+        totalInstallmentEl.textContent = formatCurrencyMXN(selectedPlanPricing.installment);
         listPriceCashEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
-        listPricePlanEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
+        listPricePlanEl.textContent = formatCurrencyMXN(selectedPlanPricing.listPrice);
         cashDiscountEl.textContent = (currentPricing.cashDiscount || 0) + "%";
-        planDiscountEl.textContent = (currentPricing.installmentDiscount || 0) + "%";
+        planDiscountEl.textContent = (selectedPlanPricing.installmentDiscount || 0) + "%";
         msiListPriceEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
         msi6El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 6);
         msi9El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 9);
         msi12El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 12);
+
+        if (cashDiagnosticBenefitEl) {
+          cashDiagnosticBenefitEl.classList.toggle("hidden", !shouldShowCashDiagnosticBenefit(currentPricing));
+        }
 
         const onlySixMSI = quoteData && quoteData.syllabus === "EXANI I";
         if (msi6El && msi6El.parentElement) msi6El.parentElement.style.display = "";
@@ -934,7 +1099,8 @@ const courseData = {
       }
 
       function calculateInstallments() {
-
+        const pricing = getSelectedPlanPricing() || currentPricing;
+        if (!pricing) return;
 
         const registrationInput = document.getElementById("registration-fee");
         const paymentsInput = document.getElementById("num-payments");
@@ -957,17 +1123,11 @@ const courseData = {
           numPayments = 1;
         }
 
-        const remaining = currentPricing.installment - registration;
-        const monthly = remaining / numPayments;
+        const remaining = Math.max(0, pricing.installment - registration);
+        const monthly = remaining > 0 ? roundUpToNearest(remaining / numPayments, 50) : 0;
 
-        monthlySpan.textContent = monthly.toLocaleString("es-MX", {
-          style: "currency",
-          currency: "MXN"
-        });
-        totalSpan.textContent = currentPricing.installment.toLocaleString("es-MX", {
-          style: "currency",
-          currency: "MXN"
-        });
+        monthlySpan.textContent = formatCurrencyMXN(monthly);
+        totalSpan.textContent = formatCurrencyMXN(pricing.installment);
       }
 
       
@@ -1042,8 +1202,11 @@ const courseData = {
         }
 
         const course = getSelectedCourseDetails();
-        const remaining = currentPricing.installment - registration;
-        const monthly = remaining / numPayments;
+        const planPricing = getSelectedPlanPricing() || currentPricing;
+        const remaining = Math.max(0, planPricing.installment - registration);
+        const monthly = remaining > 0 ? roundUpToNearest(remaining / numPayments, 50) : 0;
+        const showCashDiagnosticBenefit = shouldShowCashDiagnosticBenefit(currentPricing);
+        const selectedPlanLabel = getMonthYearLabelFromRule(planPricing);
 
         const today = new Date();
         const dateStr =
@@ -1069,7 +1232,8 @@ const courseData = {
         const specialistPhone = quoteData.specialistPhone || "";
         const listPriceStr = formatCurrencyMXN(currentPricing.listPrice);
         const cashPriceStr = formatCurrencyMXN(currentPricing.cash);
-        const planPriceStr = formatCurrencyMXN(currentPricing.installment);
+        const planListPriceStr = formatCurrencyMXN(planPricing.listPrice);
+        const planPriceStr = formatCurrencyMXN(planPricing.installment);
         const msi6Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 6);
         const msi9Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 9);
         const msi12Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 12);
@@ -1307,7 +1471,21 @@ const courseData = {
                           text: "· Pago único",
                           style: "optionBodyCompact"
                         }
-                      ]
+                      ],
+                      [
+                        {
+                          text: "· Mejor precio disponible",
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      ...(showCashDiagnosticBenefit
+                        ? [[
+                            {
+                              text: "· Talleres de diagnóstico",
+                              style: "optionBodyCompact"
+                            }
+                          ]]
+                        : [])
                     ]
                   },
                   layout: {
@@ -1331,7 +1509,7 @@ const courseData = {
                       ],
                       [
                         {
-                          text: "Precio de lista: " + listPriceStr,
+                          text: "Precio de lista: " + planListPriceStr,
                           style: "optionBodyCompact"
                         }
                       ],
@@ -1343,7 +1521,13 @@ const courseData = {
                       ],
                       [
                         {
-                          text: "Descuento aplicado: " + (currentPricing.installmentDiscount || 0) + "%",
+                          text: "Descuento aplicado: " + (planPricing.installmentDiscount || 0) + "%",
+                          style: "optionBodyCompact"
+                        }
+                      ],
+                      [
+                        {
+                          text: "Vigencia elegida: " + selectedPlanLabel,
                           style: "optionBodyCompact"
                         }
                       ],
@@ -1675,6 +1859,7 @@ const courseData = {
         const quoteResults = document.getElementById("quote-results");
         const registrationInput = document.getElementById("registration-fee");
         const numPaymentsInput = document.getElementById("num-payments");
+        const planDiscountSelector = document.getElementById("plan-discount-selector");
         const exportBtn = document.getElementById("export-pdf");
 
         syllabusSelect.addEventListener("change", () => {
@@ -1700,6 +1885,12 @@ const courseData = {
 
         numPaymentsInput.addEventListener("input", () => {
           updatePaymentLimits();
+          calculateInstallments();
+        });
+
+        planDiscountSelector.addEventListener("change", () => {
+          selectedPlanPricing = getSelectedPlanPricing();
+          updateDisplayPrices();
           calculateInstallments();
         });
 
@@ -1749,6 +1940,7 @@ const courseData = {
             return;
           }
 
+          updatePlanDiscountOptions();
           updateDisplayPrices();
           quoteResults.classList.remove("hidden");
           calculateInstallments();
