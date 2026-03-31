@@ -270,7 +270,7 @@
                         </span>
                       </p>
                       <p class="text-[10px] text-indigo-700 leading-4 mt-1">
-                        * El monto mensual se redondea hacia arriba al siguiente múltiplo de $50.
+                        * El monto mensual se redondea hacia arriba al siguiente múltiplo de $100.
                       </p>
                     </div>
                     <p class="text-[10px] text-indigo-700 leading-4">
@@ -621,7 +621,10 @@
       function shouldShowCashDiagnosticBenefit(rule) {
         if (!rule) return false;
         const month = parseIsoDate(rule.from).getMonth() + 1;
-        return [4, 5, 6].includes(month);
+        if ([4, 5, 6].includes(month)) return true;
+
+        const today = new Date();
+        return month === 3 && isWithinLast3DaysOfMonth(today);
       }
 
       function roundUpToNearest(value, step) {
@@ -1124,7 +1127,7 @@ const courseData = {
         }
 
         const remaining = Math.max(0, pricing.installment - registration);
-        const monthly = remaining > 0 ? roundUpToNearest(remaining / numPayments, 50) : 0;
+        const monthly = remaining > 0 ? roundUpToNearest(remaining / numPayments, 100) : 0;
 
         monthlySpan.textContent = formatCurrencyMXN(monthly);
         totalSpan.textContent = formatCurrencyMXN(pricing.installment);
@@ -1204,7 +1207,7 @@ const courseData = {
         const course = getSelectedCourseDetails();
         const planPricing = getSelectedPlanPricing() || currentPricing;
         const remaining = Math.max(0, planPricing.installment - registration);
-        const monthly = remaining > 0 ? roundUpToNearest(remaining / numPayments, 50) : 0;
+        const monthly = remaining > 0 ? roundUpToNearest(remaining / numPayments, 100) : 0;
         const showCashDiagnosticBenefit = shouldShowCashDiagnosticBenefit(currentPricing);
         const selectedPlanLabel = getMonthYearLabelFromRule(planPricing);
 
