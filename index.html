@@ -8,9 +8,6 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- pdfMake CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
 
     <style>
       body {
@@ -176,7 +173,6 @@
                   <ul class="mt-3 text-xs text-emerald-900 space-y-1">
                     <li>✅ Pago único</li>
                     <li>✅ Mejor precio disponible</li>
-                    <li id="cash-benefit-diagnostic" class="hidden">✅ Talleres de diagnóstico</li>
                   </ul>
                 </div>
 
@@ -191,28 +187,6 @@
                       <p>Precio de lista: <span id="list-price-plan" class="font-semibold">$0.00</span></p>
                       <p>Descuento aplicado: <span id="plan-discount" class="font-semibold">0%</span></p>
                     </div>
-
-                    <div>
-                      <label
-                        for="plan-discount-selector"
-                        class="block text-xs font-medium text-indigo-900 mb-1"
-                      >
-                        Vigencia / descuento del plan
-                      </label>
-                      <select
-                        id="plan-discount-selector"
-                        class="w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                      >
-                        <option value="">Selecciona una vigencia</option>
-                      </select>
-                      <p
-                        id="plan-discount-selector-note"
-                        class="text-[10px] text-indigo-700 leading-4 mt-1"
-                      >
-                        Se mostrará la vigencia actual y, cuando corresponda, la del mes siguiente.
-                      </p>
-                    </div>
-
                     <div>
                       <label
                         for="registration-fee"
@@ -268,9 +242,6 @@
                         <span id="monthly-payment" class="font-bold">
                           $1,500.00
                         </span>
-                      </p>
-                      <p class="text-[10px] text-indigo-700 leading-4 mt-1">
-                        * El monto mensual se redondea hacia arriba al siguiente múltiplo de $100.
                       </p>
                     </div>
                     <p class="text-[10px] text-indigo-700 leading-4">
@@ -349,11 +320,11 @@
               class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold py-2.5 hover:bg-emerald-700 transition-colors"
             >
               <span>📄</span>
-              <span>Exportar cotización a PDF</span>
+              <span>Generar PDF para enviar</span>
             </button>
 
             <p class="mt-2 text-[11px] text-slate-500 text-center">
-              * Se generará un PDF descargable con los datos capturados.
+              * Se abrirá una vista premium lista para guardar como PDF desde el navegador.
             </p>
           </section>
         </div>
@@ -579,140 +550,6 @@
         }
 
         return match || pricingRules[0];
-      }
-
-      function getRuleKey(rule) {
-        if (!rule) return "";
-        return [rule.temario, rule.modality, rule.from, rule.to].join("|");
-      }
-
-      function parseIsoDate(iso) {
-        return new Date(iso + "T00:00:00");
-      }
-
-      function isWithinLast3DaysOfMonth(date = new Date()) {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const lastDay = new Date(year, month + 1, 0).getDate();
-        const remainingDays = lastDay - date.getDate();
-        return remainingDays <= 3;
-      }
-
-      function getMonthYearLabelFromRule(rule) {
-        if (!rule) return "";
-        const start = parseIsoDate(rule.from);
-        const end = parseIsoDate(rule.to);
-        const formatter = new Intl.DateTimeFormat("es-MX", { month: "long", year: "numeric" });
-
-        const startLabel = formatter.format(start);
-        const endLabel = formatter.format(end);
-
-        if (startLabel === endLabel) {
-          return startLabel.charAt(0).toUpperCase() + startLabel.slice(1);
-        }
-
-        return (
-          startLabel.charAt(0).toUpperCase() + startLabel.slice(1) +
-          " - " +
-          endLabel.charAt(0).toUpperCase() + endLabel.slice(1)
-        );
-      }
-
-      function shouldShowCashDiagnosticBenefit(rule) {
-        if (!rule) return false;
-        const month = parseIsoDate(rule.from).getMonth() + 1;
-        if ([4, 5, 6].includes(month)) return true;
-
-        const today = new Date();
-        return month === 3 && isWithinLast3DaysOfMonth(today);
-      }
-
-      function roundUpToNearest(value, step) {
-        if (!Number.isFinite(value) || !Number.isFinite(step) || step <= 0) return 0;
-        return Math.ceil(value / step) * step;
-      }
-
-      function getPlanPricingOptions() {
-        if (!quoteData) return [];
-
-        const course = getSelectedCourseDetails();
-        if (!course) return [];
-
-        const temario = quoteData.syllabus;
-        const modality = course.modality;
-        const today = new Date();
-        const currentRule = findPricing(temario, modality, todayIso());
-
-        if (!currentRule) return [];
-
-        const options = [currentRule];
-
-        if (isWithinLast3DaysOfMonth(today)) {
-          const nextRule = pricingRules
-            .filter(rule =>
-              rule.temario === temario &&
-              rule.modality === modality &&
-              rule.from > currentRule.to
-            )
-            .sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0))[0];
-
-          if (nextRule && getRuleKey(nextRule) !== getRuleKey(currentRule)) {
-            options.push(nextRule);
-          }
-        }
-
-        return options;
-      }
-
-      let planPricingOptions = [];
-      let selectedPlanPricing = null;
-
-      function updatePlanDiscountOptions() {
-        const selector = document.getElementById("plan-discount-selector");
-        const note = document.getElementById("plan-discount-selector-note");
-
-        if (!selector) return;
-
-        planPricingOptions = getPlanPricingOptions();
-        selector.innerHTML = "";
-
-        if (!planPricingOptions.length) {
-          const opt = document.createElement("option");
-          opt.value = "";
-          opt.textContent = "Sin vigencias disponibles";
-          selector.appendChild(opt);
-          selector.disabled = true;
-          selectedPlanPricing = null;
-          return;
-        }
-
-        planPricingOptions.forEach(rule => {
-          const opt = document.createElement("option");
-          opt.value = getRuleKey(rule);
-          opt.textContent = getMonthYearLabelFromRule(rule) + " · " + (rule.installmentDiscount || 0) + "%";
-          selector.appendChild(opt);
-        });
-
-        selector.disabled = false;
-        selector.value = getRuleKey(planPricingOptions[0]);
-        selectedPlanPricing = planPricingOptions[0];
-
-        if (note) {
-          note.textContent = planPricingOptions.length > 1
-            ? "Ya puedes cotizar con la vigencia actual o con la del siguiente mes."
-            : "Por ahora solo hay una vigencia disponible para este plan.";
-        }
-      }
-
-      function getSelectedPlanPricing() {
-        const selector = document.getElementById("plan-discount-selector");
-        if (!selector || !planPricingOptions.length) {
-          return selectedPlanPricing || currentPricing;
-        }
-
-        const selectedKey = selector.value;
-        const found = planPricingOptions.find(rule => getRuleKey(rule) === selectedKey);
-        return found || planPricingOptions[0] || selectedPlanPricing || currentPricing;
       }
 
 function formatIsoToDMY(iso) {
@@ -942,9 +779,6 @@ const courseData = {
 
       function updateDisplayPrices() {
         if (!currentPricing) return;
-
-        selectedPlanPricing = getSelectedPlanPricing() || currentPricing;
-
         const cashPriceEl = document.getElementById("cash-price");
         const totalInstallmentEl = document.getElementById("total-installment");
         const listPriceCashEl = document.getElementById("list-price-cash");
@@ -955,22 +789,17 @@ const courseData = {
         const msi6El = document.getElementById("msi-6");
         const msi9El = document.getElementById("msi-9");
         const msi12El = document.getElementById("msi-12");
-        const cashDiagnosticBenefitEl = document.getElementById("cash-benefit-diagnostic");
 
         cashPriceEl.textContent = formatCurrencyMXN(currentPricing.cash);
-        totalInstallmentEl.textContent = formatCurrencyMXN(selectedPlanPricing.installment);
+        totalInstallmentEl.textContent = formatCurrencyMXN(currentPricing.installment);
         listPriceCashEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
-        listPricePlanEl.textContent = formatCurrencyMXN(selectedPlanPricing.listPrice);
+        listPricePlanEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
         cashDiscountEl.textContent = (currentPricing.cashDiscount || 0) + "%";
-        planDiscountEl.textContent = (selectedPlanPricing.installmentDiscount || 0) + "%";
+        planDiscountEl.textContent = (currentPricing.installmentDiscount || 0) + "%";
         msiListPriceEl.textContent = formatCurrencyMXN(currentPricing.listPrice);
         msi6El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 6);
         msi9El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 9);
         msi12El.textContent = formatCurrencyMXN((currentPricing.listPrice || 0) / 12);
-
-        if (cashDiagnosticBenefitEl) {
-          cashDiagnosticBenefitEl.classList.toggle("hidden", !shouldShowCashDiagnosticBenefit(currentPricing));
-        }
 
         const onlySixMSI = quoteData && quoteData.syllabus === "EXANI I";
         if (msi6El && msi6El.parentElement) msi6El.parentElement.style.display = "";
@@ -1102,8 +931,7 @@ const courseData = {
       }
 
       function calculateInstallments() {
-        const pricing = getSelectedPlanPricing() || currentPricing;
-        if (!pricing) return;
+
 
         const registrationInput = document.getElementById("registration-fee");
         const paymentsInput = document.getElementById("num-payments");
@@ -1126,11 +954,17 @@ const courseData = {
           numPayments = 1;
         }
 
-        const remaining = Math.max(0, pricing.installment - registration);
-        const monthly = remaining > 0 ? roundUpToNearest(remaining / numPayments, 100) : 0;
+        const remaining = currentPricing.installment - registration;
+        const monthly = remaining / numPayments;
 
-        monthlySpan.textContent = formatCurrencyMXN(monthly);
-        totalSpan.textContent = formatCurrencyMXN(pricing.installment);
+        monthlySpan.textContent = monthly.toLocaleString("es-MX", {
+          style: "currency",
+          currency: "MXN"
+        });
+        totalSpan.textContent = currentPricing.installment.toLocaleString("es-MX", {
+          style: "currency",
+          currency: "MXN"
+        });
       }
 
       
@@ -1174,28 +1008,544 @@ const courseData = {
           .slice(0, limit);
       }
 
-      function generatePDF() {
+      
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
 
+      function escapeAttr(value) {
+        return escapeHtml(value).replace(/`/g, "&#96;");
+      }
+
+      function formatCourseDisplayName(name) {
+        const lower = String(name || "").toLowerCase();
+        return lower ? lower.charAt(0).toUpperCase() + lower.slice(1) : "";
+      }
+
+      function buildAlternativeSubtitle(temario, modality, campus) {
+        const parts = [temario, modality];
+        if (campus && campus.toLowerCase() !== String(modality || "").toLowerCase()) {
+          parts.push(campus);
+        }
+        return parts.filter(Boolean).join(" · ");
+      }
+
+      function buildPrintableQuoteHtml(printData) {
+        const alternativesHtml = printData.alternatives.length
+          ? printData.alternatives.map((alt, idx) => `
+              <div class="box ${idx === 1 ? "soft" : ""} alt-card">
+                <div class="section-kicker" style="color:#667085">Alternativa ${idx + 1}</div>
+                <div class="alt-title">${escapeHtml(alt.title)}</div>
+                <div class="alt-sub">${escapeHtml(alt.sub)}</div>
+                <div class="alt-grid">
+                  <div><div class="field-label">Días</div><div class="field-value">${escapeHtml(alt.days)}</div></div>
+                  <div><div class="field-label">Horario</div><div class="field-value">${escapeHtml(alt.schedule)}</div></div>
+                  <div><div class="field-label">Inicio</div><div class="field-value">${escapeHtml(alt.start)}</div></div>
+                  <div><div class="field-label">Término</div><div class="field-value">${escapeHtml(alt.end)}</div></div>
+                </div>
+              </div>
+            `).join("")
+          : `
+              <div class="box alt-card">
+                <div class="section-kicker" style="color:#667085">Opciones disponibles</div>
+                <div class="alt-title" style="font-size:24px">Por el momento no contamos con más alternativas registradas</div>
+                <div class="alt-sub">Si necesitas otro horario, nuestra especialista puede apoyarte a revisar nuevas opciones.</div>
+              </div>
+            `;
+
+        const msiRows = printData.onlySixMSI
+          ? `<div class="row"><span>6 MSI</span><span>${escapeHtml(printData.pricing.msi6)}</span></div>`
+          : `
+              <div class="row"><span>6 MSI</span><span>${escapeHtml(printData.pricing.msi6)}</span></div>
+              <div class="row"><span>9 MSI</span><span>${escapeHtml(printData.pricing.msi9)}</span></div>
+              <div class="row"><span>12 MSI</span><span>${escapeHtml(printData.pricing.msi12)}</span></div>
+            `;
+
+        const workshopLi = printData.showDiagnostic
+          ? `<li>Talleres de diagnóstico</li>`
+          : "";
+
+        return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cotización premium · ${escapeHtml(printData.studentName)}</title>
+  <style>
+    :root {
+      --bg: #ececec;
+      --paper: #ffffff;
+      --ink: #0f172a;
+      --muted: #667085;
+      --line: #d9d9df;
+      --brand: #34124B;
+      --gold: #f4d000;
+      --gold-soft: #fff7d1;
+      --gold-line: #e0c85a;
+      --soft: #f7f7f8;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      background: rgba(236,236,236,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      flex-wrap: wrap;
+    }
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      background: var(--brand);
+      color: white;
+      padding: 12px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .01em;
+    }
+    .toolbar .hint { color: #475467; font-size: 13px; line-height: 1.45; max-width: 760px; }
+    .toolbar .hint strong { color: #344054; }
+    .pages {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      padding: 24px 20px 48px;
+    }
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      background: var(--paper);
+      box-shadow: 0 20px 55px rgba(15, 23, 42, .18);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .topband { height: 8px; background: var(--gold); }
+    .hero {
+      background: var(--brand);
+      color: white;
+      padding: 18px 34px 16px;
+      display: grid;
+      grid-template-columns: 1fr 232px;
+      gap: 22px;
+      align-items: start;
+    }
+    .logo {
+      width: 136px;
+      height: auto;
+      display: block;
+      margin-bottom: 12px;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .26em;
+      font-size: 12px;
+      color: rgba(255,255,255,.78);
+      margin-bottom: 12px;
+    }
+    .hero-copy {
+      font-size: 17.5px;
+      line-height: 1.38;
+      font-weight: 300;
+      max-width: 520px;
+      margin: 0;
+    }
+    .contact-card {
+      background: rgba(255,255,255,.11);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 13px 15px 11px;
+    }
+    .contact-card h4,
+    .section-kicker,
+    .kicker {
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: .22em;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .contact-card h4 { color: rgba(255,255,255,.75); }
+    .contact-card .label { color: rgba(255,255,255,.72); font-size: 12px; margin-bottom: 2px; }
+    .contact-card .value { color: white; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .contact-card a { color: white; font-weight: 700; text-decoration: underline; }
+    .content { padding: 20px 34px 14px; flex: 1; display: flex; flex-direction: column; }
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 16px;
+    }
+    .intro h1 { margin: 0 0 8px; font-size: 27px; line-height: 1.18; }
+    .intro p { margin: 0; font-size: 14px; line-height: 1.55; color: #475467; max-width: 560px; }
+    .temario { text-align: right; }
+    .temario .value { font-size: 19px; font-weight: 800; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; align-items: stretch; }
+    .equal { min-height: 168px; }
+    .equal-pay { min-height: 188px; }
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 14px 18px;
+      background: white;
+    }
+    .box.soft { background: var(--soft); }
+    .box.gold { background: var(--gold-soft); border-color: var(--gold-line); }
+    .box.brand { background: var(--brand); border-color: var(--brand); color: white; position: relative; }
+    .course-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 24px;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    .field-label { color: #667085; font-size: 12px; margin-bottom: 2px; }
+    .field-value { font-weight: 700; }
+    .promo-note {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      color: #6a5200;
+      font-weight: 700;
+      font-size: 14px;
+      margin-top: 26px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 999px; background: #d9b300; display: inline-block; }
+    .pill {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: var(--gold);
+      color: #342600;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 8px 14px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+    }
+    .strike { text-decoration: line-through; color: rgba(255,255,255,.72); margin: 12px 0 4px; font-size: 15px; }
+    .price { font-size: 33px; line-height: 1; font-weight: 800; margin: 2px 0 6px; }
+    .price.dark { color: var(--ink); }
+    .discount { font-size: 14px; color: rgba(255,255,255,.82); margin-bottom: 14px; }
+    .discount.dark { color: #667085; }
+    .list { margin: 14px 0 0; padding-left: 16px; font-size: 14px; line-height: 1.75; }
+    .list li { margin: 0; }
+    .subgrid { display: grid; gap: 12px; font-size: 14px; margin-top: 14px; }
+    .row { display: flex; justify-content: space-between; gap: 16px; }
+    .row span:last-child { font-weight: 700; }
+    .bank { margin-top: 4px; }
+    .bank-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .bank-title { font-size: 18px; font-weight: 800; margin: 0; }
+    .bank-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .signature {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 20px;
+      align-items: end;
+    }
+    .signature .name { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
+    .signature .role { color: #667085; font-size: 13px; margin-bottom: 4px; }
+    .signature a { color: var(--brand); font-size: 14px; font-weight: 700; text-decoration: underline; }
+    .signature .note { color: #98a2b3; text-align: right; font-size: 12px; line-height: 1.5; }
+    .hero-mini {
+      background: var(--brand);
+      color: white;
+      padding: 24px 34px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+    .hero-mini .logo { width: 150px; margin: 0; }
+    .hero-mini .eyebrow { margin: 0; }
+    .alt-header {
+      display: grid;
+      grid-template-columns: 1fr 270px;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+    .alt-header h2 { margin: 0 0 8px; font-size: 27px; line-height: 1.15; }
+    .alt-header p { margin: 0; font-size: 14px; line-height: 1.65; color: #475467; max-width: 520px; }
+    .gold-note {
+      background: var(--gold-soft);
+      border: 1px solid var(--gold-line);
+      border-radius: 18px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #6a5200;
+      font-weight: 700;
+    }
+    .alt-card { padding: 16px 24px; }
+    .alt-title { font-size: 22px; line-height: 1.15; font-weight: 700; margin-bottom: 4px; }
+    .alt-sub { color: #667085; font-size: 14px; margin-bottom: 18px; }
+    .alt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 18px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .bottom-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .equal-bottom { min-height: 172px; }
+    .contact-dark {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: white;
+    }
+    .contact-dark .name { font-size: 18px; font-weight: 800; margin-bottom: 2px; }
+    .contact-dark .subtle,
+    .contact-dark .line { color: rgba(255,255,255,.84); }
+    .contact-dark a { color: white; text-decoration: underline; font-weight: 700; }
+    .footer-line {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-end;
+      color: #98a2b3;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    @media print {
+      @page { size: A4; margin: 0; }
+      html, body { background: white; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .toolbar { display: none !important; }
+      .pages { padding: 0; gap: 0; }
+      .page { box-shadow: none; width: 210mm; min-height: 297mm; page-break-after: always; }
+      .page:last-child { page-break-after: auto; }
+      .page:first-child .content { zoom: 0.962; padding-top: 20px; padding-bottom: 10px; }
+      .page:first-child .grid-2 { margin-bottom: 12px; }
+      .page:first-child .grid-3 { margin-bottom: 14px; }
+      .page:first-child .bank { margin-top: 2px; }
+      .page:first-child .signature { margin-top: 10px; padding-top: 10px; }
+      .page:last-child .content { zoom: 0.97; padding-top: 26px; padding-bottom: 14px; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button class="btn" onclick="window.print()">Generar PDF para enviar</button>
+    <div class="hint"><strong>Instrucciones para especialistas:</strong> al hacer clic se abrirá la ventana de impresión. Selecciona <strong>Guardar como PDF</strong> y después haz clic en <strong>Guardar</strong>. Este aviso no aparecerá en el PDF final.</div>
+  </div>
+
+  <div class="pages">
+    <section class="page">
+      <div class="topband"></div>
+      <div class="hero">
+        <div>
+          <img class="logo" src="https://misionadmision-assets.s3.amazonaws.com/img/website/logo-misionadmision.png" alt="Misión Admisión" />
+          <div class="eyebrow">Cotización personalizada</div>
+          <p class="hero-copy">${escapeHtml(printData.copy.hero)}</p>
+        </div>
+        <div class="contact-card">
+          <h4>Atención personalizada</h4>
+          <div class="label">Especialista</div>
+          <div class="value">${escapeHtml(printData.specialist.name)}</div>
+          <div class="label">Fecha de emisión</div>
+          <div class="value">${escapeHtml(printData.issueDate)}</div>
+          <div class="label">WhatsApp</div>
+          <div class="value"><a href="${escapeAttr(printData.specialist.whatsappUrl)}" target="_blank" rel="noreferrer">Enviar WhatsApp</a></div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="intro">
+          <div>
+            <div class="eyebrow" style="color:#667085;margin-bottom:10px">Propuesta para</div>
+            <h1>${escapeHtml(printData.studentName)}</h1>
+            <p>${escapeHtml(printData.copy.intro)}</p>
+          </div>
+          <div class="temario">
+            <div class="eyebrow" style="color:#667085;margin-bottom:8px">Temario</div>
+            <div class="value">${escapeHtml(printData.temario)}</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="box soft equal">
+            <div class="section-kicker" style="color:#667085">Detalles del curso</div>
+            <div class="course-grid">
+              <div><div class="field-label">Campus</div><div class="field-value">${escapeHtml(printData.campus)}</div></div>
+              <div><div class="field-label">Modalidad</div><div class="field-value">${escapeHtml(printData.modality)}</div></div>
+              <div><div class="field-label">Inicio</div><div class="field-value">${escapeHtml(printData.start)}</div></div>
+              <div><div class="field-label">Término</div><div class="field-value">${escapeHtml(printData.end)}</div></div>
+              <div><div class="field-label">Horario</div><div class="field-value">${escapeHtml(printData.schedule)}</div></div>
+              <div><div class="field-label">Días</div><div class="field-value">${escapeHtml(printData.days)}</div></div>
+            </div>
+          </div>
+          <div class="box gold equal">
+            <div class="section-kicker" style="color:#7A6200">Recomendación destacada</div>
+            <div style="font-size:14px;line-height:1.85;color:#433a16">${escapeHtml(printData.copy.highlight)}</div>
+            ${printData.showDiagnostic ? `<div class="promo-note"><span class="dot"></span><span>Promoción vigente con talleres incluidos</span></div>` : ``}
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="box brand equal-pay">
+            <div class="pill">Mejor opción</div>
+            <div class="section-kicker" style="color:rgba(255,255,255,.75);padding-right:90px">Pago de contado</div>
+            <div class="strike">${escapeHtml(printData.pricing.list)}</div>
+            <div class="price">${escapeHtml(printData.pricing.cash)}</div>
+            <div class="discount">${escapeHtml(printData.pricing.cashDiscount)}</div>
+            <ul class="list">
+              <li>Pago único</li>
+              <li>Mejor precio disponible</li>
+              ${workshopLi}
+            </ul>
+          </div>
+          <div class="box equal-pay">
+            <div class="section-kicker" style="color:#667085">Plan de pagos</div>
+            <div class="strike" style="color:#98a2b3">${escapeHtml(printData.pricing.list)}</div>
+            <div class="price dark">${escapeHtml(printData.pricing.plan)}</div>
+            <div class="discount dark">${escapeHtml(printData.pricing.planDiscount)}</div>
+            <div class="subgrid">
+              <div class="row"><span>Vigencia elegida</span><span>${escapeHtml(printData.pricing.planVigencia)}</span></div>
+              <div class="row"><span>Inscripción</span><span>${escapeHtml(printData.pricing.inscription)}</span></div>
+              <div class="row"><span>${escapeHtml(printData.pricing.paymentsLabel)}</span><span>${escapeHtml(printData.pricing.paymentAmount)}</span></div>
+            </div>
+          </div>
+          <div class="box soft equal-pay">
+            <div class="section-kicker" style="color:#667085">Meses sin intereses</div>
+            <div style="font-size:14px;color:#667085;margin:10px 0 18px">Precio de lista</div>
+            <div class="subgrid">${msiRows}</div>
+          </div>
+        </div>
+
+        <div class="box bank">
+          <div class="bank-head">
+            <div>
+              <div class="section-kicker" style="color:#667085;margin-bottom:8px">Reserva tu lugar</div>
+              <h3 class="bank-title">Datos para depósito o transferencia</h3>
+            </div>
+            <div style="font-size:13px;color:#667085">${escapeHtml(printData.validity)}</div>
+          </div>
+          <div class="bank-grid">
+            <div><div class="field-label">Banco</div><div class="field-value">BBVA Bancomer</div></div>
+            <div><div class="field-label">CLABE</div><div class="field-value">012910001106113871</div></div>
+            <div><div class="field-label">Beneficiario</div><div class="field-value">Grupo KX S.A. de C.V.</div></div>
+          </div>
+        </div>
+
+        <div class="signature">
+          <div>
+            <div class="name">${escapeHtml(printData.specialist.name)}</div>
+            <div class="role">Especialista académica</div>
+            <a href="${escapeAttr(printData.specialist.whatsappUrl)}" target="_blank" rel="noreferrer">Enviar WhatsApp</a>
+          </div>
+          <div class="note">Documento comercial de referencia para acompañar la decisión de inscripción y explicar las opciones de pago disponibles.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page">
+      <div class="topband"></div>
+      <div class="hero-mini">
+        <img class="logo" src="https://misionadmision-assets.s3.amazonaws.com/img/website/logo-misionadmision.png" alt="Misión Admisión" />
+        <div class="eyebrow">Opciones complementarias</div>
+      </div>
+
+      <div class="content">
+        <div class="alt-header">
+          <div>
+            <div class="eyebrow" style="color:#667085;margin-bottom:8px">Página 2</div>
+            <h2>Cursos alternativos sugeridos</h2>
+            <p>Si este horario no se ajusta por completo a tus necesidades, te compartimos otras opciones dentro de la misma modalidad para ayudarte a tomar la mejor decisión.</p>
+          </div>
+          <div class="gold-note">Mismo temario · Misma modalidad · Nuevas combinaciones de horario</div>
+        </div>
+
+        <div style="display:grid; gap:16px;">${alternativesHtml}</div>
+
+        <div class="bottom-grid">
+          <div class="box soft equal-bottom">
+            <div class="section-kicker" style="color:#667085">Siguiente paso sugerido</div>
+            <div style="font-size:18px;line-height:1.35;font-weight:800;margin-bottom:14px;max-width:360px">Aparta tu lugar con la opción que mejor se ajuste a tu agenda</div>
+            <div style="font-size:14px;line-height:1.75;color:#475467">Una vez realizada tu inscripción o pago inicial, comparte tu comprobante por WhatsApp para confirmar tu lugar y darte seguimiento personalizado.</div>
+          </div>
+          <div class="box contact-dark equal-bottom">
+            <div class="section-kicker" style="color:rgba(255,255,255,.75)">Contacto directo</div>
+            <div class="name">${escapeHtml(printData.specialist.name)}</div>
+            <div class="subtle" style="font-size:14px;margin-bottom:14px">Especialista académica</div>
+            <div style="display:grid;gap:8px;font-size:14px;line-height:1.6">
+              <div><a href="${escapeAttr(printData.specialist.whatsappUrl)}" target="_blank" rel="noreferrer">Enviar WhatsApp</a></div>
+              <div class="line">especialista@misionadmision.com</div>
+              <div class="line">Lun–Vie · 8:30 a 17:30</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-line">
+          <div>Esta segunda hoja presenta opciones alternativas de horario dentro de la misma modalidad, con el objetivo de facilitar la decisión de inscripción sin cambiar el enfoque académico del curso.</div>
+          <div>Página 2 de 2</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>`;
+      }
+
+      function generatePDF() {
         if (!quoteData) {
           showToast("Primero genera una cotización.", "error");
           return;
         }
 
-        const registration = parseFloat(
-          document.getElementById("registration-fee").value || "0"
-        );
-        const numPayments = parseInt(
-          document.getElementById("num-payments").value || "0",
-          10
-        );
+        const registration = parseFloat(document.getElementById("registration-fee").value || "0");
+        const numPayments = parseInt(document.getElementById("num-payments").value || "0", 10);
 
         if (registration < 1000 || numPayments < 1) {
-          showToast("Corrige los datos de inscripción y mensualidades antes de exportar.", "error");
-          return;
-        }
-
-        if (typeof pdfMake === "undefined") {
-          showToast("Librería de PDF no disponible (pdfMake).", "error");
+          showToast("Corrige los datos de inscripción y mensualidades antes de continuar.", "error");
           return;
         }
 
@@ -1208,509 +1558,74 @@ const courseData = {
         const planPricing = getSelectedPlanPricing() || currentPricing;
         const remaining = Math.max(0, planPricing.installment - registration);
         const monthly = remaining > 0 ? roundUpToNearest(remaining / numPayments, 100) : 0;
-        const showCashDiagnosticBenefit = shouldShowCashDiagnosticBenefit(currentPricing);
-        const selectedPlanLabel = getMonthYearLabelFromRule(planPricing);
-
+        const showDiagnostic = shouldShowCashDiagnosticBenefit(currentPricing);
+        const onlySixMSI = quoteData.syllabus === "EXANI I";
         const today = new Date();
-        const dateStr =
-          String(today.getDate()).padStart(2, "0") +
-          "/" +
-          String(today.getMonth() + 1).padStart(2, "0") +
-          "/" +
-          today.getFullYear();
+        const issueDate = String(today.getDate()).padStart(2, "0") + "/" + String(today.getMonth() + 1).padStart(2, "0") + "/" + today.getFullYear();
+        const validityDate = getVigenciaQuincena(today);
+        const validity = "Vigencia hasta el " + String(validityDate.getDate()).padStart(2, "0") + "/" + String(validityDate.getMonth() + 1).padStart(2, "0") + "/" + validityDate.getFullYear();
+        const specialistWhatsapp = quoteData.specialistPhone ? `https://wa.me/52${quoteData.specialistPhone}` : "#";
+        const alternativeCourses = getAlternativeCourses(3).map(alt => ({
+          title: formatCourseDisplayName(alt.name),
+          sub: buildAlternativeSubtitle(quoteData.syllabus, alt.modality, alt.campus),
+          days: alt.days || "-",
+          schedule: alt.schedule || "-",
+          start: formatIsoToDMY(alt.date) || "-",
+          end: formatIsoToDMY(alt.endDate) || "-"
+        }));
 
-        const vigenciaDate = getVigenciaQuincena(today);
-        const vigenciaStr =
-          String(vigenciaDate.getDate()).padStart(2, "0") +
-          "/" +
-          String(vigenciaDate.getMonth() + 1).padStart(2, "0") +
-          "/" +
-          vigenciaDate.getFullYear();
-
-        const courseStart = course ? formatIsoToDMY(course.date) : "";
-        const courseEnd = course ? formatIsoToDMY(course.endDate) : "";
-        const alternativeCourses = getAlternativeCourses(3);
-
-        const specialistName = quoteData.specialistName || "";
-        const specialistPhone = quoteData.specialistPhone || "";
-        const specialistWhatsappUrl = specialistPhone ? ("https://wa.me/52" + specialistPhone) : "";
-        const specialistEmail = "especialista@misionadmision.com";
-
-        const listPriceStr = formatCurrencyMXN(currentPricing.listPrice);
-        const cashPriceStr = formatCurrencyMXN(currentPricing.cash);
-        const planListPriceStr = formatCurrencyMXN(planPricing.listPrice);
-        const planPriceStr = formatCurrencyMXN(planPricing.installment);
-        const msi6Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 6);
-        const msi9Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 9);
-        const msi12Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 12);
-
-        const primaryColor = "#34124B";
-        const accentYellow = "#F4D000";
-        const accentYellowSoft = "#FFF9D9";
-        const accentYellowBorder = "#EAD97A";
-        const darkGold = "#5E4A00";
-        const borderGray = "#E5E7EB";
-        const softGray = "#F8FAFC";
-        const offWhite = "#FAFAFA";
-        const bodyText = "#4B5563";
-        const accentBlue = "#007DFF";
-        const logoWhite = "data:image/png;base64,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";
-
-        const makeLinkText = (color) => {
-          if (!specialistWhatsappUrl) return { text: "-", color };
-          return { text: "Enviar WhatsApp", link: specialistWhatsappUrl, color, decoration: "underline" };
-        };
-
-        const makeCellBlock = (stack, fillColor, margin, borderColor = borderGray, height = null) => {
-          return {
-            table: {
-              widths: ["*"],
-              heights: height ? [height] : undefined,
-              body: [[{ stack, fillColor, margin, border: [true, true, true, true] }]]
-            },
-            layout: {
-              hLineColor: function() { return borderColor || borderGray; },
-              vLineColor: function() { return borderColor || borderGray; },
-              hLineWidth: function() { return borderColor === primaryColor ? 0 : 0.65; },
-              vLineWidth: function() { return borderColor === primaryColor ? 0 : 0.65; },
-              paddingLeft: function() { return 0; },
-              paddingRight: function() { return 0; },
-              paddingTop: function() { return 0; },
-              paddingBottom: function() { return 0; }
-            }
-          };
-        };
-
-        const alternativeCards = alternativeCourses.length
-          ? alternativeCourses.map((alt, idx) => {
-              const altFill = idx % 2 === 1 ? softGray : "#FFFFFF";
-              return makeCellBlock([
-                {
-                  columns: [
-                    {
-                      width: "*",
-                      stack: [
-                        { text: "Alternativa " + (idx + 1), style: "eyebrowMuted", margin: [0, 0, 0, 4] },
-                        { text: (alt.name || "-").toUpperCase(), style: "altTitle", margin: [0, 0, 0, 3] },
-                        { text: quoteData.syllabus + " · " + (alt.modality || "-") + " · " + (alt.campus || "-"), style: "altSubtle" }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  margin: [0, 12, 0, 0],
-                  table: {
-                    widths: ["*", "*", "*", "*"],
-                    body: [
-                      [
-                        { text: "Días", style: "miniLabel" },
-                        { text: "Horario", style: "miniLabel" },
-                        { text: "Inicio", style: "miniLabel" },
-                        { text: "Término", style: "miniLabel" }
-                      ],
-                      [
-                        { text: alt.days || "-", style: "miniValue" },
-                        { text: alt.schedule || "-", style: "miniValue" },
-                        { text: formatIsoToDMY(alt.date) || "-", style: "miniValue" },
-                        { text: formatIsoToDMY(alt.endDate) || "-", style: "miniValue" }
-                      ]
-                    ]
-                  },
-                  layout: {
-                    hLineWidth: function(i) { return i === 1 ? 0.5 : 0; },
-                    vLineWidth: function() { return 0; },
-                    hLineColor: function() { return borderGray; }
-                  }
-                }
-              ], altFill, [20, 18, 20, 18], borderGray);
-            })
-          : [
-              makeCellBlock([
-                { text: "Cursos alternativos sugeridos", style: "sectionTitle", margin: [0, 0, 0, 8] },
-                { text: "Por el momento no contamos con otras opciones registradas en esta misma modalidad.", style: "bodyCopy" }
-              ], softGray, [20, 18, 20, 18], borderGray)
-            ];
-
-        const docDefinition = {
-          pageSize: "A4",
-          pageMargins: [34, 22, 34, 26],
-          footer: function(currentPage, pageCount) {
-            return {
-              margin: [34, 0, 34, 10],
-              columns: [
-                { text: "Vigencia de cotización: " + vigenciaStr, style: "footerText" },
-                { text: "Página " + currentPage + " de " + pageCount, style: "footerText", alignment: "right" }
-              ]
-            };
+        const printData = {
+          studentName: quoteData.studentName || "Alumno(a)",
+          temario: quoteData.syllabus || "-",
+          campus: quoteData.campus || "-",
+          modality: course ? course.modality : "-",
+          start: course ? formatIsoToDMY(course.date) : "-",
+          end: course ? formatIsoToDMY(course.endDate) : "-",
+          schedule: course ? (course.schedule || "-") : "-",
+          days: course ? (course.days || "-") : "-",
+          issueDate,
+          validity,
+          specialist: {
+            name: quoteData.specialistName || "Especialista académica",
+            whatsappUrl: specialistWhatsapp
           },
-          content: [
-            {
-              table: {
-                widths: ["*"],
-                body: [
-                  [{ text: " ", fillColor: accentYellow, border: [false, false, false, false], margin: [0, 0, 0, 0] }],
-                  [{
-                    fillColor: primaryColor,
-                    border: [false, false, false, false],
-                    margin: [20, 18, 20, 16],
-                    stack: [
-                      {
-                        columns: [
-                          {
-                            width: "*",
-                            stack: [
-                              { image: logoWhite, fit: [145, 21], margin: [0, 0, 0, 14] },
-                              { text: "COTIZACIÓN PERSONALIZADA", style: "heroEyebrow", margin: [0, 0, 0, 14] },
-                              { text: "Curso propedéutico EXANI diseñado para impulsar la mejor decisión de inscripción.", style: "heroMessage" }
-                            ]
-                          },
-                          {
-                            width: 190,
-                            table: {
-                              widths: ["*"],
-                              body: [[{
-                                fillColor: "#4B1D69",
-                                border: [true, true, true, true],
-                                borderColor: "#5F2D82",
-                                margin: [12, 10, 12, 10],
-                                stack: [
-                                  { text: "ATENCIÓN PERSONALIZADA", style: "contactEyebrow", margin: [0, 0, 0, 10] },
-                                  { text: "Especialista", style: "contactLabel" },
-                                  { text: specialistName || "-", style: "contactValue", margin: [0, 0, 0, 8] },
-                                  { text: "Fecha de emisión", style: "contactLabel" },
-                                  { text: dateStr, style: "contactValue", margin: [0, 0, 0, 8] },
-                                  { text: "WhatsApp", style: "contactLabel" },
-                                  { text: [makeLinkText("#FFFFFF")], style: "contactValue" }
-                                ]
-                              }]]
-                            },
-                            layout: "noBorders"
-                          }
-                        ],
-                        columnGap: 16
-                      }
-                    ]
-                  }]
-                ]
-              },
-              layout: "noBorders",
-              margin: [0, 0, 0, 14]
-            },
-            {
-              columns: [
-                {
-                  width: "*",
-                  stack: [
-                    { text: "PROPUESTA PARA", style: "eyebrowMuted", margin: [0, 0, 0, 6] },
-                    { text: quoteData.studentName || "-", style: "proposalName" },
-                    { text: "Le compartimos una propuesta clara y flexible para su curso de preparación EXANI, con esquemas de pago y beneficios vigentes.", style: "bodyCopy", margin: [0, 6, 0, 0] }
-                  ]
-                },
-                {
-                  width: 140,
-                  stack: [
-                    { text: "TEMARIO", style: "eyebrowMuted", alignment: "right", margin: [0, 0, 0, 6] },
-                    { text: quoteData.syllabus || "-", style: "temarioBig", alignment: "right" }
-                  ]
-                }
-              ],
-              margin: [0, 0, 0, 14]
-            },
-            {
-              canvas: [{ type: "line", x1: 0, y1: 0, x2: 540, y2: 0, lineWidth: 0.8, lineColor: borderGray }],
-              margin: [0, 0, 0, 14]
-            },
-            {
-              columns: [
-                makeCellBlock([
-                  { text: "DETALLES DEL CURSO", style: "sectionEyebrow", margin: [0, 0, 0, 12] },
-                  {
-                    table: {
-                      widths: ["*", "*"],
-                      body: [
-                        [{ text: "Campus", style: "miniLabel" }, { text: "Modalidad", style: "miniLabel" }],
-                        [{ text: quoteData.campus || "-", style: "miniValue" }, { text: course ? course.modality : "-", style: "miniValue" }],
-                        [{ text: "Inicio", style: "miniLabel" }, { text: "Término", style: "miniLabel" }],
-                        [{ text: courseStart || "-", style: "miniValue" }, { text: courseEnd || "-", style: "miniValue" }],
-                        [{ text: "Horario", style: "miniLabel" }, { text: "Días", style: "miniLabel" }],
-                        [{ text: course ? course.schedule : "-", style: "miniValue" }, { text: course ? course.days : "-", style: "miniValue" }]
-                      ]
-                    },
-                    layout: {
-                      hLineWidth: function() { return 0; },
-                      vLineWidth: function() { return 0; }
-                    }
-                  }
-                ], softGray, [18, 16, 18, 16], borderGray, 142),
-                makeCellBlock([
-                  { text: "RECOMENDACIÓN DESTACADA", style: "calloutEyebrow", margin: [0, 0, 0, 10] },
-                  { text: "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos.", style: "calloutText", margin: [0, 0, 0, 14] },
-                  {
-                    columns: [
-                      { width: 8, text: "●", color: "#D9B300", margin: [0, 0, 0, 0] },
-                      { width: "*", text: "Promoción vigente con talleres incluidos", style: "calloutBenefit" }
-                    ],
-                    columnGap: 6
-                  }
-                ], accentYellowSoft, [18, 16, 18, 16], accentYellowBorder, 142)
-              ],
-              columnGap: 12,
-              margin: [0, 0, 0, 14]
-            },
-            {
-              columns: [
-                makeCellBlock([
-                  {
-                    columns: [
-                      { width: "*", text: "PAGO DE CONTADO", style: "priceEyebrowDark", margin: [0, 2, 0, 10] },
-                      {
-                        width: "auto",
-                        table: { widths: ["auto"], body: [[{ text: "MEJOR OPCIÓN", fillColor: accentYellow, color: "#2F2400", style: "badgeText", border: [false, false, false, false], margin: [10, 4, 10, 4] }]] },
-                        layout: "noBorders"
-                      }
-                    ],
-                    columnGap: 8
-                  },
-                  { text: listPriceStr, style: "priceStrikeDark" },
-                  { text: cashPriceStr, style: "priceMainDark", margin: [0, 2, 0, 4] },
-                  { text: (currentPricing.cashDiscount || 0) + "% de descuento", style: "priceSubDark", margin: [0, 0, 0, 12] },
-                  { text: "• Pago único", style: "benefitDark" },
-                  { text: "• Mejor precio disponible", style: "benefitDark" },
-                  ...(showCashDiagnosticBenefit ? [{ text: "• Talleres de diagnóstico", style: "benefitDark" }] : [])
-                ], primaryColor, [18, 16, 18, 18], primaryColor, 168),
-                makeCellBlock([
-                  { text: "PLAN DE PAGOS", style: "priceEyebrow", margin: [0, 2, 0, 10] },
-                  { text: planListPriceStr, style: "priceStrike" },
-                  { text: planPriceStr, style: "priceMain", margin: [0, 2, 0, 4] },
-                  { text: (planPricing.installmentDiscount || 0) + "% de descuento", style: "priceSubtle", margin: [0, 0, 0, 12] },
-                  {
-                    table: {
-                      widths: ["*", "auto"],
-                      body: [
-                        [{ text: "Vigencia elegida", style: "miniLabel" }, { text: selectedPlanLabel || "-", style: "miniValueRight" }],
-                        [{ text: "Inscripción", style: "miniLabel" }, { text: formatCurrencyMXN(registration), style: "miniValueRight" }],
-                        [{ text: numPayments + " mensualidades", style: "miniLabel" }, { text: formatCurrencyMXN(monthly), style: "miniValueRight" }]
-                      ]
-                    },
-                    layout: {
-                      hLineWidth: function(i) { return i === 1 || i === 2 ? 0.5 : 0; },
-                      vLineWidth: function() { return 0; },
-                      hLineColor: function() { return borderGray; }
-                    }
-                  }
-                ], "#FFFFFF", [18, 16, 18, 18], borderGray, 168),
-                makeCellBlock([
-                  { text: "MESES SIN INTERESES", style: "priceEyebrow", margin: [0, 2, 0, 10] },
-                  { text: "Precio de lista", style: "priceSubtle", margin: [0, 0, 0, 12] },
-                  {
-                    table: {
-                      widths: ["*", "auto"],
-                      body: [
-                        [{ text: "6 MSI", style: "miniLabel" }, { text: msi6Str, style: "miniValueRight" }],
-                        ...(quoteData.syllabus === "EXANI I"
-                          ? []
-                          : [
-                              [{ text: "9 MSI", style: "miniLabel" }, { text: msi9Str, style: "miniValueRight" }],
-                              [{ text: "12 MSI", style: "miniLabel" }, { text: msi12Str, style: "miniValueRight" }]
-                            ])
-                      ]
-                    },
-                    layout: {
-                      hLineWidth: function(i, node) { return i > 0 ? 0.5 : 0; },
-                      vLineWidth: function() { return 0; },
-                      hLineColor: function() { return borderGray; }
-                    }
-                  }
-                ], softGray, [18, 16, 18, 18], borderGray, 168)
-              ],
-              columnGap: 12,
-              margin: [0, 0, 0, 8]
-            },
-            {
-              unbreakable: true,
-              stack: [
-                makeCellBlock([
-                  {
-                    columns: [
-                      {
-                        width: "*",
-                        stack: [
-                          { text: "RESERVA TU LUGAR", style: "sectionEyebrow", margin: [0, 0, 0, 6] },
-                          { text: "Datos para depósito o transferencia", style: "bankHeading" }
-                        ]
-                      },
-                      { width: "auto", text: "Vigencia hasta el " + vigenciaStr, style: "bankValidity" }
-                    ]
-                  },
-                  {
-                    margin: [0, 12, 0, 0],
-                    table: {
-                      widths: ["*", "*", "*"],
-                      body: [
-                        [{ text: "Banco", style: "miniLabel" }, { text: "CLABE", style: "miniLabel" }, { text: "Beneficiario", style: "miniLabel" }],
-                        [{ text: "BBVA Bancomer", style: "miniValue" }, { text: "012910001106113871", style: "miniValue" }, { text: "Grupo KX S.A. de C.V.", style: "miniValue" }]
-                      ]
-                    },
-                    layout: {
-                      hLineWidth: function(i) { return i === 1 ? 0.5 : 0; },
-                      vLineWidth: function() { return 0; },
-                      hLineColor: function() { return borderGray; }
-                    }
-                  }
-                ], "#FFFFFF", [16, 12, 16, 10], borderGray),
-                {
-                  columns: [
-                    {
-                      width: "*",
-                      stack: [
-                        { text: specialistName || "Especialista académica", style: "signatureName" },
-                        { text: "Especialista académica", style: "signatureRole", margin: [0, 2, 0, 4] },
-                        { text: [makeLinkText(primaryColor)], style: "signatureWhatsapp" }
-                      ]
-                    },
-                    {
-                      width: 220,
-                      text: "Documento comercial de referencia para acompañar la decisión de inscripción y explicar las opciones de pago disponibles.",
-                      style: "signatureNote",
-                      alignment: "right"
-                    }
-                  ],
-                  margin: [0, 12, 0, 0]
-                }
-              ]
-            },
-            {
-              pageBreak: "before",
-              table: {
-                widths: ["*"],
-                body: [
-                  [{ text: " ", fillColor: accentYellow, border: [false, false, false, false], margin: [0, 0, 0, 0] }],
-                  [{
-                    fillColor: primaryColor,
-                    border: [false, false, false, false],
-                    margin: [20, 14, 20, 12],
-                    columns: [
-                      { image: logoWhite, fit: [118, 17], width: "auto" },
-                      { text: "OPCIONES COMPLEMENTARIAS", style: "heroEyebrow", alignment: "right", margin: [0, 2, 0, 0] }
-                    ]
-                  }]
-                ]
-              },
-              layout: "noBorders",
-              margin: [0, 0, 0, 20]
-            },
-            {
-              columns: [
-                {
-                  width: "*",
-                  stack: [
-                    { text: "PÁGINA 2", style: "eyebrowMuted", margin: [0, 0, 0, 6] },
-                    { text: "Cursos alternativos sugeridos", style: "page2Title", margin: [0, 0, 0, 8] },
-                    { text: "Si este horario no se ajusta por completo a tus necesidades, te compartimos otras opciones dentro de la misma modalidad para ayudarte a tomar la mejor decisión.", style: "bodyCopy" }
-                  ]
-                },
-                makeCellBlock([
-                  { text: "Mismo temario · Misma modalidad · Nuevas combinaciones de horario", style: "page2Badge" }
-                ], accentYellowSoft, [14, 12, 14, 12], accentYellowBorder)
-              ],
-              columnGap: 12,
-              margin: [0, 0, 0, 14]
-            },
-            ...alternativeCards.map((card, idx) => Object.assign({}, card, { margin: [0, 0, 0, idx === alternativeCards.length - 1 ? 18 : 12] })),
-            {
-              unbreakable: true,
-              stack: [
-                {
-                  columns: [
-                    makeCellBlock([
-                      { text: "SIGUIENTE PASO SUGERIDO", style: "sectionEyebrow", margin: [0, 0, 0, 8] },
-                      { text: "Aparta tu lugar con la opción que mejor se ajuste a tu agenda", style: "nextStepTitle", margin: [0, 0, 0, 10] },
-                      { text: "Una vez realizada tu inscripción o pago inicial, comparte tu comprobante por WhatsApp para confirmar tu lugar y darte seguimiento personalizado.", style: "bodyCopy" }
-                    ], softGray, [16, 14, 16, 14], borderGray, 136),
-                    makeCellBlock([
-                      { text: "CONTACTO DIRECTO", style: "contactEyebrow", margin: [0, 0, 0, 10] },
-                      { text: specialistName || "Especialista académica", style: "contactCardName", margin: [0, 0, 0, 2] },
-                      { text: "Especialista académica", style: "contactCardRole", margin: [0, 0, 0, 10] },
-                      { text: [makeLinkText("#FFFFFF")], style: "contactCardLink", margin: [0, 0, 0, 6] },
-                      { text: specialistEmail, style: "contactCardMeta", margin: [0, 0, 0, 4] },
-                      { text: "Lun–Vie · 8:30 a 17:30", style: "contactCardMeta" }
-                    ], primaryColor, [16, 14, 16, 14], primaryColor, 136)
-                  ],
-                  columnGap: 12,
-                  margin: [0, 0, 0, 12]
-                },
-                {
-                  columns: [
-                    { text: "Esta segunda hoja presenta opciones alternativas de horario dentro de la misma modalidad, con el objetivo de facilitar la decisión de inscripción sin cambiar el enfoque académico del curso.", style: "footerNote", width: "*" },
-                    { text: "Página 2 de 2", style: "footerNote", width: 90, alignment: "right" }
-                  ]
-                }
-              ]
-            }
-          ],
-          styles: {
-            footerText: { fontSize: 8, color: "#6B7280" },
-            heroEyebrow: { fontSize: 11, bold: false, color: "#CFC4D8", characterSpacing: 2.4 },
-            heroMessage: { fontSize: 14, color: "#FFFFFF", lineHeight: 1.24 },
-            contactEyebrow: { fontSize: 9, color: "#D8CDE1", characterSpacing: 1.8 },
-            contactLabel: { fontSize: 8, color: "#D8CDE1" },
-            contactValue: { fontSize: 10, color: "#FFFFFF", bold: true },
-            eyebrowMuted: { fontSize: 10, color: "#6B7280", characterSpacing: 2.1 },
-            proposalName: { fontSize: 21, bold: true, color: "#111827" },
-            bodyCopy: { fontSize: 9.5, color: bodyText, lineHeight: 1.35 },
-            temarioBig: { fontSize: 15, bold: true, color: "#111827" },
-            sectionEyebrow: { fontSize: 9, color: "#6B7280", characterSpacing: 1.8 },
-            calloutEyebrow: { fontSize: 9, color: darkGold, characterSpacing: 1.8 },
-            calloutText: { fontSize: 9.5, color: "#374151", lineHeight: 1.35 },
-            calloutBenefit: { fontSize: 9.5, color: darkGold, bold: true },
-            miniLabel: { fontSize: 8, color: "#6B7280" },
-            miniValue: { fontSize: 9.2, color: "#111827", bold: true },
-            miniValueRight: { fontSize: 9.2, color: "#111827", bold: true, alignment: "right" },
-            priceEyebrowDark: { fontSize: 9, color: "#D9CDE3", characterSpacing: 1.8 },
-            priceStrikeDark: { fontSize: 10, color: "#D9CDE3", decoration: "lineThrough" },
-            priceMainDark: { fontSize: 26, color: "#FFFFFF", bold: true },
-            priceSubDark: { fontSize: 10, color: "#F3F0F6" },
-            benefitDark: { fontSize: 9.5, color: "#FFFFFF" },
-            priceEyebrow: { fontSize: 9, color: "#6B7280", characterSpacing: 1.8 },
-            priceStrike: { fontSize: 10, color: "#9CA3AF", decoration: "lineThrough" },
-            priceMain: { fontSize: 24, color: "#111827", bold: true },
-            priceSubtle: { fontSize: 10, color: "#6B7280" },
-            badgeText: { fontSize: 8, bold: true, characterSpacing: 1.3, alignment: "center" },
-            bankHeading: { fontSize: 15, bold: true, color: "#111827" },
-            bankValidity: { fontSize: 9, color: "#6B7280", alignment: "right" },
-            signatureName: { fontSize: 14, bold: true, color: "#111827" },
-            signatureRole: { fontSize: 9, color: "#6B7280" },
-            signatureWhatsapp: { fontSize: 9.5, bold: true },
-            signatureNote: { fontSize: 8.5, color: "#9CA3AF", lineHeight: 1.3 },
-            page2Title: { fontSize: 20, bold: true, color: "#111827" },
-            page2Badge: { fontSize: 9, color: darkGold, bold: true, alignment: "center", lineHeight: 1.25 },
-            altTitle: { fontSize: 16, bold: true, color: "#111827" },
-            altSubtle: { fontSize: 9, color: "#6B7280" },
-            nextStepTitle: { fontSize: 16, bold: true, color: "#111827", lineHeight: 1.2 },
-            contactCardName: { fontSize: 16, bold: true, color: "#FFFFFF" },
-            contactCardRole: { fontSize: 9.5, color: "#D8CDE1" },
-            contactCardLink: { fontSize: 9.5, bold: true, color: "#FFFFFF" },
-            contactCardMeta: { fontSize: 9, color: "#F1EEF5" },
-            footerNote: { fontSize: 8.3, color: "#9CA3AF", lineHeight: 1.3 }
+          copy: {
+            hero: "Curso propedéutico EXANI diseñado para impulsar la mejor decisión de inscripción.",
+            intro: "Le compartimos una propuesta clara y flexible para su curso de preparación EXANI, con esquemas de pago y beneficios vigentes.",
+            highlight: "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos."
           },
-          defaultStyle: {
-            fontSize: 9,
-            color: "#111827"
-          }
+          pricing: {
+            list: formatCurrencyMXN(currentPricing.listPrice),
+            cash: formatCurrencyMXN(currentPricing.cash),
+            cashDiscount: (currentPricing.cashDiscount || 0) + "% de descuento",
+            plan: formatCurrencyMXN(planPricing.installment),
+            planDiscount: (planPricing.installmentDiscount || 0) + "% de descuento",
+            planVigencia: getMonthYearLabelFromRule(planPricing),
+            inscription: formatCurrencyMXN(registration),
+            paymentsLabel: `${numPayments} mensualidades`,
+            paymentAmount: formatCurrencyMXN(monthly),
+            msi6: formatCurrencyMXN((currentPricing.listPrice || 0) / 6),
+            msi9: formatCurrencyMXN((currentPricing.listPrice || 0) / 9),
+            msi12: formatCurrencyMXN((currentPricing.listPrice || 0) / 12)
+          },
+          alternatives: alternativeCourses,
+          showDiagnostic,
+          onlySixMSI
         };
 
-        const safeName =
-          (quoteData.studentName || "curso")
-            .toString()
-            .trim()
-            .replace(/[^a-z0-9_\-]+/gi, "_") || "curso";
+        const html = buildPrintableQuoteHtml(printData);
+        const previewWindow = window.open("", "_blank");
 
-        const fileName = "Descripcion_de_curso_para_" + safeName + ".pdf";
+        if (!previewWindow) {
+          showToast("Tu navegador bloqueó la nueva ventana. Permite pop-ups para abrir la vista del PDF.", "error", 4500);
+          return;
+        }
 
-        const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-        pdfDocGenerator.download(fileName);
-
-        showToast("PDF generado, revisa tus descargas.", "success");
+        previewWindow.document.open();
+        previewWindow.document.write(html);
+        previewWindow.document.close();
+        previewWindow.focus();
+        showToast("Se abrió la vista premium para guardar como PDF.", "success", 3500);
       }
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -1724,7 +1639,6 @@ const courseData = {
         const quoteResults = document.getElementById("quote-results");
         const registrationInput = document.getElementById("registration-fee");
         const numPaymentsInput = document.getElementById("num-payments");
-        const planDiscountSelector = document.getElementById("plan-discount-selector");
         const exportBtn = document.getElementById("export-pdf");
 
         syllabusSelect.addEventListener("change", () => {
@@ -1750,12 +1664,6 @@ const courseData = {
 
         numPaymentsInput.addEventListener("input", () => {
           updatePaymentLimits();
-          calculateInstallments();
-        });
-
-        planDiscountSelector.addEventListener("change", () => {
-          selectedPlanPricing = getSelectedPlanPricing();
-          updateDisplayPrices();
           calculateInstallments();
         });
 
@@ -1805,7 +1713,6 @@ const courseData = {
             return;
           }
 
-          updatePlanDiscountOptions();
           updateDisplayPrices();
           quoteResults.classList.remove("hidden");
           calculateInstallments();
