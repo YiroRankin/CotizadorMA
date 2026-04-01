@@ -1233,6 +1233,9 @@ const courseData = {
 
         const specialistName = quoteData.specialistName || "";
         const specialistPhone = quoteData.specialistPhone || "";
+        const specialistWhatsappUrl = specialistPhone ? ("https://wa.me/52" + specialistPhone) : "";
+        const specialistEmail = "especialista@misionadmision.com";
+
         const listPriceStr = formatCurrencyMXN(currentPricing.listPrice);
         const cashPriceStr = formatCurrencyMXN(currentPricing.cash);
         const planListPriceStr = formatCurrencyMXN(planPricing.listPrice);
@@ -1241,601 +1244,445 @@ const courseData = {
         const msi9Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 9);
         const msi12Str = formatCurrencyMXN((currentPricing.listPrice || 0) / 12);
 
-        // Colores corporativos
-        const primaryColor = "#4d2668";      // Morado principal Misión Admisión
-        const lightPurple = "#f5f3ff";       // Lila suave para recuadros
-        const borderGray = "#e5e7eb";
+        const primaryColor = "#34124B";
+        const accentYellow = "#F4D000";
+        const accentYellowSoft = "#FFF9D9";
+        const accentYellowBorder = "#EAD97A";
+        const darkGold = "#5E4A00";
+        const borderGray = "#E5E7EB";
+        const softGray = "#F8FAFC";
+        const offWhite = "#FAFAFA";
+        const bodyText = "#4B5563";
+        const accentBlue = "#007DFF";
+        const logoWhite = "data:image/png;base64,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";
 
-        // Colores de acento
-        const accentYellow = "#fff600";
-        const accentDarkBlue = "#2d3289";
-        const accentLightBlue = "#007dff";
+        const makeLinkText = (color) => {
+          if (!specialistWhatsappUrl) return { text: "-", color };
+          return { text: "Enviar WhatsApp", link: specialistWhatsappUrl, color, decoration: "underline" };
+        };
 
-        const logoWhite = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABIAQQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//2Q==";
+        const makeCellBlock = (stack, fillColor, margin, borderColor = borderGray) => {
+          return {
+            table: {
+              widths: ["*"],
+              body: [[{ stack, fillColor, margin, border: [true, true, true, true], borderColor }]]
+            },
+            layout: {
+              paddingLeft: function() { return 0; },
+              paddingRight: function() { return 0; },
+              paddingTop: function() { return 0; },
+              paddingBottom: function() { return 0; }
+            }
+          };
+        };
 
-        const docDefinition = {
-          pageMargins: [40, 90, 40, 60],
-          header: function(currentPage, pageCount) {
-            return {
-              margin: [40, 20, 40, 10],
-              table: {
-                widths: ["*"],
-                body: [
-                  [
+        const alternativeCards = alternativeCourses.length
+          ? alternativeCourses.map((alt, idx) => {
+              const altFill = idx % 2 === 1 ? softGray : "#FFFFFF";
+              return makeCellBlock([
+                {
+                  columns: [
                     {
-                      border: [false, false, false, false],
-                      fillColor: primaryColor,
-                      margin: [12, 10, 12, 10],
-                      columns: [
-                        {
-                          width: "*",
-                          text: "Misión Admisión",
-                          style: "headerTitle",
-                          margin: [0, 6, 0, 6],
-                          color: "#ffffff",
-                          alignment: "center"
-                        },
-                        {
-                          width: "auto",
-                          alignment: "right",
-                          stack: [
-                            { text: "Cotización de curso EXANI I / EXANI II", style: "headerSubtitleWhite" },
-                            { text: "Especialista académica: " + (specialistName || "-"), style: "headerContactWhite" },
-                            { text: "Tel. " + (specialistPhone || "-"), style: "headerContactWhite" },
-                            { text: "Fecha de emisión: " + dateStr, style: "headerContactWhite" }
-                          ]
-                        }
+                      width: "*",
+                      stack: [
+                        { text: "Alternativa " + (idx + 1), style: "eyebrowMuted", margin: [0, 0, 0, 4] },
+                        { text: (alt.name || "-").toUpperCase(), style: "altTitle", margin: [0, 0, 0, 3] },
+                        { text: quoteData.syllabus + " · " + (alt.modality || "-") + " · " + (alt.campus || "-"), style: "altSubtle" }
                       ]
                     }
-                  ],
-                  [
-                    {
-                      border: [false, false, false, false],
-                      fillColor: accentYellow,
-                      text: " ",
-                      margin: [0, 0, 0, 0]
-                    }
                   ]
-                ]
-              },
-              layout: "noBorders"
-            };
-          },          footer: function(currentPage, pageCount) {
-            return {
-              margin: [40, 0, 40, 20],
-              columns: [
-                {
-                  text: "Esta cotización tiene vigencia hasta el " + vigenciaStr + ".",
-                  style: "footerText"
                 },
                 {
-                  text: "Página " + currentPage + " de " + pageCount,
-                  style: "footerText",
-                  alignment: "right"
+                  margin: [0, 12, 0, 0],
+                  table: {
+                    widths: ["*", "*", "*", "*"],
+                    body: [
+                      [
+                        { text: "Días", style: "miniLabel" },
+                        { text: "Horario", style: "miniLabel" },
+                        { text: "Inicio", style: "miniLabel" },
+                        { text: "Término", style: "miniLabel" }
+                      ],
+                      [
+                        { text: alt.days || "-", style: "miniValue" },
+                        { text: alt.schedule || "-", style: "miniValue" },
+                        { text: formatIsoToDMY(alt.date) || "-", style: "miniValue" },
+                        { text: formatIsoToDMY(alt.endDate) || "-", style: "miniValue" }
+                      ]
+                    ]
+                  },
+                  layout: {
+                    hLineWidth: function(i) { return i === 1 ? 0.5 : 0; },
+                    vLineWidth: function() { return 0; },
+                    hLineColor: function() { return borderGray; }
+                  }
                 }
+              ], altFill, [20, 18, 20, 18], borderGray);
+            })
+          : [
+              makeCellBlock([
+                { text: "Cursos alternativos sugeridos", style: "sectionTitle", margin: [0, 0, 0, 8] },
+                { text: "Por el momento no contamos con otras opciones registradas en esta misma modalidad.", style: "bodyCopy" }
+              ], softGray, [20, 18, 20, 18], borderGray)
+            ];
+
+        const docDefinition = {
+          pageSize: "LETTER",
+          pageMargins: [36, 28, 36, 34],
+          footer: function(currentPage, pageCount) {
+            return {
+              margin: [36, 0, 36, 12],
+              columns: [
+                { text: "Vigencia de cotización: " + vigenciaStr, style: "footerText" },
+                { text: "Página " + currentPage + " de " + pageCount, style: "footerText", alignment: "right" }
               ]
             };
           },
           content: [
             {
-              canvas: [
-                {
-                  type: "line",
-                  x1: 0,
-                  y1: 0,
-                  x2: 515,
-                  y2: 0,
-                  lineWidth: 2,
-                  lineColor: primaryColor
-                }
-              ],
-              margin: [0, 0, 0, 16]
-            },
-            {
-              text:
-                "Con base en nuestra conversación, le comparto esta cotización esperando que le sea de utilidad para tomar la mejor decisión sobre el curso de preparación.",
-              style: "bodyIntro",
-              bold: true,
-              margin: [0, 0, 0, 10]
-            },
-            {
-              text: "Datos del alumno(a)",
-              style: "blockTitle",
-              margin: [0, 0, 0, 4]
-            },
-            {
-              style: "prospectInfo",
-              margin: [0, 0, 0, 16],
-              stack: [
-                {
-                  text: [
-                    { text: "Nombre del alumno(a): ", bold: true },
-                    { text: quoteData.studentName || "-", bold: false }
-                  ],
-                  margin: [0, 1, 0, 1]
-                },
-                {
-                  text: [
-                    { text: "Temario de interés: ", bold: true },
-                    { text: quoteData.syllabus || "-", bold: false }
-                  ],
-                  margin: [0, 1, 0, 1]
-                },
-                {
-                  text: [
-                    { text: "Campus de interés: ", bold: true },
-                    { text: quoteData.campus || "-", bold: false }
-                  ],
-                  margin: [0, 1, 0, 1]
-                },
-                {
-                  text: [
-                    { text: "Curso seleccionado: ", bold: true },
-                    { text: quoteData.courseName || "-", bold: false }
-                  ],
-                  margin: [0, 1, 0, 1]
-                }
-              ]
-            },
-            {
-              text: "Le comparto a continuación los datos importantes para el curso seleccionado:",
-              style: "bodyText",
-              bold: true,
-              margin: [0, 0, 0, 6]
-            },
-
-            {
-              table: {
-                widths: ["auto", "*", "auto", "*"],
-                body: [
-                  [
-                    { text: "Detalles del curso", style: "blockTitle", colSpan: 4, margin: [8, 6, 8, 6] },
-                    {},
-                    {},
-                    {}
-                  ],
-                  [
-                    { text: "Fecha de inicio", style: "labelCell" },
-                    { text: courseStart || "-", style: "valueCell" },
-                    { text: "Fecha de término", style: "labelCell" },
-                    { text: courseEnd || "-", style: "valueCell" }
-                  ],
-                  [
-                    { text: "Modalidad", style: "labelCell" },
-                    { text: course ? course.modality : "-", style: "valueCell" },
-                    { text: "Días", style: "labelCell" },
-                    { text: course ? course.days : "-", style: "valueCell" }
-                  ],
-                  [
-                    { text: "Horario", style: "labelCell" },
-                    { text: course ? course.schedule : "-", style: "valueCell" },
-                    { text: "Dirección", style: "labelCell" },
-                    { text: course ? course.address : "-", style: "valueCell" }
-                  ],
-                  [
-                    { text: "Ubicación", style: "labelCell" },
-                    { text: course && course.locationUrl ? course.locationUrl : "-", style: "valueCell", colSpan: 3 },
-                    {},
-                    {}
-                  ],
-                  [
-                    { text: "Precio de lista", style: "labelCell" },
-                    { text: listPriceStr, style: "valueCell", colSpan: 3 },
-                    {},
-                    {}
-                  ]
-                ]
-              },
-              layout: {
-                fillColor: function (rowIndex, node, columnIndex) {
-                  return rowIndex === 0 ? lightPurple : null;
-                },
-                hLineColor: function () { return borderGray; },
-                vLineColor: function () { return borderGray; }
-              },
-              margin: [0, 0, 0, 10]
-            },
-            {
-              text: "Los esquemas de pago que hoy tenemos disponibles son:",
-              style: "bodyText",
-              bold: true,
-              margin: [0, 4, 0, 4]
-            },
-            {
-              columns: [
-                {
-                  width: "*",
-                  table: {
-                    widths: ["*"],
-                    body: [
-                      [
-                        { text: "Pago de contado", style: "blockTitle", margin: [8, 6, 8, 6] }
-                      ],
-                      [
-                        {
-                          text: "Precio de lista: " + listPriceStr,
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Hoy pagaría: " + cashPriceStr,
-                          style: "valueCell"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Descuento aplicado: " + (currentPricing.cashDiscount || 0) + "%",
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "· Pago único",
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "· Mejor precio disponible",
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      ...(showCashDiagnosticBenefit
-                        ? [[
-                            {
-                              text: "· Talleres de diagnóstico",
-                              style: "optionBodyCompact"
-                            }
-                          ]]
-                        : [])
-                    ]
-                  },
-                  layout: {
-                    hLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
-                    },
-                    vLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
-                    },
-                    hLineColor: function () { return borderGray; },
-                    vLineColor: function () { return borderGray; }
-                  }
-                },
-                {
-                  width: "*",
-                  table: {
-                    widths: ["*"],
-                    body: [
-                      [
-                        { text: "Plan de pagos", style: "blockTitle", margin: [8, 6, 8, 6] }
-                      ],
-                      [
-                        {
-                          text: "Precio de lista: " + planListPriceStr,
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Hoy pagaría: " + planPriceStr,
-                          style: "valueCell"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Descuento aplicado: " + (planPricing.installmentDiscount || 0) + "%",
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Vigencia elegida: " + selectedPlanLabel,
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: "Inscripción: " + formatCurrencyMXN(registration),
-                          style: "optionBodyCompact"
-                        }
-                      ],
-                      [
-                        {
-                          text: numPayments + " mensualidades de: " + formatCurrencyMXN(monthly),
-                          style: "optionBodyCompact"
-                        }
-                      ]
-                    ]
-                  },
-                  layout: {
-                    hLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
-                    },
-                    vLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
-                    },
-                    hLineColor: function () { return borderGray; },
-                    vLineColor: function () { return borderGray; }
-                  }
-                },
-                {
-                  width: "*",
-                  table: {
-                    widths: ["*"],
-                    body: [
-                      [
-                        { text: "Meses sin intereses", style: "blockTitle", margin: [8, 6, 8, 6] }
-                      ],
-                      [
-                        {
-                          text: "Precio de lista: " + listPriceStr,
-                          style: "valueCell"
-                        }
-                      ],
-                      ...(quoteData.syllabus === "EXANI I"
-                        ? [
-                            [
-                              {
-                                text: "6 MSI de: " + msi6Str,
-                                style: "optionBodyCompact"
-                              }
-                            ]
-                          ]
-                        : [
-                            [
-                              {
-                                text: "6 MSI de: " + msi6Str,
-                                style: "optionBodyCompact"
-                              }
-                            ],
-                            [
-                              {
-                                text: "9 MSI de: " + msi9Str,
-                                style: "optionBodyCompact"
-                              }
-                            ],
-                            [
-                              {
-                                text: "12 MSI de: " + msi12Str,
-                                style: "optionBodyCompact"
-                              }
-                            ]
-                          ])
-                    ]
-                  },
-                  layout: {
-                    hLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.body.length) ? 0.5 : 0;
-                    },
-                    vLineWidth: function (i, node) {
-                      return (i === 0 || i === node.table.widths.length) ? 0.5 : 0;
-                    },
-                    hLineColor: function () { return borderGray; },
-                    vLineColor: function () { return borderGray; }
-                  }
-                }
-              ],
-              columnGap: 12,
-              margin: [0, 0, 0, 24]
-            },
-            {
-              margin: [0, 0, 0, 8],
               table: {
                 widths: ["*"],
                 body: [
-                  [
-                    {
-                      border: [false, false, false, false],
-                      fillColor: lightPurple,
-                      margin: [10, 10, 10, 10],
-                      stack: [
-                        { text: "Datos para depósito o transferencia", style: "blockTitle", margin: [0, 0, 0, 4] },
-                        { text: "BBVA Bancomer", style: "bankName", margin: [0, 2, 0, 2] },
-                        { text: "CLABE: 012910001106113871", style: "valueCell" },
-                        { text: "Beneficiario: Grupo KX S.A. de C.V.", style: "valueCell", margin: [0, 0, 0, 6] },
-                        {
-                          text:
-                            "En concepto o motivo de pago, anotar el nombre del alumno y compartir la captura del comprobante por WhatsApp, donde sean visibles los siguientes datos:",
-                          style: "optionBody",
-                          margin: [0, 4, 0, 4]
-                        },
-                        {
-                          ul: [
-                            "Fecha",
-                            "Hora",
-                            "Folio o referencia",
-                            "Concepto o motivo de pago con nombre del alumno"
-                          ],
-                          style: "optionBody",
-                          margin: [8, 0, 0, 0]
-                        }
-                      ]
-                    }
-                  ]
+                  [{ text: " ", fillColor: accentYellow, border: [false, false, false, false], margin: [0, 0, 0, 0] }],
+                  [{
+                    fillColor: primaryColor,
+                    border: [false, false, false, false],
+                    margin: [22, 22, 22, 18],
+                    stack: [
+                      {
+                        columns: [
+                          {
+                            width: "*",
+                            stack: [
+                              { image: logoWhite, fit: [165, 24], margin: [0, 0, 0, 16] },
+                              { text: "COTIZACIÓN PERSONALIZADA", style: "heroEyebrow", margin: [0, 0, 0, 14] },
+                              { text: "Curso propedéutico EXANI diseñado para impulsar la mejor decisión de inscripción.", style: "heroMessage" }
+                            ]
+                          },
+                          {
+                            width: 210,
+                            table: {
+                              widths: ["*"],
+                              body: [[{
+                                fillColor: "#4B1D69",
+                                border: [true, true, true, true],
+                                borderColor: "#5F2D82",
+                                margin: [14, 12, 14, 12],
+                                stack: [
+                                  { text: "ATENCIÓN PERSONALIZADA", style: "contactEyebrow", margin: [0, 0, 0, 10] },
+                                  { text: "Especialista", style: "contactLabel" },
+                                  { text: specialistName || "-", style: "contactValue", margin: [0, 0, 0, 8] },
+                                  { text: "Fecha de emisión", style: "contactLabel" },
+                                  { text: dateStr, style: "contactValue", margin: [0, 0, 0, 8] },
+                                  { text: "WhatsApp", style: "contactLabel" },
+                                  { text: [makeLinkText("#FFFFFF")], style: "contactValue" }
+                                ]
+                              }]]
+                            },
+                            layout: "noBorders"
+                          }
+                        ],
+                        columnGap: 20
+                      }
+                    ]
+                  }]
                 ]
               },
-              layout: "noBorders"
+              layout: "noBorders",
+              margin: [0, 0, 0, 22]
             },
             {
-              margin: [0, 8, 0, 0],
               columns: [
                 {
                   width: "*",
                   stack: [
-                    {
-                      canvas: [
-                        {
-                          type: "line",
-                          x1: 0,
-                          y1: 0,
-                          x2: 220,
-                          y2: 0,
-                          lineWidth: 0.8,
-                          lineColor: "#4b5563"
-                        }
-                      ],
-                      margin: [0, 0, 0, 6]
-                    },
-                    {
-                      text: quoteData.specialistName || "Especialista académica",
-                      style: "footerText",
-                      bold: true,
-                      fontSize: 10,
-                      margin: [0, 1, 0, 1]
-                    },
-                    {
-                      text: "especialista@misionadmision.com",
-                      style: "footerText",
-                      bold: true,
-                      fontSize: 9,
-                      margin: [0, 1, 0, 1]
-                    },
-                    {
-                      text: [
-                        {
-                          text: "WhatsApp",
-                          link: "https://wa.me/52" + (specialistPhone || ""),
-                          color: accentLightBlue,
-                          decoration: "underline"
-                        },
-                        { text: "  ·  Horarios de atención: De lunes a viernes de 8:30 a 13:30 y de 14:30 a 17:30 · Sábados de 8:30 a 13:30", color: "#6b7280" }
-                      ],
-                      style: "footerText",
-                      bold: true,
-                      fontSize: 8.5,
-                      margin: [0, 1, 0, 1]
-                    }
+                    { text: "PROPUESTA PARA", style: "eyebrowMuted", margin: [0, 0, 0, 6] },
+                    { text: quoteData.studentName || "-", style: "proposalName" },
+                    { text: "Le compartimos una propuesta clara y flexible para su curso de preparación EXANI, con esquemas de pago y beneficios vigentes.", style: "bodyCopy", margin: [0, 6, 0, 0] }
+                  ]
+                },
+                {
+                  width: 140,
+                  stack: [
+                    { text: "TEMARIO", style: "eyebrowMuted", alignment: "right", margin: [0, 0, 0, 6] },
+                    { text: quoteData.syllabus || "-", style: "temarioBig", alignment: "right" }
                   ]
                 }
-              ]
+              ],
+              margin: [0, 0, 0, 18]
+            },
+            {
+              canvas: [{ type: "line", x1: 0, y1: 0, x2: 540, y2: 0, lineWidth: 0.8, lineColor: borderGray }],
+              margin: [0, 0, 0, 18]
+            },
+            {
+              columns: [
+                makeCellBlock([
+                  { text: "DETALLES DEL CURSO", style: "sectionEyebrow", margin: [0, 0, 0, 12] },
+                  {
+                    table: {
+                      widths: ["*", "*"],
+                      body: [
+                        [{ text: "Campus", style: "miniLabel" }, { text: "Modalidad", style: "miniLabel" }],
+                        [{ text: quoteData.campus || "-", style: "miniValue" }, { text: course ? course.modality : "-", style: "miniValue" }],
+                        [{ text: "Inicio", style: "miniLabel" }, { text: "Término", style: "miniLabel" }],
+                        [{ text: courseStart || "-", style: "miniValue" }, { text: courseEnd || "-", style: "miniValue" }],
+                        [{ text: "Horario", style: "miniLabel" }, { text: "Días", style: "miniLabel" }],
+                        [{ text: course ? course.schedule : "-", style: "miniValue" }, { text: course ? course.days : "-", style: "miniValue" }]
+                      ]
+                    },
+                    layout: {
+                      hLineWidth: function() { return 0; },
+                      vLineWidth: function() { return 0; }
+                    }
+                  }
+                ], softGray, [18, 16, 18, 16], borderGray),
+                makeCellBlock([
+                  { text: "RECOMENDACIÓN DESTACADA", style: "calloutEyebrow", margin: [0, 0, 0, 10] },
+                  { text: "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos.", style: "calloutText", margin: [0, 0, 0, 14] },
+                  {
+                    columns: [
+                      { width: 8, text: "●", color: "#D9B300", margin: [0, 0, 0, 0] },
+                      { width: "*", text: "Promoción vigente con talleres incluidos", style: "calloutBenefit" }
+                    ],
+                    columnGap: 6
+                  }
+                ], accentYellowSoft, [18, 16, 18, 16], accentYellowBorder)
+              ],
+              columnGap: 14,
+              margin: [0, 0, 0, 18]
+            },
+            {
+              columns: [
+                makeCellBlock([
+                  {
+                    columns: [
+                      { width: "*", text: "PAGO DE CONTADO", style: "priceEyebrowDark", margin: [0, 2, 0, 10] },
+                      {
+                        width: "auto",
+                        table: { widths: ["auto"], body: [[{ text: "MEJOR OPCIÓN", fillColor: accentYellow, color: "#2F2400", style: "badgeText", border: [false, false, false, false], margin: [10, 4, 10, 4] }]] },
+                        layout: "noBorders"
+                      }
+                    ],
+                    columnGap: 8
+                  },
+                  { text: listPriceStr, style: "priceStrikeDark" },
+                  { text: cashPriceStr, style: "priceMainDark", margin: [0, 2, 0, 4] },
+                  { text: (currentPricing.cashDiscount || 0) + "% de descuento", style: "priceSubDark", margin: [0, 0, 0, 12] },
+                  { text: "• Pago único", style: "benefitDark" },
+                  { text: "• Mejor precio disponible", style: "benefitDark" },
+                  ...(showCashDiagnosticBenefit ? [{ text: "• Talleres de diagnóstico", style: "benefitDark" }] : [])
+                ], primaryColor, [18, 16, 18, 18], primaryColor),
+                makeCellBlock([
+                  { text: "PLAN DE PAGOS", style: "priceEyebrow", margin: [0, 2, 0, 10] },
+                  { text: planListPriceStr, style: "priceStrike" },
+                  { text: planPriceStr, style: "priceMain", margin: [0, 2, 0, 4] },
+                  { text: (planPricing.installmentDiscount || 0) + "% de descuento", style: "priceSubtle", margin: [0, 0, 0, 12] },
+                  {
+                    table: {
+                      widths: ["*", "auto"],
+                      body: [
+                        [{ text: "Vigencia elegida", style: "miniLabel" }, { text: selectedPlanLabel || "-", style: "miniValueRight" }],
+                        [{ text: "Inscripción", style: "miniLabel" }, { text: formatCurrencyMXN(registration), style: "miniValueRight" }],
+                        [{ text: numPayments + " mensualidades", style: "miniLabel" }, { text: formatCurrencyMXN(monthly), style: "miniValueRight" }]
+                      ]
+                    },
+                    layout: {
+                      hLineWidth: function(i) { return i === 1 || i === 2 ? 0.5 : 0; },
+                      vLineWidth: function() { return 0; },
+                      hLineColor: function() { return borderGray; }
+                    }
+                  }
+                ], "#FFFFFF", [18, 16, 18, 18], borderGray),
+                makeCellBlock([
+                  { text: "MESES SIN INTERESES", style: "priceEyebrow", margin: [0, 2, 0, 10] },
+                  { text: "Precio de lista", style: "priceSubtle", margin: [0, 0, 0, 12] },
+                  {
+                    table: {
+                      widths: ["*", "auto"],
+                      body: [
+                        [{ text: "6 MSI", style: "miniLabel" }, { text: msi6Str, style: "miniValueRight" }],
+                        ...(quoteData.syllabus === "EXANI I"
+                          ? []
+                          : [
+                              [{ text: "9 MSI", style: "miniLabel" }, { text: msi9Str, style: "miniValueRight" }],
+                              [{ text: "12 MSI", style: "miniLabel" }, { text: msi12Str, style: "miniValueRight" }]
+                            ])
+                      ]
+                    },
+                    layout: {
+                      hLineWidth: function(i, node) { return i > 0 ? 0.5 : 0; },
+                      vLineWidth: function() { return 0; },
+                      hLineColor: function() { return borderGray; }
+                    }
+                  }
+                ], softGray, [18, 16, 18, 18], borderGray)
+              ],
+              columnGap: 14,
+              margin: [0, 0, 0, 18]
+            },
+            makeCellBlock([
+              {
+                columns: [
+                  {
+                    width: "*",
+                    stack: [
+                      { text: "RESERVA TU LUGAR", style: "sectionEyebrow", margin: [0, 0, 0, 6] },
+                      { text: "Datos para depósito o transferencia", style: "bankHeading" }
+                    ]
+                  },
+                  { width: "auto", text: "Vigencia hasta el " + vigenciaStr, style: "bankValidity" }
+                ]
+              },
+              {
+                margin: [0, 14, 0, 0],
+                table: {
+                  widths: ["*", "*", "*"],
+                  body: [
+                    [{ text: "Banco", style: "miniLabel" }, { text: "CLABE", style: "miniLabel" }, { text: "Beneficiario", style: "miniLabel" }],
+                    [{ text: "BBVA Bancomer", style: "miniValue" }, { text: "012910001106113871", style: "miniValue" }, { text: "Grupo KX S.A. de C.V.", style: "miniValue" }]
+                  ]
+                },
+                layout: {
+                  hLineWidth: function(i) { return i === 1 ? 0.5 : 0; },
+                  vLineWidth: function() { return 0; },
+                  hLineColor: function() { return borderGray; }
+                }
+              }
+            ], "#FFFFFF", [18, 16, 18, 18], borderGray),
+            {
+              columns: [
+                {
+                  width: "*",
+                  stack: [
+                    { text: specialistName || "Especialista académica", style: "signatureName" },
+                    { text: "Especialista académica", style: "signatureRole", margin: [0, 2, 0, 4] },
+                    { text: [makeLinkText(primaryColor)], style: "signatureWhatsapp" }
+                  ]
+                },
+                {
+                  width: 220,
+                  text: "Documento comercial de referencia para acompañar la decisión de inscripción y explicar las opciones de pago disponibles.",
+                  style: "signatureNote",
+                  alignment: "right"
+                }
+              ],
+              margin: [0, 18, 0, 0]
             },
             {
               pageBreak: "before",
-              margin: [0, 12, 0, 12],
               table: {
                 widths: ["*"],
                 body: [
-                  [
-                    {
-                      fillColor: lightPurple,
-                      margin: [12, 10, 12, 10],
-                      stack: [
-                        {
-                          text: "IMPORTANTE",
-                          style: "altCalloutTitle",
-                          margin: [0, 0, 0, 4]
-                        },
-                        {
-                          text: "Si el curso seleccionado no se ajusta a sus necesidades, estas opciones corresponden a cursos alternativos disponibles dentro de la misma modalidad para que pueda elegir la opción que mejor se adapte a sus horarios.",
-                          style: "altCalloutText"
-                        }
-                      ]
-                    }
-                  ]
+                  [{ text: " ", fillColor: accentYellow, border: [false, false, false, false], margin: [0, 0, 0, 0] }],
+                  [{
+                    fillColor: primaryColor,
+                    border: [false, false, false, false],
+                    margin: [22, 16, 22, 14],
+                    columns: [
+                      { image: logoWhite, fit: [132, 19], width: "auto" },
+                      { text: "OPCIONES COMPLEMENTARIAS", style: "heroEyebrow", alignment: "right", margin: [0, 2, 0, 0] }
+                    ]
+                  }]
                 ]
               },
-              layout: {
-                hLineWidth: function(i, node) { return 0.8; },
-                vLineWidth: function(i, node) { return 0.8; },
-                hLineColor: function() { return primaryColor; },
-                vLineColor: function() { return primaryColor; }
-              }
+              layout: "noBorders",
+              margin: [0, 0, 0, 20]
             },
-            ...(
-              alternativeCourses.length
-                ? alternativeCourses.flatMap((alt, idxAlt) => ([
-                    {
-                      table: {
-                        widths: ["auto", "*", "auto", "*"],
-                        body: [
-                          [
-                            { text: "Curso alternativo " + (idxAlt + 1), style: "blockTitle", colSpan: 4, margin: [8, 6, 8, 6] },
-                            {},
-                            {},
-                            {}
-                          ],
-                          [
-                            { text: "Curso", style: "labelCell" },
-                            { text: alt.name || "-", style: "valueCell" },
-                            { text: "Campus", style: "labelCell" },
-                            { text: alt.campus || "-", style: "valueCell" }
-                          ],
-                          [
-                            { text: "Inicio", style: "labelCell" },
-                            { text: formatIsoToDMY(alt.date) || "-", style: "valueCell" },
-                            { text: "Días / horario", style: "labelCell" },
-                            { text: ((alt.days || "-") + " · " + (alt.schedule || "-")), style: "valueCell" }
-                          ],
-                          [
-                            { text: "Dirección", style: "labelCell" },
-                            { text: alt.address || "-", style: "valueCell", colSpan: 3 },
-                            {},
-                            {}
-                          ]
-                        ]
-                      },
-                      layout: {
-                        fillColor: function (rowIndex, node, columnIndex) {
-                          return rowIndex === 0 ? lightPurple : null;
-                        },
-                        hLineColor: function () { return borderGray; },
-                        vLineColor: function () { return borderGray; }
-                      },
-                      margin: [0, 0, 0, idxAlt === alternativeCourses.length - 1 ? 12 : 8]
-                    }
-                  ]))
-                : [
-                    {
-                      table: {
-                        widths: ["*"],
-                        body: [
-                          [
-                            { text: "Cursos alternativos sugeridos", style: "blockTitle", margin: [8, 6, 8, 6] }
-                          ],
-                          [
-                            { text: "Por el momento no contamos con otras opciones registradas en esta misma modalidad.", style: "valueCell" }
-                          ]
-                        ]
-                      },
-                      layout: {
-                        fillColor: function (rowIndex, node, columnIndex) {
-                          return rowIndex === 0 ? lightPurple : null;
-                        },
-                        hLineColor: function () { return borderGray; },
-                        vLineColor: function () { return borderGray; }
-                      },
-                      margin: [0, 0, 0, 12]
-                    }
+            {
+              columns: [
+                {
+                  width: "*",
+                  stack: [
+                    { text: "PÁGINA 2", style: "eyebrowMuted", margin: [0, 0, 0, 6] },
+                    { text: "Cursos alternativos sugeridos", style: "page2Title", margin: [0, 0, 0, 8] },
+                    { text: "Si este horario no se ajusta por completo a tus necesidades, te compartimos otras opciones dentro de la misma modalidad para ayudarte a tomar la mejor decisión.", style: "bodyCopy" }
                   ]
-            )
+                },
+                makeCellBlock([
+                  { text: "Mismo temario · Misma modalidad · Nuevas combinaciones de horario", style: "page2Badge" }
+                ], accentYellowSoft, [14, 12, 14, 12], accentYellowBorder)
+              ],
+              columnGap: 14,
+              margin: [0, 0, 0, 18]
+            },
+            ...alternativeCards.map((card, idx) => Object.assign({}, card, { margin: [0, 0, 0, idx === alternativeCards.length - 1 ? 18 : 12] })),
+            {
+              columns: [
+                makeCellBlock([
+                  { text: "SIGUIENTE PASO SUGERIDO", style: "sectionEyebrow", margin: [0, 0, 0, 8] },
+                  { text: "Aparta tu lugar con la opción que mejor se ajuste a tu agenda", style: "nextStepTitle", margin: [0, 0, 0, 10] },
+                  { text: "Una vez realizada tu inscripción o pago inicial, comparte tu comprobante por WhatsApp para confirmar tu lugar y darte seguimiento personalizado.", style: "bodyCopy" }
+                ], softGray, [18, 16, 18, 16], borderGray),
+                makeCellBlock([
+                  { text: "CONTACTO DIRECTO", style: "contactEyebrow", margin: [0, 0, 0, 10] },
+                  { text: specialistName || "Especialista académica", style: "contactCardName", margin: [0, 0, 0, 2] },
+                  { text: "Especialista académica", style: "contactCardRole", margin: [0, 0, 0, 10] },
+                  { text: [makeLinkText("#FFFFFF")], style: "contactCardLink", margin: [0, 0, 0, 6] },
+                  { text: specialistEmail, style: "contactCardMeta", margin: [0, 0, 0, 4] },
+                  { text: "Lun–Vie · 8:30 a 17:30", style: "contactCardMeta" }
+                ], primaryColor, [18, 16, 18, 16], primaryColor)
+              ],
+              columnGap: 14,
+              margin: [0, 0, 0, 18]
+            },
+            {
+              columns: [
+                { text: "Esta segunda hoja presenta opciones alternativas de horario dentro de la misma modalidad, con el objetivo de facilitar la decisión de inscripción sin cambiar el enfoque académico del curso.", style: "footerNote", width: "*" },
+                { text: "Página 2 de 2", style: "footerNote", width: 90, alignment: "right" }
+              ]
+            }
           ],
-
-
           styles: {
-            headerTitle: { fontSize: 24, bold: true, color: primaryColor },
-            headerSubtitle: { fontSize: 11, color: "#111827" },
-            headerContact: { fontSize: 9, color: "#6b7280" },
-            headerSubtitleWhite: { fontSize: 11, color: "#e5e7eb" },
-            headerContactWhite: { fontSize: 9, color: "#e5e7eb" },
-            blockTitle: { fontSize: 11, bold: true, color: "#4b5563" },
-            bankName: { fontSize: 11, bold: true, color: accentDarkBlue },
-            labelCell: { fontSize: 9, bold: true, color: "#6b7280", margin: [6, 3, 4, 3] },
-            valueCell: { fontSize: 9, color: "#111827", margin: [6, 3, 4, 3] },
-            optionBody: { fontSize: 9, color: "#374151", margin: [6, 2, 4, 2] },
-            optionBodyCompact: { fontSize: 8.5, color: "#374151", margin: [6, 1, 4, 1] },
-            footerText: { fontSize: 8, color: "#6b7280" },
-            bodyIntro: { fontSize: 9, color: "#374151" },
-            bodyText: { fontSize: 9, color: "#374151" },
-            altCalloutTitle: { fontSize: 13, bold: true, color: primaryColor },
-            altCalloutText: { fontSize: 10.5, bold: true, color: "#111827" },
-            prospectInfo: { fontSize: 9, color: "#111827" }
+            footerText: { fontSize: 8, color: "#6B7280" },
+            heroEyebrow: { fontSize: 11, bold: false, color: "#CFC4D8", characterSpacing: 2.4 },
+            heroMessage: { fontSize: 18, color: "#FFFFFF", lineHeight: 1.25 },
+            contactEyebrow: { fontSize: 9, color: "#D8CDE1", characterSpacing: 1.8 },
+            contactLabel: { fontSize: 8, color: "#D8CDE1" },
+            contactValue: { fontSize: 10, color: "#FFFFFF", bold: true },
+            eyebrowMuted: { fontSize: 10, color: "#6B7280", characterSpacing: 2.1 },
+            proposalName: { fontSize: 24, bold: true, color: "#111827" },
+            bodyCopy: { fontSize: 9.5, color: bodyText, lineHeight: 1.35 },
+            temarioBig: { fontSize: 17, bold: true, color: "#111827" },
+            sectionEyebrow: { fontSize: 9, color: "#6B7280", characterSpacing: 1.8 },
+            calloutEyebrow: { fontSize: 9, color: darkGold, characterSpacing: 1.8 },
+            calloutText: { fontSize: 9.5, color: "#374151", lineHeight: 1.35 },
+            calloutBenefit: { fontSize: 9.5, color: darkGold, bold: true },
+            miniLabel: { fontSize: 8, color: "#6B7280" },
+            miniValue: { fontSize: 9.2, color: "#111827", bold: true },
+            miniValueRight: { fontSize: 9.2, color: "#111827", bold: true, alignment: "right" },
+            priceEyebrowDark: { fontSize: 9, color: "#D9CDE3", characterSpacing: 1.8 },
+            priceStrikeDark: { fontSize: 10, color: "#D9CDE3", decoration: "lineThrough" },
+            priceMainDark: { fontSize: 29, color: "#FFFFFF", bold: true },
+            priceSubDark: { fontSize: 10, color: "#F3F0F6" },
+            benefitDark: { fontSize: 9.5, color: "#FFFFFF" },
+            priceEyebrow: { fontSize: 9, color: "#6B7280", characterSpacing: 1.8 },
+            priceStrike: { fontSize: 10, color: "#9CA3AF", decoration: "lineThrough" },
+            priceMain: { fontSize: 28, color: "#111827", bold: true },
+            priceSubtle: { fontSize: 10, color: "#6B7280" },
+            badgeText: { fontSize: 8, bold: true, characterSpacing: 1.3, alignment: "center" },
+            bankHeading: { fontSize: 17, bold: true, color: "#111827" },
+            bankValidity: { fontSize: 9, color: "#6B7280", alignment: "right" },
+            signatureName: { fontSize: 14, bold: true, color: "#111827" },
+            signatureRole: { fontSize: 9, color: "#6B7280" },
+            signatureWhatsapp: { fontSize: 9.5, bold: true },
+            signatureNote: { fontSize: 8.5, color: "#9CA3AF", lineHeight: 1.3 },
+            page2Title: { fontSize: 22, bold: true, color: "#111827" },
+            page2Badge: { fontSize: 9, color: darkGold, bold: true, alignment: "center", lineHeight: 1.25 },
+            altTitle: { fontSize: 18, bold: true, color: "#111827" },
+            altSubtle: { fontSize: 9, color: "#6B7280" },
+            nextStepTitle: { fontSize: 18, bold: true, color: "#111827", lineHeight: 1.2 },
+            contactCardName: { fontSize: 18, bold: true, color: "#FFFFFF" },
+            contactCardRole: { fontSize: 9.5, color: "#D8CDE1" },
+            contactCardLink: { fontSize: 9.5, bold: true, color: "#FFFFFF" },
+            contactCardMeta: { fontSize: 9, color: "#F1EEF5" },
+            footerNote: { fontSize: 8.3, color: "#9CA3AF", lineHeight: 1.3 }
           },
           defaultStyle: {
-            fontSize: 9
+            fontSize: 9,
+            color: "#111827"
           }
         };
-;
 
         const safeName =
           (quoteData.studentName || "curso")
