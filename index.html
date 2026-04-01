@@ -1261,10 +1261,11 @@ const courseData = {
           return { text: "Enviar WhatsApp", link: specialistWhatsappUrl, color, decoration: "underline" };
         };
 
-        const makeCellBlock = (stack, fillColor, margin, borderColor = borderGray) => {
+        const makeCellBlock = (stack, fillColor, margin, borderColor = borderGray, height = null) => {
           return {
             table: {
               widths: ["*"],
+              heights: height ? [height] : undefined,
               body: [[{ stack, fillColor, margin, border: [true, true, true, true] }]]
             },
             layout: {
@@ -1440,7 +1441,7 @@ const courseData = {
                       vLineWidth: function() { return 0; }
                     }
                   }
-                ], softGray, [18, 16, 18, 16], borderGray),
+                ], softGray, [18, 16, 18, 16], borderGray, 142),
                 makeCellBlock([
                   { text: "RECOMENDACIÓN DESTACADA", style: "calloutEyebrow", margin: [0, 0, 0, 10] },
                   { text: "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos.", style: "calloutText", margin: [0, 0, 0, 14] },
@@ -1451,7 +1452,7 @@ const courseData = {
                     ],
                     columnGap: 6
                   }
-                ], accentYellowSoft, [18, 16, 18, 16], accentYellowBorder)
+                ], accentYellowSoft, [18, 16, 18, 16], accentYellowBorder, 142)
               ],
               columnGap: 12,
               margin: [0, 0, 0, 14]
@@ -1476,7 +1477,7 @@ const courseData = {
                   { text: "• Pago único", style: "benefitDark" },
                   { text: "• Mejor precio disponible", style: "benefitDark" },
                   ...(showCashDiagnosticBenefit ? [{ text: "• Talleres de diagnóstico", style: "benefitDark" }] : [])
-                ], primaryColor, [18, 16, 18, 18], primaryColor),
+                ], primaryColor, [18, 16, 18, 18], primaryColor, 168),
                 makeCellBlock([
                   { text: "PLAN DE PAGOS", style: "priceEyebrow", margin: [0, 2, 0, 10] },
                   { text: planListPriceStr, style: "priceStrike" },
@@ -1497,7 +1498,7 @@ const courseData = {
                       hLineColor: function() { return borderGray; }
                     }
                   }
-                ], "#FFFFFF", [18, 16, 18, 18], borderGray),
+                ], "#FFFFFF", [18, 16, 18, 18], borderGray, 168),
                 makeCellBlock([
                   { text: "MESES SIN INTERESES", style: "priceEyebrow", margin: [0, 2, 0, 10] },
                   { text: "Precio de lista", style: "priceSubtle", margin: [0, 0, 0, 12] },
@@ -1520,10 +1521,10 @@ const courseData = {
                       hLineColor: function() { return borderGray; }
                     }
                   }
-                ], softGray, [18, 16, 18, 18], borderGray)
+                ], softGray, [18, 16, 18, 18], borderGray, 168)
               ],
               columnGap: 12,
-              margin: [0, 0, 0, 14]
+              margin: [0, 0, 0, 8]
             },
             {
               unbreakable: true,
@@ -1556,7 +1557,7 @@ const courseData = {
                       hLineColor: function() { return borderGray; }
                     }
                   }
-                ], "#FFFFFF", [16, 14, 16, 14], borderGray),
+                ], "#FFFFFF", [16, 12, 16, 10], borderGray),
                 {
                   columns: [
                     {
@@ -1625,7 +1626,7 @@ const courseData = {
                       { text: "SIGUIENTE PASO SUGERIDO", style: "sectionEyebrow", margin: [0, 0, 0, 8] },
                       { text: "Aparta tu lugar con la opción que mejor se ajuste a tu agenda", style: "nextStepTitle", margin: [0, 0, 0, 10] },
                       { text: "Una vez realizada tu inscripción o pago inicial, comparte tu comprobante por WhatsApp para confirmar tu lugar y darte seguimiento personalizado.", style: "bodyCopy" }
-                    ], softGray, [16, 14, 16, 14], borderGray),
+                    ], softGray, [16, 14, 16, 14], borderGray, 136),
                     makeCellBlock([
                       { text: "CONTACTO DIRECTO", style: "contactEyebrow", margin: [0, 0, 0, 10] },
                       { text: specialistName || "Especialista académica", style: "contactCardName", margin: [0, 0, 0, 2] },
@@ -1633,7 +1634,7 @@ const courseData = {
                       { text: [makeLinkText("#FFFFFF")], style: "contactCardLink", margin: [0, 0, 0, 6] },
                       { text: specialistEmail, style: "contactCardMeta", margin: [0, 0, 0, 4] },
                       { text: "Lun–Vie · 8:30 a 17:30", style: "contactCardMeta" }
-                    ], primaryColor, [16, 14, 16, 14], primaryColor)
+                    ], primaryColor, [16, 14, 16, 14], primaryColor, 136)
                   ],
                   columnGap: 12,
                   margin: [0, 0, 0, 12]
@@ -1650,7 +1651,7 @@ const courseData = {
           styles: {
             footerText: { fontSize: 8, color: "#6B7280" },
             heroEyebrow: { fontSize: 11, bold: false, color: "#CFC4D8", characterSpacing: 2.4 },
-            heroMessage: { fontSize: 16, color: "#FFFFFF", lineHeight: 1.22 },
+            heroMessage: { fontSize: 14, color: "#FFFFFF", lineHeight: 1.24 },
             contactEyebrow: { fontSize: 9, color: "#D8CDE1", characterSpacing: 1.8 },
             contactLabel: { fontSize: 8, color: "#D8CDE1" },
             contactValue: { fontSize: 10, color: "#FFFFFF", bold: true },
