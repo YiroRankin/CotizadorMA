@@ -75,7 +75,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     document.getElementById("summary-specialist-phone").textContent = quoteData.specialistPhone || "-";
   }
 
-  function buildLogPayload(quoteData, course, currentPricing, planPricing) {
+  function buildLogPayload(quoteData, course, currentPricing, planPricing, eventType) {
     const registration = parseFloat(document.getElementById("registration-fee").value || "0");
     const numPayments = parseInt(document.getElementById("num-payments").value || "0", 10);
     const remaining = Math.max(0, (planPricing?.installment || 0) - registration);
@@ -84,6 +84,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     return {
       createdAt: new Date().toISOString(),
       source: "github-pages",
+      eventType: eventType || "quote_generated",
       studentName: quoteData.studentName,
       syllabus: quoteData.syllabus,
       campus: quoteData.campus,
@@ -108,6 +109,21 @@ window.CotizadorApp = window.CotizadorApp || {};
       numPayments: Math.max(numPayments || 1, 1),
       monthlyPayment: monthly,
     };
+  }
+
+  function logEvent(config, eventType) {
+    if (!(config.quoteLogging?.enabled && config.quoteLogging?.endpointUrl && app.sendQuoteLog)) {
+      return;
+    }
+
+    if (!app.state.quoteData || !app.state.currentPricing) {
+      return;
+    }
+
+    const course = app.getSelectedCourseDetails();
+    const planPricing = app.getSelectedPlanPricing() || app.state.currentPricing;
+    const payload = buildLogPayload(app.state.quoteData, course, app.state.currentPricing, planPricing, eventType);
+    void app.sendQuoteLog(config.quoteLogging, payload);
   }
 
   function wireEvents(config) {
@@ -196,14 +212,12 @@ window.CotizadorApp = window.CotizadorApp || {};
       quoteResults.classList.remove("hidden");
       app.calculateInstallments();
 
-      const planPricing = app.getSelectedPlanPricing() || app.state.currentPricing;
-      if (config.quoteLogging?.enabled && config.quoteLogging?.endpointUrl && app.sendQuoteLog) {
-        void app.sendQuoteLog(config.quoteLogging, buildLogPayload(app.state.quoteData, course, app.state.currentPricing, planPricing));
-      }
+      logEvent(config, "quote_generated");
     });
 
     exportBtn.addEventListener("click", (e) => {
       e.preventDefault();
+      logEvent(config, "pdf_generated");
       app.generatePDF();
     });
   }
