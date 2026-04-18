@@ -4,9 +4,15 @@
 const SHEET_ID = 'PEGA_AQUI_EL_ID_DE_TU_GOOGLE_SHEET';
 const SHEET_NAME = 'HistorialCotizaciones';
 
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ ok: true, message: 'Logger activo' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 function doPost(e) {
   try {
-    const payload = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    const payload = getPayload_(e);
     const sheet = getSheet_();
     ensureHeaders_(sheet);
 
@@ -47,6 +53,18 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ ok: false, message: error.message }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+function getPayload_(e) {
+  if (e && e.parameter && e.parameter.payload) {
+    return JSON.parse(e.parameter.payload);
+  }
+
+  if (e && e.postData && e.postData.contents) {
+    return JSON.parse(e.postData.contents);
+  }
+
+  return {};
 }
 
 function getSheet_() {
