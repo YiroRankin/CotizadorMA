@@ -6,6 +6,14 @@ const AdminApp = (() => {
   };
 
   const els = {};
+  const CHART_COLORS = {
+    purple: '#4b3fb4',
+    purpleSoft: 'rgba(75, 63, 180, 0.18)',
+    yellow: '#f4d000',
+    yellowSoft: 'rgba(244, 208, 0, 0.22)',
+    grid: 'rgba(24, 34, 48, 0.10)',
+    tick: '#667085',
+  };
 
   function qs(id) {
     return document.getElementById(id);
@@ -267,6 +275,18 @@ const AdminApp = (() => {
     });
   }
 
+  function baseChartOptions() {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: CHART_COLORS.tick, font: { family: 'Montserrat' } } } },
+      scales: {
+        x: { beginAtZero: true, ticks: { color: CHART_COLORS.tick, font: { family: 'Montserrat' } }, grid: { color: CHART_COLORS.grid } },
+        y: { beginAtZero: true, ticks: { color: CHART_COLORS.tick, font: { family: 'Montserrat' } }, grid: { color: CHART_COLORS.grid } },
+      },
+    };
+  }
+
   function upsertChart(key, canvasId, config) {
     if (state.charts[key]) {
       state.charts[key].destroy();
@@ -277,37 +297,30 @@ const AdminApp = (() => {
 
   function renderCharts() {
     const specialistRows = getSpecialistSummaryRows().slice(0, 8);
+    const specialistOptions = baseChartOptions();
+    specialistOptions.indexAxis = 'y';
     upsertChart('specialists', 'chart-specialists', {
       type: 'bar',
       data: {
         labels: specialistRows.map((row) => row.name),
         datasets: [
-          { label: 'Cotizaciones', data: specialistRows.map((row) => row.quoteCount), borderWidth: 0 },
-          { label: 'PDFs', data: specialistRows.map((row) => row.pdfCount), borderWidth: 0 },
+          { label: 'Cotizaciones', data: specialistRows.map((row) => row.quoteCount), backgroundColor: CHART_COLORS.purple, borderColor: CHART_COLORS.purple, borderWidth: 0, borderRadius: 8 },
+          { label: 'PDFs', data: specialistRows.map((row) => row.pdfCount), backgroundColor: CHART_COLORS.yellow, borderColor: CHART_COLORS.yellow, borderWidth: 0, borderRadius: 8 },
         ],
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        plugins: { legend: { position: 'bottom' } },
-        scales: { x: { beginAtZero: true } },
-      },
+      options: specialistOptions,
     });
 
     const quoteRows = state.filteredRows.filter((row) => row.eventType === 'quote_generated');
     const campusMap = groupByKey(quoteRows, 'campus');
     const campusLabels = [...campusMap.keys()];
     const campusData = [...campusMap.values()];
+    const campusOptions = baseChartOptions();
+    campusOptions.plugins.legend.display = false;
     upsertChart('campus', 'chart-campus', {
       type: 'bar',
-      data: { labels: campusLabels, datasets: [{ label: 'Cotizaciones', data: campusData, borderWidth: 0 }] },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } },
-      },
+      data: { labels: campusLabels, datasets: [{ label: 'Cotizaciones', data: campusData, backgroundColor: CHART_COLORS.purple, borderColor: CHART_COLORS.purple, borderWidth: 0, borderRadius: 10 }] },
+      options: campusOptions,
     });
 
     const syllabusMap = groupByKey(quoteRows, 'syllabus');
@@ -315,12 +328,12 @@ const AdminApp = (() => {
       type: 'doughnut',
       data: {
         labels: [...syllabusMap.keys()],
-        datasets: [{ data: [...syllabusMap.values()], borderWidth: 0 }],
+        datasets: [{ data: [...syllabusMap.values()], backgroundColor: [CHART_COLORS.purple, CHART_COLORS.yellow], borderColor: ['#ffffff', '#ffffff'], borderWidth: 3 }],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } },
+        plugins: { legend: { position: 'bottom', labels: { color: CHART_COLORS.tick, font: { family: 'Montserrat' } } } },
       },
     });
 
@@ -333,21 +346,17 @@ const AdminApp = (() => {
       dailyMap.set(key, current);
     });
     const dailyLabels = [...dailyMap.keys()].sort();
+    const dailyOptions = baseChartOptions();
     upsertChart('daily', 'chart-daily', {
       type: 'line',
       data: {
         labels: dailyLabels,
         datasets: [
-          { label: 'Cotizaciones', data: dailyLabels.map((label) => dailyMap.get(label)?.quote_generated || 0), tension: 0.3 },
-          { label: 'PDFs', data: dailyLabels.map((label) => dailyMap.get(label)?.pdf_generated || 0), tension: 0.3 },
+          { label: 'Cotizaciones', data: dailyLabels.map((label) => dailyMap.get(label)?.quote_generated || 0), tension: 0.3, borderColor: CHART_COLORS.purple, backgroundColor: CHART_COLORS.purpleSoft, fill: false },
+          { label: 'PDFs', data: dailyLabels.map((label) => dailyMap.get(label)?.pdf_generated || 0), tension: 0.3, borderColor: CHART_COLORS.yellow, backgroundColor: CHART_COLORS.yellowSoft, fill: false },
         ],
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } },
-        scales: { y: { beginAtZero: true } },
-      },
+      options: dailyOptions,
     });
   }
 
