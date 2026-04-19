@@ -1,8 +1,0 @@
-const specialists = {
-  "Giuliana Quesada": { name: "Giuliana Quesada", phone: "9991218880" },
-  "María Ramírez":    { name: "María Ramírez",    phone: "2294667823" },
-  "Mayte Delgado":    { name: "Mayte Delgado",    phone: "9991071130" },
-  "Natalia Escalante":{ name: "Natalia Escalante",phone: "9994962237" },
-  "Rosa Tzec":        { name: "Rosa Tzec",        phone: "9993389839" },
-  "Susana Hipólito":  { name: "Susana Hipólito",  phone: "9992924519" }
-};
