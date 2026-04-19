@@ -5,77 +5,439 @@
     <title>Cotizador de Cursos - Misión Admisión</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
 
     <style>
-      body { box-sizing: border-box; }
-      @keyframes slideIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+      :root{
+        --ma-purple:#4b3fb4;
+        --ma-purple-dark:#3d3298;
+        --ma-purple-soft:#6f63d8;
+        --ma-green:#10f28a;
+        --ma-green-dark:#0cd677;
+        --ma-white:#ffffff;
+        --ma-text:#f7f8ff;
+        --ma-text-dark:#182230;
+        --ma-text-soft:#475467;
+        --ma-muted:#667085;
+        --ma-card:#ffffff;
+        --ma-card-soft:#fbfcff;
+        --ma-border:#d7dbeb;
+        --ma-border-strong:#d4d9e5;
+        --ma-bg-soft:#f4f6fc;
+        --ma-bg:#f6f7fb;
+        --ma-primary-2:#efeaff;
+        --ma-primary-3:#f8f5ff;
+        --ma-ok-bg:#e9f9ef;
+        --ma-ok-text:#166534;
+        --ma-warn-bg:#fff7e6;
+        --ma-warn-text:#92400e;
+        --ma-err-bg:#fdecec;
+        --ma-err-text:#991b1b;
+        --ma-shadow:0 10px 30px rgba(22,34,51,.08);
+        --ma-shadow-soft:0 6px 18px rgba(22,34,51,.06);
       }
-      .quote-card { animation: slideIn 0.3s ease-out; }
+
+      *{ box-sizing:border-box; }
+
+      body{
+        margin:0;
+        font-family:'Montserrat', Arial, sans-serif;
+        color:var(--ma-text-dark);
+        background:
+          radial-gradient(circle at 10% 14%, rgba(91,71,183,.08) 0 120px, transparent 121px),
+          radial-gradient(circle at 88% 18%, rgba(16,199,132,.08) 0 90px, transparent 91px),
+          linear-gradient(180deg, #fbfcff 0%, #f3f6fb 100%);
+        min-height:100vh;
+      }
+
+      input, select, textarea{
+        font-family:'Montserrat', Arial, sans-serif;
+      }
+
+      .page-wrap{
+        max-width:1120px;
+        margin:0 auto;
+        padding:18px 20px 44px;
+      }
+
+      .hero-banner-wrap{
+        text-align:center;
+        margin:0 0 4px;
+      }
+
+      .hero-banner{
+        width:min(100%, 420px);
+        margin:0 auto;
+        display:block;
+      }
+
+      .hero-card{
+        position:relative;
+        overflow:hidden;
+        margin-bottom:22px;
+        padding:22px 28px 24px;
+        border-radius:28px;
+        background:rgba(255,255,255,.92);
+        border:1px solid rgba(215,219,235,.9);
+        box-shadow:var(--ma-shadow-soft);
+        text-align:left;
+      }
+
+      .hero-card::after{
+        content:'';
+        position:absolute;
+        right:-38px;
+        top:-34px;
+        width:160px;
+        height:160px;
+        border-radius:999px;
+        background:radial-gradient(circle at center, rgba(91,71,183,.14), rgba(91,71,183,0));
+        pointer-events:none;
+      }
+
+      .logo{
+        width:180px;
+        max-width:55%;
+        margin:0 auto 18px;
+        display:block;
+        opacity:.98;
+      }
+
+      .hero-card h1{
+        margin:0 0 10px;
+        max-width:900px;
+        font-size:clamp(24px, 4vw, 42px);
+        line-height:1.04;
+        font-weight:800;
+        letter-spacing:-0.03em;
+        color:#101828;
+        text-align:center;
+        margin-left:auto;
+        margin-right:auto;
+      }
+
+      .hero-card p{
+        max-width:760px;
+        margin:0 auto;
+        color:var(--ma-text-soft);
+        font-size:clamp(14px, 2vw, 16px);
+        line-height:1.6;
+        font-weight:500;
+        text-align:center;
+      }
+
+      .small-chip{
+        display:inline-block;
+        margin:10px 0 22px;
+        background:var(--ma-primary-3);
+        color:var(--ma-purple);
+        padding:8px 12px;
+        border-radius:999px;
+        font-size:12px;
+        font-weight:700;
+        border:1px solid #e0d7ff;
+      }
+
+      .card{
+        background:var(--ma-card);
+        color:var(--ma-text-dark);
+        border-radius:24px;
+        padding:24px;
+        box-shadow:var(--ma-shadow-soft);
+        border:1px solid var(--ma-border);
+      }
+
+      .section-head{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        margin-bottom:18px;
+        flex-wrap:wrap;
+      }
+
+      .section-head-left h2,
+      .section-head-left h3{
+        margin:0 0 6px;
+        font-size:22px;
+        font-weight:800;
+        color:#1f2a44;
+      }
+
+      .section-head-left p,
+      .section-copy{
+        margin:0;
+        color:var(--ma-text-soft);
+        font-size:14px;
+        line-height:1.5;
+        font-weight:500;
+      }
+
+      .badge{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        padding:8px 12px;
+        border-radius:999px;
+        background:var(--ma-primary-3);
+        color:var(--ma-purple);
+        font-size:12px;
+        font-weight:800;
+        border:1px solid #e0d7ff;
+      }
+
+      .label-title{
+        display:block;
+        margin:0 0 8px;
+        font-size:13px;
+        font-weight:700;
+        color:#475467;
+        letter-spacing:.01em;
+      }
+
+      .field-control{
+        width:100%;
+        padding:14px 16px;
+        border:1px solid var(--ma-border);
+        border-radius:14px;
+        font-size:14px;
+        color:#1f2937;
+        background:#fff;
+        outline:none;
+        transition:.18s ease;
+      }
+
+      .field-control::placeholder{
+        color:#98a2b3;
+      }
+
+      .field-control:focus{
+        border-color:var(--ma-purple-soft);
+        box-shadow:0 0 0 4px rgba(91, 71, 183, .12);
+      }
+
+      .field-control:disabled{
+        background:#f4f6fc;
+        color:#98a2b3;
+        cursor:not-allowed;
+      }
+
+      .btn-primary,
+      .btn-secondary,
+      .btn-light{
+        width:100%;
+        border:1px solid transparent;
+        border-radius:14px;
+        padding:15px 18px;
+        font-size:15px;
+        font-weight:800;
+        font-family:'Montserrat', Arial, sans-serif;
+        cursor:pointer;
+        transition:transform .12s ease, box-shadow .18s ease, opacity .18s ease, background .18s ease;
+      }
+
+      .btn-primary:hover,
+      .btn-secondary:hover,
+      .btn-light:hover{ transform:translateY(-1px); }
+
+      .btn-secondary{
+        background:var(--ma-purple);
+        color:#fff;
+        box-shadow:0 10px 20px rgba(91,71,183,.18);
+      }
+
+      .btn-secondary:hover{ background:var(--ma-purple-dark); }
+
+      .btn-primary{
+        background:var(--ma-green);
+        color:#143b2d;
+        box-shadow:0 10px 20px rgba(22,199,132,.18);
+      }
+
+      .btn-primary:hover{ background:var(--ma-green-dark); }
+
+      .btn-light{
+        background:#fff;
+        color:#344054;
+        border-color:var(--ma-border);
+        box-shadow:var(--ma-shadow-soft);
+      }
+
+      .btn-light:hover{
+        background:var(--ma-primary-3);
+        border-color:#ddd3ff;
+      }
+
+      .option-top{
+        border-radius:18px 18px 0 0;
+        padding:14px 16px;
+        border:1px solid var(--ma-border);
+        border-bottom:none;
+        background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%);
+      }
+
+      .option-body{
+        border:1px solid var(--ma-border);
+        border-radius:0 0 18px 18px;
+        padding:18px;
+        min-height:255px;
+        background:#fff;
+      }
+
+      .option-body.is-green{
+        background:linear-gradient(180deg,#f7fff9 0%, #ecfcf3 100%);
+      }
+
+      .option-body.is-purple{
+        background:linear-gradient(180deg,#fbf9ff 0%, #f2edff 100%);
+      }
+
+      .option-body.is-soft{
+        background:linear-gradient(180deg,#fcfcff 0%, #f6f8ff 100%);
+      }
+
+      .option-title{
+        font-size:12px;
+        text-transform:uppercase;
+        font-weight:800;
+        letter-spacing:.06em;
+        color:#667085;
+      }
+
+      .option-value{
+        font-size:30px;
+        line-height:1.05;
+        font-weight:800;
+        color:#1f2a44;
+        margin:10px 0 6px;
+      }
+
+      .option-copy,
+      .mini-copy{
+        font-size:12px;
+        line-height:1.55;
+        color:#667085;
+      }
+
+      .option-list{
+        margin:14px 0 0;
+        padding-left:18px;
+        color:#445066;
+        font-size:13px;
+        line-height:1.65;
+        font-weight:600;
+      }
+
+      .summary-card{
+        margin-top:14px;
+        border-radius:20px;
+        padding:18px;
+        background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%);
+        border:1px solid var(--ma-border);
+      }
+
+      .summary-grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        gap:12px;
+        margin-top:14px;
+      }
+
+      .summary-item{
+        background:#fff;
+        border:1px solid var(--ma-border);
+        border-radius:16px;
+        padding:14px;
+      }
+
+      .summary-item-label{
+        font-size:11px;
+        font-weight:800;
+        letter-spacing:.05em;
+        text-transform:uppercase;
+        color:#667085;
+      }
+
+      .summary-item-value{
+        margin-top:8px;
+        font-size:14px;
+        color:#243447;
+        font-weight:700;
+        word-break:break-word;
+      }
+
+      .notice-note{
+        margin-top:10px;
+        text-align:center;
+        color:var(--ma-muted);
+        font-size:12px;
+        line-height:1.6;
+      }
+
+      .hidden{ display:none; }
+
+      @media (max-width: 680px){
+        .hero-card{ padding:22px 18px 20px; }
+      }
     </style>
   </head>
-  <body class="h-full bg-slate-50">
-    <div id="app" class="w-full min-h-screen flex items-center justify-center p-4">
-      <div class="w-full max-w-5xl bg-white shadow-xl rounded-2xl p-6 md:p-8">
-        <header class="text-center mb-8">
-          <div class="flex justify-center mb-2">
-            <img
-              src="https://misionadmision-assets.s3.amazonaws.com/img/website/logo-misionadmision.png"
-              alt="Misión Admisión · Cursos Propedéuticos"
-              class="h-10 md:h-14 w-auto"
-            />
-          </div>
-          <p class="text-slate-600 text-sm md:text-base">
-            Cotizador de cursos EXANI I / EXANI II
-          </p>
-        </header>
+  <body>
+    <div class="page-wrap">
+      <div class="hero-banner-wrap">
+        <img
+          class="hero-banner"
+          src="https://misionadmision-informacion.s3.us-west-2.amazonaws.com/logos/logoma2026moradohorizontal.png"
+          alt="Misión Admisión"
+        />
+      </div>
 
+      <section class="hero-card">
+        <img
+          class="logo"
+          src="https://misionadmision-assets.s3.amazonaws.com/img/website/logo-misionadmision.png"
+          alt="Misión Admisión · Cursos Propedéuticos"
+        />
+        <h1>Cotizador de cursos EXANI</h1>
+        <p>
+          Genera una propuesta clara, comercial y lista para enviar. Selecciona especialista, alumno, temario, campus y horario para construir la cotización en segundos.
+        </p>
+      </section>
+
+      <div class="small-chip">Misión Admisión · Cotizador comercial</div>
+
+      <div id="app" class="w-full">
         <div class="grid gap-8 lg:grid-cols-2">
-          <section class="border border-slate-200 rounded-2xl p-4 md:p-6 bg-slate-50/60">
-            <h2 class="text-xl font-semibold text-slate-800 mb-4">
-              Datos del alumno(a)
-            </h2>
+          <section class="card">
+            <div class="section-head">
+              <div class="section-head-left">
+                <h2>1. Captura los datos</h2>
+                <p>Completa la información base para construir la cotización.</p>
+              </div>
+              <span class="badge">Paso inicial</span>
+            </div>
 
             <form id="quote-form" class="space-y-4">
               <div>
-                <label for="specialist" class="block text-sm font-medium text-slate-700 mb-1">
-                  Especialista académica asignada
-                </label>
-                <select
-                  id="specialist"
-                  required
-                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
+                <label for="specialist" class="label-title">Especialista académica asignada</label>
+                <select id="specialist" required class="field-control">
                   <option value="">Selecciona una especialista</option>
                 </select>
               </div>
 
               <div>
-                <label for="student-name" class="block text-sm font-medium text-slate-700 mb-1">
-                  Nombre del alumno(a)
-                </label>
-                <input
-                  type="text"
-                  id="student-name"
-                  required
-                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Ingresa el nombre completo"
-                />
+                <label for="student-name" class="label-title">Nombre del alumno(a)</label>
+                <input type="text" id="student-name" required class="field-control" placeholder="Ingresa el nombre completo" />
               </div>
 
               <div>
-                <label for="syllabus" class="block text-sm font-medium text-slate-700 mb-1">
-                  Temario
-                </label>
-                <select
-                  id="syllabus"
-                  required
-                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
+                <label for="syllabus" class="label-title">Temario</label>
+                <select id="syllabus" required class="field-control">
                   <option value="">Selecciona un temario</option>
                   <option value="EXANI I">EXANI I</option>
                   <option value="EXANI II">EXANI II</option>
@@ -83,215 +445,154 @@
               </div>
 
               <div>
-                <label for="campus" class="block text-sm font-medium text-slate-700 mb-1">
-                  Campus
-                </label>
-                <select
-                  id="campus"
-                  required
-                  disabled
-                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                >
+                <label for="campus" class="label-title">Campus</label>
+                <select id="campus" required disabled class="field-control">
                   <option value="">Selecciona un campus</option>
                 </select>
               </div>
 
               <div>
-                <label for="course-date" class="block text-sm font-medium text-slate-700 mb-1">
-                  Curso
-                </label>
-                <select
-                  id="course-date"
-                  required
-                  disabled
-                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                >
+                <label for="course-date" class="label-title">Curso</label>
+                <select id="course-date" required disabled class="field-control">
                   <option value="">Selecciona un curso</option>
                 </select>
               </div>
 
               <div>
-                <label for="course-schedule" class="block text-sm font-medium text-slate-700 mb-1">
-                  Horario
-                </label>
-                <select
-                  id="course-schedule"
-                  required
-                  disabled
-                  class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                >
+                <label for="course-schedule" class="label-title">Horario</label>
+                <select id="course-schedule" required disabled class="field-control">
                   <option value="">Selecciona un horario</option>
                 </select>
               </div>
 
-              <button
-                type="submit"
-                class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold py-2.5 mt-2 hover:bg-indigo-700 transition-colors"
-              >
-                <span>⚙️</span>
-                <span>Generar cotización</span>
-              </button>
+              <button type="submit" class="btn-secondary">Generar cotización</button>
             </form>
           </section>
 
           <section id="quote-results" class="hidden">
-            <div class="space-y-4 mb-4">
-              <div class="grid gap-3 md:grid-cols-3">
-                <div class="border border-slate-200 bg-violet-50/80 rounded-t-xl px-4 py-3 min-h-[56px] flex items-center justify-between">
-                  <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700">Pago de contado</h3>
-                  <span class="text-base">💵</span>
+            <div class="grid gap-3 md:grid-cols-3">
+              <div>
+                <div class="option-top flex items-center justify-between">
+                  <h3 class="option-title">Pago de contado</h3>
+                  <span>💵</span>
                 </div>
-                <div class="border border-slate-200 bg-violet-50/80 rounded-t-xl px-4 py-3 min-h-[56px] flex items-center justify-between">
-                  <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700">Plan de pagos</h3>
-                  <span class="text-base">📅</span>
-                </div>
-                <div class="border border-slate-200 bg-violet-50/80 rounded-t-xl px-4 py-3 min-h-[56px] flex items-center justify-between">
-                  <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700">Meses sin intereses</h3>
-                  <span class="text-base">💳</span>
-                </div>
-              </div>
-
-              <div class="grid gap-3 md:grid-cols-3 items-stretch">
-                <div class="border border-slate-200 rounded-b-xl bg-emerald-50/70 px-4 py-4 min-h-[255px] flex flex-col">
-                  <p class="text-xs text-emerald-800 mb-1">Precio total</p>
-                  <p id="cash-price" class="text-2xl font-extrabold text-emerald-900">$6,600.00</p>
-                  <div class="mt-3 space-y-1 text-xs text-emerald-900">
-                    <p>Precio de lista: <span id="list-price-cash" class="font-semibold">$0.00</span></p>
-                    <p>Descuento aplicado: <span id="cash-discount" class="font-semibold">0%</span></p>
+                <div class="option-body is-green flex flex-col">
+                  <p class="option-copy">Precio total</p>
+                  <p id="cash-price" class="option-value">$6,600.00</p>
+                  <div class="mt-3 space-y-1 mini-copy">
+                    <p>Precio de lista: <span id="list-price-cash" class="font-semibold text-slate-700">$0.00</span></p>
+                    <p>Descuento aplicado: <span id="cash-discount" class="font-semibold text-slate-700">0%</span></p>
                   </div>
-                  <ul class="mt-3 text-xs text-emerald-900 space-y-1">
-                    <li>✅ Pago único</li>
-                    <li>✅ Mejor precio disponible</li>
-                    <li id="cash-benefit-diagnostic" class="hidden">✅ Talleres de diagnóstico</li>
+                  <ul class="option-list mt-auto">
+                    <li>Pago único</li>
+                    <li>Mejor precio disponible</li>
+                    <li id="cash-benefit-diagnostic" class="hidden">Talleres de diagnóstico</li>
                   </ul>
                 </div>
+              </div>
 
-                <div class="border border-slate-200 rounded-b-xl bg-indigo-50/70 px-4 py-4 min-h-[255px] flex flex-col">
-                  <p class="text-xs text-indigo-800 mb-1">Precio total</p>
-                  <p id="total-installment" class="text-2xl font-extrabold text-indigo-900">$7,150.00</p>
+              <div>
+                <div class="option-top flex items-center justify-between">
+                  <h3 class="option-title">Plan de pagos</h3>
+                  <span>📅</span>
+                </div>
+                <div class="option-body is-purple flex flex-col">
+                  <p class="option-copy">Precio total</p>
+                  <p id="total-installment" class="option-value">$7,150.00</p>
 
-                  <div class="mt-3 space-y-3 border-t border-indigo-100 pt-3">
-                    <div class="space-y-1 text-xs text-indigo-900">
-                      <p>Precio de lista: <span id="list-price-plan" class="font-semibold">$0.00</span></p>
-                      <p>Descuento aplicado: <span id="plan-discount" class="font-semibold">0%</span></p>
+                  <div class="mt-3 space-y-3 border-t border-[var(--ma-border)] pt-3 mini-copy">
+                    <div class="space-y-1">
+                      <p>Precio de lista: <span id="list-price-plan" class="font-semibold text-slate-700">$0.00</span></p>
+                      <p>Descuento aplicado: <span id="plan-discount" class="font-semibold text-slate-700">0%</span></p>
                     </div>
 
                     <div>
-                      <label for="plan-discount-selector" class="block text-xs font-medium text-indigo-900 mb-1">
-                        Vigencia / descuento del plan
-                      </label>
-                      <select
-                        id="plan-discount-selector"
-                        class="w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                      >
+                      <label for="plan-discount-selector" class="label-title !mb-1">Vigencia / descuento del plan</label>
+                      <select id="plan-discount-selector" class="field-control !py-3 text-xs">
                         <option value="">Selecciona una vigencia</option>
                       </select>
-                      <p id="plan-discount-selector-note" class="text-[10px] text-indigo-700 leading-4 mt-1">
-                        Se mostrará la vigencia actual y, cuando corresponda, la del mes siguiente.
-                      </p>
+                      <p id="plan-discount-selector-note" class="mini-copy mt-1">Se mostrará la vigencia actual y, cuando corresponda, la del mes siguiente.</p>
                     </div>
 
                     <div>
-                      <label for="registration-fee" class="block text-xs font-medium text-indigo-900 mb-1">
-                        Inscripción
-                      </label>
-                      <div class="flex items-center gap-1 w-full min-w-0">
-                        <span class="text-xs text-indigo-900 shrink-0">$</span>
-                        <input
-                          type="number"
-                          id="registration-fee"
-                          value="1500"
-                          min="1000"
-                          step="100"
-                          class="w-full min-w-0 max-w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                        />
+                      <label for="registration-fee" class="label-title !mb-1">Inscripción</label>
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-700 font-semibold">$</span>
+                        <input type="number" id="registration-fee" value="1500" min="1000" step="100" class="field-control !py-3 text-xs" />
                       </div>
-                      <p id="registration-error" class="hidden text-[11px] text-red-600 mt-1">
-                        ⚠️ La inscripción no debe ser inferior a $1,000.00
-                      </p>
+                      <p id="registration-error" class="hidden text-[11px] text-[var(--ma-err-text)] mt-1 font-semibold">La inscripción no debe ser inferior a $1,000.00</p>
                     </div>
 
                     <div>
-                      <label for="num-payments" class="block text-xs font-medium text-indigo-900 mb-1">
-                        Mensualidades (1 a 5*)
-                      </label>
-                      <input
-                        type="number"
-                        id="num-payments"
-                        value="4"
-                        min="1"
-                        max="5"
-                        class="w-full min-w-0 max-w-full px-3 py-1.5 border border-indigo-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                      />
-                      <p id="payments-error" class="hidden text-[11px] text-red-600 mt-1">
-                        ⚠️ <span id="payments-error-text"></span>
-                      </p>
+                      <label for="num-payments" class="label-title !mb-1">Mensualidades (1 a 5*)</label>
+                      <input type="number" id="num-payments" value="4" min="1" max="5" class="field-control !py-3 text-xs" />
+                      <p id="payments-error" class="hidden text-[11px] text-[var(--ma-err-text)] mt-1 font-semibold">⚠️ <span id="payments-error-text"></span></p>
                     </div>
 
-                    <div class="bg-white/70 border border-dashed border-indigo-200 rounded-xl px-3 py-2">
-                      <p class="text-xs text-indigo-900">
+                    <div class="rounded-2xl border border-dashed border-[var(--ma-border-strong)] bg-white px-3 py-3">
+                      <p class="mini-copy">
                         Pago mensual estimado:
-                        <span id="monthly-payment" class="font-bold">$1,500.00</span>
+                        <span id="monthly-payment" class="font-bold text-slate-800">$1,500.00</span>
                       </p>
-                      <p class="text-[10px] text-indigo-700 leading-4 mt-1">
-                        * El monto mensual se redondea hacia arriba al siguiente múltiplo de $100.
-                      </p>
+                      <p class="mini-copy mt-1">* El monto mensual se redondea hacia arriba al siguiente múltiplo de $100.</p>
                     </div>
-                    <p class="text-[10px] text-indigo-700 leading-4">
-                      * Se pueden agendar hasta 5 mensualidades, solo cuidar que las mensualidades no excedan el mes de abril de 2027
-                    </p>
+                    <p class="mini-copy">* Se pueden agendar hasta 5 mensualidades, solo cuidar que las mensualidades no excedan el mes de abril de 2027.</p>
                   </div>
                 </div>
+              </div>
 
-                <div class="border border-slate-200 rounded-b-xl bg-sky-50/70 px-4 py-4 min-h-[255px] flex flex-col">
-                  <p class="text-xs text-sky-800 mb-1">Precio de lista</p>
-                  <p id="msi-list-price" class="text-2xl font-extrabold text-sky-900">$0.00</p>
-
-                  <div class="mt-3 space-y-1 border-t border-sky-100 pt-3 text-xs text-sky-900">
-                    <p>6 MSI: <span id="msi-6" class="font-semibold">$0.00</span></p>
-                    <p>9 MSI: <span id="msi-9" class="font-semibold">$0.00</span></p>
-                    <p>12 MSI: <span id="msi-12" class="font-semibold">$0.00</span></p>
+              <div>
+                <div class="option-top flex items-center justify-between">
+                  <h3 class="option-title">Meses sin intereses</h3>
+                  <span>💳</span>
+                </div>
+                <div class="option-body is-soft flex flex-col">
+                  <p class="option-copy">Precio de lista</p>
+                  <p id="msi-list-price" class="option-value">$0.00</p>
+                  <div class="mt-3 space-y-1 border-t border-[var(--ma-border)] pt-3 mini-copy">
+                    <p>6 MSI: <span id="msi-6" class="font-semibold text-slate-700">$0.00</span></p>
+                    <p>9 MSI: <span id="msi-9" class="font-semibold text-slate-700">$0.00</span></p>
+                    <p>12 MSI: <span id="msi-12" class="font-semibold text-slate-700">$0.00</span></p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="border border-slate-200 rounded-2xl p-4 mb-4 bg-slate-50/70">
-              <h3 class="text-base font-semibold text-slate-800 mb-3">Resumen de cotización</h3>
-              <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div><dt class="font-medium text-slate-600">Alumno(a)</dt><dd id="summary-name" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Temario</dt><dd id="summary-syllabus" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Especialista académica</dt><dd id="summary-specialist" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Teléfono de contacto</dt><dd id="summary-specialist-phone" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Campus</dt><dd id="summary-campus" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Curso</dt><dd id="summary-date" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Horario</dt><dd id="summary-schedule" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Días</dt><dd id="summary-days" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Modalidad</dt><dd id="summary-modality" class="font-semibold text-slate-900">-</dd></div>
-                <div><dt class="font-medium text-slate-600">Dirección</dt><dd id="summary-address" class="font-semibold text-slate-900">-</dd></div>
-              </dl>
+            <div class="summary-card mt-4">
+              <div class="section-head mb-3">
+                <div class="section-head-left">
+                  <h3>2. Revisa el resumen</h3>
+                  <p>Confirma que la propuesta esté lista antes de generar el PDF.</p>
+                </div>
+                <span class="badge">Resumen comercial</span>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-item"><div class="summary-item-label">Alumno(a)</div><div id="summary-name" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Temario</div><div id="summary-syllabus" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Especialista académica</div><div id="summary-specialist" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Teléfono de contacto</div><div id="summary-specialist-phone" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Campus</div><div id="summary-campus" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Curso</div><div id="summary-date" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Horario</div><div id="summary-schedule" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Días</div><div id="summary-days" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Modalidad</div><div id="summary-modality" class="summary-item-value">-</div></div>
+                <div class="summary-item"><div class="summary-item-label">Dirección</div><div id="summary-address" class="summary-item-value">-</div></div>
+              </div>
             </div>
 
-            <button
-              id="export-pdf"
-              class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold py-2.5 hover:bg-emerald-700 transition-colors"
-            >
-              <span>📄</span>
-              <span>Generar PDF para enviar</span>
-            </button>
-
-            <p class="mt-2 text-[11px] text-slate-500 text-center">
-              * Se abrirá una vista premium lista para guardar como PDF desde el navegador.
-            </p>
+            <div class="mt-4">
+              <button id="export-pdf" class="btn-primary">Generar PDF para enviar</button>
+              <p class="notice-note">Se abrirá una vista premium lista para guardar como PDF desde el navegador.</p>
+            </div>
           </section>
         </div>
       </div>
     </div>
 
-    <script src="./js/config.js?v=20260418-1"></script>
-    <script src="./js/quote.js?v=20260418-1"></script>
-    <script src="./js/pdf.js?v=20260418-1"></script>
-    <script src="./js/logger.js?v=20260418-1"></script>
-    <script src="./js/app.js?v=20260418-1"></script>
+    <script src="./js/config.js?v=20260418-2"></script>
+    <script src="./js/quote.js?v=20260418-2"></script>
+    <script src="./js/pdf.js?v=20260418-2"></script>
+    <script src="./js/logger.js?v=20260418-2"></script>
+    <script src="./js/app.js?v=20260418-2"></script>
   </body>
 </html>
