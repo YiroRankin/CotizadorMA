@@ -5,9 +5,27 @@ const SHEET_ID = 'PEGA_AQUI_EL_ID_DE_TU_GOOGLE_SHEET';
 const SHEET_NAME = 'HistorialCotizaciones';
 
 function doGet(e) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true, message: 'Logger activo' }))
-    .setMimeType(ContentService.MimeType.JSON);
+  try {
+    const payload = getPayload_(e);
+
+    if (!payload || Object.keys(payload).length === 0) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true, message: 'Logger activo' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    const sheet = getSheet_();
+    ensureHeaders_(sheet);
+    appendPayload_(sheet, payload);
+
+    return ContentService
+      .createTextOutput('ok')
+      .setMimeType(ContentService.MimeType.TEXT);
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }
 
 function doPost(e) {
@@ -15,36 +33,7 @@ function doPost(e) {
     const payload = getPayload_(e);
     const sheet = getSheet_();
     ensureHeaders_(sheet);
-
-    sheet.appendRow([
-      new Date(),
-      payload.createdAt || '',
-      payload.source || '',
-      payload.eventType || 'quote_generated',
-      payload.studentName || '',
-      payload.syllabus || '',
-      payload.campus || '',
-      payload.courseId || '',
-      payload.courseName || '',
-      payload.specialistName || '',
-      payload.specialistPhone || '',
-      payload.courseDate || '',
-      payload.courseEndDate || '',
-      payload.schedule || '',
-      payload.days || '',
-      payload.modality || '',
-      payload.address || '',
-      payload.locationUrl || '',
-      payload.listPrice || 0,
-      payload.cashPrice || 0,
-      payload.cashDiscount || 0,
-      payload.planPrice || 0,
-      payload.planDiscount || 0,
-      payload.planVigencia || '',
-      payload.registration || 0,
-      payload.numPayments || 0,
-      payload.monthlyPayment || 0,
-    ]);
+    appendPayload_(sheet, payload);
 
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true }))
@@ -66,6 +55,38 @@ function getPayload_(e) {
   }
 
   return {};
+}
+
+function appendPayload_(sheet, payload) {
+  sheet.appendRow([
+    new Date(),
+    payload.createdAt || '',
+    payload.source || '',
+    payload.eventType || 'quote_generated',
+    payload.studentName || '',
+    payload.syllabus || '',
+    payload.campus || '',
+    payload.courseId || '',
+    payload.courseName || '',
+    payload.specialistName || '',
+    payload.specialistPhone || '',
+    payload.courseDate || '',
+    payload.courseEndDate || '',
+    payload.schedule || '',
+    payload.days || '',
+    payload.modality || '',
+    payload.address || '',
+    payload.locationUrl || '',
+    payload.listPrice || 0,
+    payload.cashPrice || 0,
+    payload.cashDiscount || 0,
+    payload.planPrice || 0,
+    payload.planDiscount || 0,
+    payload.planVigencia || '',
+    payload.registration || 0,
+    payload.numPayments || 0,
+    payload.monthlyPayment || 0,
+  ]);
 }
 
 function getSheet_() {
