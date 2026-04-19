@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Comercial · Cotizador MA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260418-1" />
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <div class="max-w-7xl mx-auto px-4 py-6 md:px-6 lg:px-8">
+      <header class="rounded-3xl bg-slate-900 text-white p-6 md:p-8 shadow-xl mb-6">
+        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-300 mb-2">Misión Admisión</p>
+            <h1 class="text-2xl md:text-4xl font-semibold">Panel Comercial · Fase 1</h1>
+            <p class="text-slate-300 mt-2 max-w-2xl">Vista interna para Coordinación Comercial. Lee el historial del cotizador y muestra adopción por especialista, campus, temario y actividad reciente.</p>
+          </div>
+          <div class="rounded-2xl bg-white/10 px-4 py-3 min-w-[240px]">
+            <div class="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2">Última actualización</div>
+            <div id="last-updated" class="text-sm md:text-base font-medium">Cargando…</div>
+          </div>
+        </div>
+      </header>
+
+      <section class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 md:p-5 mb-6">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-800">Filtros</h2>
+            <p class="text-sm text-slate-500">Ajusta la vista sin tocar el histórico base.</p>
+          </div>
+          <button id="refresh-btn" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 text-white px-4 py-2 text-sm font-medium hover:bg-slate-800 transition-colors">↻ Actualizar</button>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <label class="block">
+            <span class="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">Periodo</span>
+            <select id="filter-period" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+              <option value="all">Todo</option>
+              <option value="7">Últimos 7 días</option>
+              <option value="30">Últimos 30 días</option>
+              <option value="90">Últimos 90 días</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">Especialista</span>
+            <select id="filter-specialist" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+              <option value="all">Todas</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">Temario</span>
+            <select id="filter-syllabus" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+              <option value="all">Todos</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">Campus</span>
+            <select id="filter-campus" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+              <option value="all">Todos</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">Buscar alumno</span>
+            <input id="filter-search" type="text" placeholder="Nombre del alumno(a)" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" />
+          </label>
+        </div>
+      </section>
+
+      <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
+        <article class="rounded-3xl bg-violet-50 border border-violet-100 p-5 shadow-sm">
+          <div class="text-xs uppercase tracking-[0.18em] text-violet-600 mb-2">Cotizaciones generadas</div>
+          <div id="kpi-quotes" class="text-3xl font-semibold text-slate-900">0</div>
+          <p class="text-sm text-slate-500 mt-2">Eventos <code>quote_generated</code></p>
+        </article>
+        <article class="rounded-3xl bg-emerald-50 border border-emerald-100 p-5 shadow-sm">
+          <div class="text-xs uppercase tracking-[0.18em] text-emerald-700 mb-2">PDFs generados</div>
+          <div id="kpi-pdfs" class="text-3xl font-semibold text-slate-900">0</div>
+          <p class="text-sm text-slate-500 mt-2">Eventos <code>pdf_generated</code></p>
+        </article>
+        <article class="rounded-3xl bg-sky-50 border border-sky-100 p-5 shadow-sm">
+          <div class="text-xs uppercase tracking-[0.18em] text-sky-700 mb-2">Tasa PDF / cotización</div>
+          <div id="kpi-rate" class="text-3xl font-semibold text-slate-900">0%</div>
+          <p class="text-sm text-slate-500 mt-2">Señal de uso completo de la herramienta</p>
+        </article>
+        <article class="rounded-3xl bg-amber-50 border border-amber-100 p-5 shadow-sm">
+          <div class="text-xs uppercase tracking-[0.18em] text-amber-700 mb-2">Especialistas activas</div>
+          <div id="kpi-specialists" class="text-3xl font-semibold text-slate-900">0</div>
+          <p class="text-sm text-slate-500 mt-2">Con actividad en el filtro actual</p>
+        </article>
+      </section>
+
+      <section class="grid gap-6 xl:grid-cols-2 mb-6">
+        <article class="rounded-3xl bg-white shadow-sm border border-slate-200 p-5">
+          <div class="mb-4">
+            <h2 class="text-lg font-semibold text-slate-800">Uso por especialista</h2>
+            <p class="text-sm text-slate-500">Comparativo entre cotizaciones y PDFs generados.</p>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-specialists"></canvas></div>
+        </article>
+        <article class="rounded-3xl bg-white shadow-sm border border-slate-200 p-5">
+          <div class="mb-4">
+            <h2 class="text-lg font-semibold text-slate-800">Actividad reciente</h2>
+            <p class="text-sm text-slate-500">Eventos por día en el periodo filtrado.</p>
+          </div>
+          <div class="chart-wrap"><canvas id="chart-daily"></canvas></div>
+        </article>
+      </section>
+
+      <section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr] mb-6">
+        <article class="rounded-3xl bg-white shadow-sm border border-slate-200 p-5">
+          <div class="mb-4">
+            <h2 class="text-lg font-semibold text-slate-800">Campus con más uso</h2>
+            <p class="text-sm text-slate-500">Cotizaciones generadas por campus.</p>
+          </div>
+          <div class="chart-wrap chart-wrap--short"><canvas id="chart-campus"></canvas></div>
+        </article>
+        <article class="rounded-3xl bg-white shadow-sm border border-slate-200 p-5">
+          <div class="mb-4">
+            <h2 class="text-lg font-semibold text-slate-800">Distribución por temario</h2>
+            <p class="text-sm text-slate-500">Participación de EXANI I y EXANI II.</p>
+          </div>
+          <div class="chart-wrap chart-wrap--short"><canvas id="chart-syllabus"></canvas></div>
+        </article>
+      </section>
+
+      <section class="rounded-3xl bg-white shadow-sm border border-slate-200 p-5 mb-6">
+        <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-4">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-800">Resumen por especialista</h2>
+            <p class="text-sm text-slate-500">Lectura rápida para Coordinación Comercial.</p>
+          </div>
+          <div class="text-sm text-slate-500">Ordenado por cotizaciones generadas.</div>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-100">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-slate-600 uppercase text-xs tracking-wide">
+              <tr>
+                <th class="text-left px-4 py-3">Especialista</th>
+                <th class="text-right px-4 py-3">Cotizaciones</th>
+                <th class="text-right px-4 py-3">PDFs</th>
+                <th class="text-right px-4 py-3">Tasa</th>
+                <th class="text-left px-4 py-3">Última actividad</th>
+              </tr>
+            </thead>
+            <tbody id="summary-specialists-body" class="divide-y divide-slate-100 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="rounded-3xl bg-white shadow-sm border border-slate-200 p-5">
+        <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-4">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-800">Historial de eventos</h2>
+            <p class="text-sm text-slate-500">Vista filtrable del historial capturado desde el cotizador.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="history-count" class="text-sm text-slate-500">0 registros</span>
+            <button id="download-csv" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">⬇ Descargar CSV</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-100">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-slate-600 uppercase text-xs tracking-wide">
+              <tr>
+                <th class="text-left px-4 py-3">Fecha</th>
+                <th class="text-left px-4 py-3">Evento</th>
+                <th class="text-left px-4 py-3">Alumno(a)</th>
+                <th class="text-left px-4 py-3">Especialista</th>
+                <th class="text-left px-4 py-3">Temario</th>
+                <th class="text-left px-4 py-3">Campus</th>
+                <th class="text-left px-4 py-3">Curso</th>
+                <th class="text-left px-4 py-3">Modalidad</th>
+              </tr>
+            </thead>
+            <tbody id="history-body" class="divide-y divide-slate-100 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <template id="empty-row-template">
+      <tr>
+        <td colspan="8" class="px-4 py-8 text-center text-sm text-slate-500">No hay datos con los filtros actuales.</td>
+      </tr>
+    </template>
+
+    <script src="./config.js?v=20260418-1"></script>
+    <script src="./app.js?v=20260418-1"></script>
+  </body>
+</html>
