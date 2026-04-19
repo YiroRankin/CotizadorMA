@@ -10,6 +10,84 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="./styles.css?v=20260418-2" />
+    <style>
+      :root{
+        --ma-purple:#4b3fb4;
+        --ma-purple-dark:#3d3298;
+        --ma-purple-soft:#6f63d8;
+        --ma-green:#10f28a;
+        --ma-green-dark:#0cd677;
+        --ma-white:#ffffff;
+        --ma-text:#f7f8ff;
+        --ma-text-dark:#182230;
+        --ma-text-soft:#475467;
+        --ma-muted:#667085;
+        --ma-card:#ffffff;
+        --ma-card-soft:#fbfcff;
+        --ma-border:#d7dbeb;
+        --ma-border-strong:#d4d9e5;
+        --ma-bg-soft:#f4f6fc;
+        --ma-bg:#f6f7fb;
+        --ma-primary-2:#efeaff;
+        --ma-primary-3:#f8f5ff;
+        --ma-ok-bg:#e9f9ef;
+        --ma-ok-text:#166534;
+        --ma-shadow:0 10px 30px rgba(22,34,51,.08);
+        --ma-shadow-soft:0 6px 18px rgba(22,34,51,.06);
+      }
+      body{
+        margin:0;
+        font-family:'Montserrat', Arial, sans-serif !important;
+        color:var(--ma-text-dark);
+        background:
+          radial-gradient(circle at 10% 14%, rgba(91,71,183,.08) 0 120px, transparent 121px),
+          radial-gradient(circle at 88% 18%, rgba(16,199,132,.08) 0 90px, transparent 91px),
+          linear-gradient(180deg, #fbfcff 0%, #f3f6fb 100%) !important;
+      }
+      .hero-banner-wrap{ text-align:center; margin:0 0 4px; }
+      .hero-banner{ width:min(100%,420px); margin:0 auto; display:block; }
+      .hero-card{
+        position:relative; overflow:hidden; padding:20px 28px 24px; border-radius:28px;
+        background:rgba(255,255,255,.92) !important; border:1px solid rgba(215,219,235,.9);
+        box-shadow:var(--ma-shadow-soft); text-align:center;
+      }
+      .hero-card::after{ content:''; position:absolute; right:-38px; top:-34px; width:160px; height:160px; border-radius:999px; background:radial-gradient(circle at center, rgba(91,71,183,.14), rgba(91,71,183,0)); pointer-events:none; }
+      .logo{ width:180px; max-width:55%; margin:0 auto 18px; display:block; opacity:.98; }
+      .hero-title{ margin:0 0 10px; max-width:900px; font-size:clamp(24px,4vw,48px); line-height:1.04; font-weight:800; letter-spacing:-.03em; color:#101828; text-align:center; margin-left:auto; margin-right:auto; }
+      .hero-copy{ max-width:760px; margin:0 auto; color:var(--ma-text-soft); font-size:clamp(14px,2vw,17px); line-height:1.6; font-weight:500; text-align:center; }
+      .hero-meta{ display:inline-block; background:#fff; border:1px solid var(--ma-border); box-shadow:var(--ma-shadow-soft); }
+      .meta-label{ color:#667085; font-weight:800; }
+      .small-chip{ display:inline-block; margin:10px 0 24px; background:var(--ma-primary-3); color:var(--ma-purple); padding:8px 12px; border-radius:999px; font-size:12px; font-weight:700; border:1px solid #e0d7ff; }
+      .card{ background:var(--ma-card) !important; color:var(--ma-text-dark); border-radius:24px; padding:24px; box-shadow:var(--ma-shadow-soft); border:1px solid var(--ma-border) !important; }
+      .section-head-left h2{ margin:0 0 6px; font-size:22px; font-weight:800; color:#1f2a44; }
+      .section-head-left p,.table-note,.metric-copy{ color:var(--ma-text-soft) !important; font-size:14px; line-height:1.5; font-weight:500; }
+      .label-title{ display:block; margin:0 0 8px; font-size:13px; font-weight:700; color:#475467; letter-spacing:.01em; text-transform:none; }
+      .field-control{ width:100%; padding:14px 16px; border:1px solid var(--ma-border) !important; border-radius:14px; font-size:14px; font-family:'Montserrat', Arial, sans-serif; color:#1f2937; background:#fff !important; outline:none; transition:.18s ease; }
+      .field-control::placeholder{ color:#98a2b3; }
+      .field-control:focus{ border-color:var(--ma-purple-soft) !important; box-shadow:0 0 0 4px rgba(91,71,183,.12) !important; }
+      .btn-secondary,.btn-light{ border:1px solid transparent; border-radius:14px; font-size:15px; font-weight:800; font-family:'Montserrat', Arial, sans-serif; cursor:pointer; transition:transform .12s ease, box-shadow .18s ease, background .18s ease; }
+      .btn-secondary:hover,.btn-light:hover{ transform:translateY(-1px); }
+      .btn-secondary{ background:var(--ma-purple) !important; color:#fff; box-shadow:0 10px 20px rgba(91,71,183,.18); }
+      .btn-secondary:hover{ background:var(--ma-purple-dark) !important; }
+      .btn-light{ background:#fff; color:#344054; border-color:var(--ma-border); box-shadow:var(--ma-shadow-soft); }
+      .btn-light:hover{ background:var(--ma-primary-3); border-color:#ddd3ff; }
+      .metric-card{ border-radius:24px; padding:20px; border:1px solid var(--ma-border); box-shadow:var(--ma-shadow-soft); }
+      .metric-card--quotes{ background:linear-gradient(180deg, rgba(75,63,180,.06) 0%, rgba(75,63,180,.02) 100%), #fff; }
+      .metric-card--pdfs{ background:linear-gradient(180deg, rgba(16,242,138,.08) 0%, rgba(16,242,138,.03) 100%), #fff; }
+      .metric-card--rate{ background:linear-gradient(180deg, rgba(75,63,180,.05) 0%, rgba(16,242,138,.04) 100%), #fff; }
+      .metric-card--specialists{ background:linear-gradient(180deg, rgba(244,208,0,.18) 0%, rgba(244,208,0,.05) 100%), #fff; }
+      .metric-label{ font-size:12px; text-transform:uppercase; font-weight:800; letter-spacing:.06em; color:#667085; margin-bottom:10px; }
+      .metric-value{ font-size:34px; line-height:1; font-weight:800; color:#1f2a44; margin-bottom:8px; }
+      .table-shell{ border-color:#e8ecf7 !important; }
+      thead{ background:#f8f5ff !important; }
+      thead th{ color:#6b5c80 !important; }
+      tbody.divide-y > tr{ border-color:#eef2f7; }
+      #summary-specialists-body tr:hover,#history-body tr:hover{ background:#faf7fd; }
+      code{ background:rgba(91,71,183,.08); color:var(--ma-purple); border-radius:8px; padding:.1rem .35rem; font-size:.85em; }
+      .badge--quote{ background:#efe7f6; color:var(--ma-purple); }
+      .badge--pdf{ background:#e9f9ef; color:var(--ma-ok-text); }
+      @media (max-width:768px){ .hero-card{ padding:22px 18px 20px; } }
+    </style>
   </head>
   <body class="min-h-screen text-slate-900">
     <div class="page-wrap max-w-7xl mx-auto px-4 py-6 md:px-6 lg:px-8">
