@@ -390,19 +390,11 @@
   <body>
     <div class="page-wrap">
       <div class="hero-banner-wrap">
-        <img
-          class="hero-banner"
-          src="https://misionadmision-informacion.s3.us-west-2.amazonaws.com/logos/logoma2026moradohorizontal.png"
-          alt="Misión Admisión"
-        />
+        <img class="hero-banner" src="https://misionadmision-informacion.s3.us-west-2.amazonaws.com/logos/logoma2026moradohorizontal.png" alt="Misión Admisión" />
       </div>
 
       <section class="hero-card">
-        <img
-          class="logo"
-          src="https://misionadmision-assets.s3.amazonaws.com/img/website/logo-misionadmision.png"
-          alt="Misión Admisión · Cursos Propedéuticos"
-        />
+        <img class="logo" src="https://misionadmision-assets.s3.amazonaws.com/img/website/logo-misionadmision.png" alt="Misión Admisión · Cursos Propedéuticos" />
         <h1>Cotizador de cursos EXANI</h1>
         <p>
           Genera una propuesta clara, comercial y lista para enviar. Selecciona especialista, alumno, temario, campus y horario para construir la cotización en segundos.
@@ -411,66 +403,76 @@
 
       <div class="small-chip">Misión Admisión · Cotizador comercial</div>
 
-      <div id="app" class="w-full">
-        <div class="grid gap-8 lg:grid-cols-2">
-          <section class="card">
-            <div class="section-head">
-              <div class="section-head-left">
-                <h2>1. Captura los datos</h2>
-                <p>Completa la información base para construir la cotización.</p>
-              </div>
-              <span class="badge">Paso inicial</span>
+      <div id="app" class="w-full space-y-6">
+        <section class="card max-w-3xl mx-auto">
+          <div class="section-head">
+            <div class="section-head-left">
+              <h2>1. Captura los datos</h2>
+              <p>Completa la información base para construir la cotización.</p>
+            </div>
+            <span class="badge">Paso inicial</span>
+          </div>
+
+          <form id="quote-form" class="grid gap-4 md:grid-cols-2">
+            <div class="md:col-span-2">
+              <label for="specialist" class="label-title">Especialista académica asignada</label>
+              <select id="specialist" required class="field-control">
+                <option value="">Selecciona una especialista</option>
+              </select>
             </div>
 
-            <form id="quote-form" class="space-y-4">
-              <div>
-                <label for="specialist" class="label-title">Especialista académica asignada</label>
-                <select id="specialist" required class="field-control">
-                  <option value="">Selecciona una especialista</option>
-                </select>
-              </div>
+            <div class="md:col-span-2">
+              <label for="student-name" class="label-title">Nombre del alumno(a)</label>
+              <input type="text" id="student-name" required class="field-control" placeholder="Ingresa el nombre completo" />
+            </div>
 
-              <div>
-                <label for="student-name" class="label-title">Nombre del alumno(a)</label>
-                <input type="text" id="student-name" required class="field-control" placeholder="Ingresa el nombre completo" />
-              </div>
+            <div>
+              <label for="syllabus" class="label-title">Temario</label>
+              <select id="syllabus" required class="field-control">
+                <option value="">Selecciona un temario</option>
+                <option value="EXANI I">EXANI I</option>
+                <option value="EXANI II">EXANI II</option>
+              </select>
+            </div>
 
-              <div>
-                <label for="syllabus" class="label-title">Temario</label>
-                <select id="syllabus" required class="field-control">
-                  <option value="">Selecciona un temario</option>
-                  <option value="EXANI I">EXANI I</option>
-                  <option value="EXANI II">EXANI II</option>
-                </select>
-              </div>
+            <div>
+              <label for="campus" class="label-title">Campus</label>
+              <select id="campus" required disabled class="field-control">
+                <option value="">Selecciona un campus</option>
+              </select>
+            </div>
 
-              <div>
-                <label for="campus" class="label-title">Campus</label>
-                <select id="campus" required disabled class="field-control">
-                  <option value="">Selecciona un campus</option>
-                </select>
-              </div>
+            <div>
+              <label for="course-date" class="label-title">Curso</label>
+              <select id="course-date" required disabled class="field-control">
+                <option value="">Selecciona un curso</option>
+              </select>
+            </div>
 
-              <div>
-                <label for="course-date" class="label-title">Curso</label>
-                <select id="course-date" required disabled class="field-control">
-                  <option value="">Selecciona un curso</option>
-                </select>
-              </div>
+            <div>
+              <label for="course-schedule" class="label-title">Horario</label>
+              <select id="course-schedule" required disabled class="field-control">
+                <option value="">Selecciona un horario</option>
+              </select>
+            </div>
 
-              <div>
-                <label for="course-schedule" class="label-title">Horario</label>
-                <select id="course-schedule" required disabled class="field-control">
-                  <option value="">Selecciona un horario</option>
-                </select>
-              </div>
-
+            <div class="md:col-span-2 pt-2">
               <button type="submit" class="btn-secondary">Generar cotización</button>
-            </form>
-          </section>
+            </div>
+          </form>
+        </section>
 
-          <section id="quote-results" class="hidden">
-            <div class="grid gap-3 md:grid-cols-3">
+        <section id="quote-results" class="hidden space-y-4">
+          <section class="card">
+            <div class="section-head mb-4">
+              <div class="section-head-left">
+                <h3>2. Revisa los esquemas de pago</h3>
+                <p>Compara opciones antes de compartir la propuesta con el alumno(a).</p>
+              </div>
+              <span class="badge">Opciones comerciales</span>
+            </div>
+
+            <div class="grid gap-3 lg:grid-cols-3">
               <div>
                 <div class="option-top flex items-center justify-between">
                   <h3 class="option-title">Pago de contado</h3>
@@ -557,42 +559,42 @@
                 </div>
               </div>
             </div>
+          </section>
 
-            <div class="summary-card mt-4">
-              <div class="section-head mb-3">
-                <div class="section-head-left">
-                  <h3>2. Revisa el resumen</h3>
-                  <p>Confirma que la propuesta esté lista antes de generar el PDF.</p>
-                </div>
-                <span class="badge">Resumen comercial</span>
+          <section class="summary-card">
+            <div class="section-head mb-3">
+              <div class="section-head-left">
+                <h3>3. Revisa el resumen</h3>
+                <p>Confirma que la propuesta esté lista antes de generar el PDF.</p>
               </div>
-              <div class="summary-grid">
-                <div class="summary-item"><div class="summary-item-label">Alumno(a)</div><div id="summary-name" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Temario</div><div id="summary-syllabus" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Especialista académica</div><div id="summary-specialist" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Teléfono de contacto</div><div id="summary-specialist-phone" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Campus</div><div id="summary-campus" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Curso</div><div id="summary-date" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Horario</div><div id="summary-schedule" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Días</div><div id="summary-days" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Modalidad</div><div id="summary-modality" class="summary-item-value">-</div></div>
-                <div class="summary-item"><div class="summary-item-label">Dirección</div><div id="summary-address" class="summary-item-value">-</div></div>
-              </div>
+              <span class="badge">Resumen comercial</span>
             </div>
-
-            <div class="mt-4">
-              <button id="export-pdf" class="btn-primary">Generar PDF para enviar</button>
-              <p class="notice-note">Se abrirá una vista premium lista para guardar como PDF desde el navegador.</p>
+            <div class="summary-grid">
+              <div class="summary-item"><div class="summary-item-label">Alumno(a)</div><div id="summary-name" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Temario</div><div id="summary-syllabus" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Especialista académica</div><div id="summary-specialist" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Teléfono de contacto</div><div id="summary-specialist-phone" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Campus</div><div id="summary-campus" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Curso</div><div id="summary-date" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Horario</div><div id="summary-schedule" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Días</div><div id="summary-days" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Modalidad</div><div id="summary-modality" class="summary-item-value">-</div></div>
+              <div class="summary-item"><div class="summary-item-label">Dirección</div><div id="summary-address" class="summary-item-value">-</div></div>
             </div>
           </section>
-        </div>
+
+          <div class="max-w-3xl mx-auto">
+            <button id="export-pdf" class="btn-primary">Generar PDF para enviar</button>
+            <p class="notice-note">Se abrirá una vista premium lista para guardar como PDF desde el navegador.</p>
+          </div>
+        </section>
       </div>
     </div>
 
-    <script src="./js/config.js?v=20260418-2"></script>
-    <script src="./js/quote.js?v=20260418-2"></script>
-    <script src="./js/pdf.js?v=20260418-2"></script>
-    <script src="./js/logger.js?v=20260418-2"></script>
-    <script src="./js/app.js?v=20260418-2"></script>
+    <script src="./js/config.js?v=20260418-3"></script>
+    <script src="./js/quote.js?v=20260418-3"></script>
+    <script src="./js/pdf.js?v=20260418-3"></script>
+    <script src="./js/logger.js?v=20260418-3"></script>
+    <script src="./js/app.js?v=20260418-3"></script>
   </body>
 </html>
