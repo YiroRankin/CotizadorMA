@@ -6,6 +6,8 @@ window.CotizadorApp = window.CotizadorApp || {};
     currentPricing: null,
     planPricingOptions: [],
     selectedPlanPricing: null,
+    recommendationPriority: "none",
+    recommendationHelperValue: "",
   };
 
   app.state = state;
@@ -132,6 +134,91 @@ window.CotizadorApp = window.CotizadorApp || {};
     div.style.background = type === "success" ? "#059669" : "#dc2626";
     document.body.appendChild(div);
     setTimeout(() => div.remove(), duration);
+  }
+
+  function getPrioritySelect() {
+    return document.getElementById("recommendation-priority");
+  }
+
+  function getHelperSelect() {
+    return document.getElementById("recommendation-helper");
+  }
+
+  function getHelperBox() {
+    return document.getElementById("recommendation-helper-box");
+  }
+
+  function setRecommendationPriority(value) {
+    state.recommendationPriority = value || "none";
+  }
+
+  function getRecommendationPriority() {
+    return state.recommendationPriority || getPrioritySelect()?.value || "none";
+  }
+
+  function getCoursesForTemario(temario) {
+    const campuses = courseData[temario] || {};
+    return Object.entries(campuses).flatMap(([campusName, campusCourses]) =>
+      campusCourses.map((course) => ({ ...course, campus: campusName }))
+    );
+  }
+
+  function sortCourses(a, b) {
+    if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+    if (a.name !== b.name) return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
+    return (a.schedule || "").localeCompare(b.schedule || "", "es", { sensitivity: "base" });
+  }
+
+  function updateRecommendationHelper() {
+    const syllabus = document.getElementById("syllabus").value;
+    const priority = getRecommendationPriority();
+    const helperBox = getHelperBox();
+    const helperSelect = getHelperSelect();
+    const helperLabel = document.getElementById("recommendation-helper-label");
+    const helperCopy = document.getElementById("recommendation-helper-copy");
+
+    helperSelect.innerHTML = "";
+    state.recommendationHelperValue = "";
+
+    if (!syllabus || priority === "none") {
+      helperBox.classList.add("hidden");
+      document.getElementById("campus").disabled = !syllabus;
+      return;
+    }
+
+    helperBox.classList.remove("hidden");
+
+    if (priority === "campus") {
+      helperLabel.textContent = "Campus preferido";
+      helperCopy.textContent = "Te mostraremos primero los cursos de ese campus y sus horarios disponibles.";
+      const campuses = Object.keys(courseData[syllabus] || {}).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+      helperSelect.innerHTML = '<option value="">Selecciona un campus</option>';
+      campuses.forEach((campus) => {
+        const option = document.createElement("option");
+        option.value = campus;
+        option.textContent = campus;
+        helperSelect.appendChild(option);
+      });
+    } else if (priority === "schedule") {
+      helperLabel.textContent = "Horario preferido";
+      helperCopy.textContent = "Buscaremos cursos de distintos campus que compartan ese mismo horario exacto.";
+      const scheduleMap = new Map();
+      getCoursesForTemario(syllabus).forEach((course) => {
+        const key = `${course.days || "-"} · ${course.schedule || "-"}`;
+        if (!scheduleMap.has(key)) {
+          scheduleMap.set(key, { key, label: key });
+        }
+      });
+      helperSelect.innerHTML = '<option value="">Selecciona un horario</option>';
+      [...scheduleMap.values()]
+        .sort((a, b) => a.label.localeCompare(b.label, "es", { sensitivity: "base" }))
+        .forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item.key;
+          option.textContent = item.label;
+          helperSelect.appendChild(option);
+        });
+    }
   }
 
   function getSelectedCourseDetails() {
@@ -277,28 +364,52 @@ window.CotizadorApp = window.CotizadorApp || {};
     const syllabus = document.getElementById("syllabus").value;
     const campusSelect = document.getElementById("campus");
     const courseSelect = document.getElementById("course-date");
+    const scheduleSelect = document.getElementById("course-schedule");
+    const priority = getRecommendationPriority();
+    const helperValue = getHelperSelect()?.value || "";
 
     campusSelect.innerHTML = '<option value="">Selecciona un campus</option>';
     courseSelect.innerHTML = '<option value="">Selecciona un curso</option>';
+    scheduleSelect.innerHTML = '<option value="">Selecciona un horario</option>';
     courseSelect.disabled = true;
+    scheduleSelect.disabled = true;
 
-    if (syllabus && courseData[syllabus]) {
-      const campuses = Object.keys(courseData[syllabus]).sort((a, b) =>
-        a.localeCompare(b, "es", { sensitivity: "base" })
+    if (!(syllabus && courseData[syllabus])) {
+      campusSelect.disabled = true;
+      return;
+    }
+
+    let campuses = Object.keys(courseData[syllabus]);
+
+    if (priority === "campus") {
+      if (!helperValue) {
+        campusSelect.disabled = true;
+        return;
+      }
+      campuses = campuses.filter((campus) => campus === helperValue);
+    } else if (priority === "schedule" && helperValue) {
+      const matchingCampuses = new Set(
+        getCoursesForTemario(syllabus)
+          .filter((course) => `${course.days || "-"} · ${course.schedule || "-"}` === helperValue)
+          .map((course) => course.campus)
       );
+      campuses = campuses.filter((campus) => matchingCampuses.has(campus));
+    }
 
-      campuses.forEach((campus) => {
+    campuses
+      .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }))
+      .forEach((campus) => {
         const opt = document.createElement("option");
         opt.value = campus;
         opt.textContent = campus;
         campusSelect.appendChild(opt);
       });
 
-      campusSelect.disabled = false;
-      return;
-    }
+    campusSelect.disabled = campuses.length === 0;
 
-    campusSelect.disabled = true;
+    if (priority === "campus" && campuses.length === 1) {
+      campusSelect.value = campuses[0];
+    }
   }
 
   function updateCourseOptions() {
@@ -306,34 +417,46 @@ window.CotizadorApp = window.CotizadorApp || {};
     const campus = document.getElementById("campus").value;
     const courseSelect = document.getElementById("course-date");
     const scheduleSelect = document.getElementById("course-schedule");
+    const priority = getRecommendationPriority();
+    const helperValue = getHelperSelect()?.value || "";
 
     courseSelect.innerHTML = '<option value="">Selecciona un curso</option>';
     scheduleSelect.innerHTML = '<option value="">Selecciona un horario</option>';
     scheduleSelect.disabled = true;
 
-    if (syllabus && campus && courseData[syllabus] && courseData[syllabus][campus]) {
-      const courses = courseData[syllabus][campus]
-        .slice()
-        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-
-      const grouped = new Map();
-      courses.forEach((course) => {
-        const key = `${course.name}|${course.date}`;
-        if (!grouped.has(key)) grouped.set(key, []);
-        grouped.get(key).push(course);
-      });
-
-      [...grouped.entries()].forEach(([key, groupedCourses]) => {
-        const opt = document.createElement("option");
-        opt.value = key;
-        opt.textContent = groupedCourses[0].name;
-        opt.dataset.courseName = groupedCourses[0].name;
-        courseSelect.appendChild(opt);
-      });
-
-      courseSelect.disabled = false;
-    } else {
+    if (!(syllabus && campus && courseData[syllabus] && courseData[syllabus][campus])) {
       courseSelect.disabled = true;
+      updatePaymentLimits();
+      return;
+    }
+
+    let courses = courseData[syllabus][campus].slice();
+
+    if (priority === "schedule" && helperValue) {
+      courses = courses.filter((course) => `${course.days || "-"} · ${course.schedule || "-"}` === helperValue);
+    }
+
+    courses.sort(sortCourses);
+
+    const grouped = new Map();
+    courses.forEach((course) => {
+      const key = `${course.name}|${course.date}`;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(course);
+    });
+
+    [...grouped.entries()].forEach(([key, groupedCourses]) => {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = groupedCourses[0].name;
+      opt.dataset.courseName = groupedCourses[0].name;
+      courseSelect.appendChild(opt);
+    });
+
+    courseSelect.disabled = grouped.size === 0;
+
+    if (grouped.size === 1) {
+      courseSelect.value = [...grouped.keys()][0];
     }
 
     updateScheduleOptions();
@@ -345,6 +468,8 @@ window.CotizadorApp = window.CotizadorApp || {};
     const campus = document.getElementById("campus").value;
     const selectedCourseKey = document.getElementById("course-date").value;
     const scheduleSelect = document.getElementById("course-schedule");
+    const helperValue = getHelperSelect()?.value || "";
+    const priority = getRecommendationPriority();
 
     scheduleSelect.innerHTML = '<option value="">Selecciona un horario</option>';
 
@@ -353,9 +478,14 @@ window.CotizadorApp = window.CotizadorApp || {};
       return;
     }
 
-    const matches = courseData[syllabus][campus]
-      .filter((course) => `${course.name}|${course.date}` === selectedCourseKey)
-      .sort((a, b) => (a.schedule || "").localeCompare(b.schedule || "", "es", { sensitivity: "base" }));
+    let matches = courseData[syllabus][campus]
+      .filter((course) => `${course.name}|${course.date}` === selectedCourseKey);
+
+    if (priority === "schedule" && helperValue) {
+      matches = matches.filter((course) => `${course.days || "-"} · ${course.schedule || "-"}` === helperValue);
+    }
+
+    matches = matches.sort((a, b) => (a.schedule || "").localeCompare(b.schedule || "", "es", { sensitivity: "base" }));
 
     matches.forEach((course) => {
       const opt = document.createElement("option");
@@ -365,7 +495,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       scheduleSelect.appendChild(opt);
     });
 
-    scheduleSelect.disabled = false;
+    scheduleSelect.disabled = matches.length === 0;
 
     if (matches.length === 1) {
       scheduleSelect.value = matches[0].id;
@@ -507,6 +637,9 @@ window.CotizadorApp = window.CotizadorApp || {};
   app.updatePlanDiscountOptions = updatePlanDiscountOptions;
   app.getSelectedPlanPricing = getSelectedPlanPricing;
   app.updateDisplayPrices = updateDisplayPrices;
+  app.setRecommendationPriority = setRecommendationPriority;
+  app.getRecommendationPriority = getRecommendationPriority;
+  app.updateRecommendationHelper = updateRecommendationHelper;
   app.updateCampusOptions = updateCampusOptions;
   app.updateCourseOptions = updateCourseOptions;
   app.updateScheduleOptions = updateScheduleOptions;
