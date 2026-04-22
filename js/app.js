@@ -129,6 +129,8 @@ window.CotizadorApp = window.CotizadorApp || {};
   function wireEvents(config) {
     const specialistSelect = document.getElementById("specialist");
     const syllabusSelect = document.getElementById("syllabus");
+    const prioritySelect = document.getElementById("recommendation-priority");
+    const helperSelect = document.getElementById("recommendation-helper");
     const campusSelect = document.getElementById("campus");
     const courseSelect = document.getElementById("course-date");
     const scheduleSelect = document.getElementById("course-schedule");
@@ -139,8 +141,25 @@ window.CotizadorApp = window.CotizadorApp || {};
     const planDiscountSelector = document.getElementById("plan-discount-selector");
     const exportBtn = document.getElementById("export-pdf");
 
+    app.setRecommendationPriority(prioritySelect.value);
+
     syllabusSelect.addEventListener("change", () => {
+      app.updateRecommendationHelper();
       app.updateCampusOptions();
+      app.updateCourseOptions();
+    });
+
+    prioritySelect.addEventListener("change", () => {
+      app.setRecommendationPriority(prioritySelect.value);
+      app.updateRecommendationHelper();
+      app.updateCampusOptions();
+      app.updateCourseOptions();
+    });
+
+    helperSelect.addEventListener("change", () => {
+      app.state.recommendationHelperValue = helperSelect.value || "";
+      app.updateCampusOptions();
+      app.updateCourseOptions();
     });
 
     campusSelect.addEventListener("change", () => {
