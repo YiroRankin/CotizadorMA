@@ -228,6 +228,20 @@
         cursor:not-allowed;
       }
 
+      .helper-box{
+        border:1px solid #e7defa;
+        background:linear-gradient(180deg,#faf7ff 0%,#ffffff 100%);
+        border-radius:18px;
+        padding:16px;
+      }
+
+      .helper-copy{
+        margin-top:6px;
+        font-size:12px;
+        line-height:1.55;
+        color:#667085;
+      }
+
       .btn-primary,
       .btn-secondary,
       .btn-light{
@@ -436,6 +450,21 @@
             </div>
 
             <div>
+              <label for="recommendation-priority" class="label-title">¿Qué quieres priorizar para esta recomendación?</label>
+              <select id="recommendation-priority" class="field-control">
+                <option value="none">Sin prioridad</option>
+                <option value="campus">Campus</option>
+                <option value="schedule">Horario</option>
+              </select>
+            </div>
+
+            <div id="recommendation-helper-box" class="md:col-span-2 helper-box hidden">
+              <label id="recommendation-helper-label" for="recommendation-helper" class="label-title">Preferencia</label>
+              <select id="recommendation-helper" class="field-control"></select>
+              <p id="recommendation-helper-copy" class="helper-copy"></p>
+            </div>
+
+            <div>
               <label for="campus" class="label-title">Campus</label>
               <select id="campus" required disabled class="field-control">
                 <option value="">Selecciona un campus</option>
@@ -443,13 +472,13 @@
             </div>
 
             <div>
-              <label for="course-date" class="label-title">Curso</label>
+              <label for="course-date" class="label-title">Curso sugerido</label>
               <select id="course-date" required disabled class="field-control">
                 <option value="">Selecciona un curso</option>
               </select>
             </div>
 
-            <div>
+            <div class="md:col-span-2">
               <label for="course-schedule" class="label-title">Horario</label>
               <select id="course-schedule" required disabled class="field-control">
                 <option value="">Selecciona un horario</option>
@@ -591,10 +620,10 @@
       </div>
     </div>
 
-    <script src="./js/config.js?v=20260418-3"></script>
-    <script src="./js/quote.js?v=20260418-3"></script>
-    <script src="./js/pdf.js?v=20260418-3"></script>
-    <script src="./js/logger.js?v=20260418-3"></script>
-    <script src="./js/app.js?v=20260418-3"></script>
+    <script src="./js/config.js?v=20260419-1"></script>
+    <script src="./js/quote.js?v=20260419-1"></script>
+    <script src="./js/pdf.js?v=20260419-1"></script>
+    <script src="./js/logger.js?v=20260419-1"></script>
+    <script src="./js/app.js?v=20260419-1"></script>
   </body>
 </html>
