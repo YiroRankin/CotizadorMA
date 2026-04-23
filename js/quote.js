@@ -169,6 +169,27 @@ window.CotizadorApp = window.CotizadorApp || {};
     return (a.schedule || "").localeCompare(b.schedule || "", "es", { sensitivity: "base" });
   }
 
+  function getScheduleKey(course) {
+    return `${course?.days || "-"} · ${course?.schedule || "-"}`;
+  }
+
+  function getScheduleSimilarityScore(baseCourse, candidateCourse) {
+    if (!baseCourse || !candidateCourse) return 0;
+
+    const baseDays = String(baseCourse.days || "").trim().toLowerCase();
+    const candidateDays = String(candidateCourse.days || "").trim().toLowerCase();
+    const baseSchedule = String(baseCourse.schedule || "").trim().toLowerCase();
+    const candidateSchedule = String(candidateCourse.schedule || "").trim().toLowerCase();
+
+    const sameDays = baseDays && candidateDays && baseDays === candidateDays;
+    const sameSchedule = baseSchedule && candidateSchedule && baseSchedule === candidateSchedule;
+
+    if (sameDays && sameSchedule) return 3;
+    if (sameSchedule) return 2;
+    if (sameDays) return 1;
+    return 0;
+  }
+
   function updateRecommendationHelper() {
     const syllabus = document.getElementById("syllabus").value;
     const priority = getRecommendationPriority();
@@ -204,7 +225,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       helperCopy.textContent = "Buscaremos cursos de distintos campus que compartan ese mismo horario exacto.";
       const scheduleMap = new Map();
       getCoursesForTemario(syllabus).forEach((course) => {
-        const key = `${course.days || "-"} · ${course.schedule || "-"}`;
+        const key = getScheduleKey(course);
         if (!scheduleMap.has(key)) {
           scheduleMap.set(key, { key, label: key });
         }
@@ -390,7 +411,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     } else if (priority === "schedule" && helperValue) {
       const matchingCampuses = new Set(
         getCoursesForTemario(syllabus)
-          .filter((course) => `${course.days || "-"} · ${course.schedule || "-"}` === helperValue)
+          .filter((course) => getScheduleKey(course) === helperValue)
           .map((course) => course.campus)
       );
       campuses = campuses.filter((campus) => matchingCampuses.has(campus));
@@ -433,7 +454,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     let courses = courseData[syllabus][campus].slice();
 
     if (priority === "schedule" && helperValue) {
-      courses = courses.filter((course) => `${course.days || "-"} · ${course.schedule || "-"}` === helperValue);
+      courses = courses.filter((course) => getScheduleKey(course) === helperValue);
     }
 
     courses.sort(sortCourses);
@@ -482,7 +503,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       .filter((course) => `${course.name}|${course.date}` === selectedCourseKey);
 
     if (priority === "schedule" && helperValue) {
-      matches = matches.filter((course) => `${course.days || "-"} · ${course.schedule || "-"}` === helperValue);
+      matches = matches.filter((course) => getScheduleKey(course) === helperValue);
     }
 
     matches = matches.sort((a, b) => (a.schedule || "").localeCompare(b.schedule || "", "es", { sensitivity: "base" }));
@@ -569,7 +590,9 @@ window.CotizadorApp = window.CotizadorApp || {};
     const temario = state.quoteData.syllabus;
     const selectedDate = selectedCourse.date;
     const selectedId = selectedCourse.id;
+    const selectedCampus = state.quoteData.campus;
     const targetModality = selectedCourse.modality;
+    const priority = getRecommendationPriority();
 
     const campuses = courseData[temario] || {};
     const allCourses = Object.entries(campuses).flatMap(([campusName, campusCourses]) =>
@@ -579,17 +602,48 @@ window.CotizadorApp = window.CotizadorApp || {};
       }))
     );
 
-    return allCourses
-      .filter(
-        (course) =>
-          course.id !== selectedId &&
-          course.modality === targetModality &&
-          course.date >= selectedDate
-      )
-      .sort((a, b) => {
-        if (a.date !== b.date) return a.date < b.date ? -1 : 1;
-        return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
-      })
+    const baseCourses = allCourses.filter(
+      (course) =>
+        course.id !== selectedId &&
+        course.modality === targetModality &&
+        course.date >= selectedDate
+    );
+
+    if (priority === "campus") {
+      return baseCourses
+        .filter((course) => course.campus === selectedCampus)
+        .sort(sortCourses)
+        .slice(0, limit);
+    }
+
+    if (priority === "schedule") {
+      const prioritized = baseCourses
+        .map((course) => ({
+          ...course,
+          similarityScore: getScheduleSimilarityScore(selectedCourse, course),
+          sameCampusPenalty: course.campus === selectedCampus ? 1 : 0,
+        }))
+        .filter((course) => course.similarityScore > 0)
+        .sort((a, b) => {
+          if (b.similarityScore !== a.similarityScore) return b.similarityScore - a.similarityScore;
+          if (a.sameCampusPenalty !== b.sameCampusPenalty) return a.sameCampusPenalty - b.sameCampusPenalty;
+          return sortCourses(a, b);
+        });
+
+      if (prioritized.length >= limit) {
+        return prioritized.slice(0, limit);
+      }
+
+      const usedIds = new Set(prioritized.map((course) => course.id));
+      const fallback = baseCourses
+        .filter((course) => !usedIds.has(course.id))
+        .sort(sortCourses);
+
+      return [...prioritized, ...fallback].slice(0, limit);
+    }
+
+    return baseCourses
+      .sort(sortCourses)
       .slice(0, limit);
   }
 
@@ -598,7 +652,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
+      .replace(/\"/g, "&quot;")
       .replace(/'/g, "&#39;");
   }
 
