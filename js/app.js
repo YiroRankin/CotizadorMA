@@ -7,6 +7,10 @@ window.CotizadorApp = window.CotizadorApp || {};
       specialists: "./data/specialists.json",
       courses: "./data/courses.json",
     },
+    catalogApi: {
+      enabled: false,
+      endpointUrl: "",
+    },
     quoteLogging: {
       enabled: false,
       endpointUrl: "",
@@ -21,6 +25,10 @@ window.CotizadorApp = window.CotizadorApp || {};
         ...DEFAULT_CONFIG.dataUrls,
         ...(window.COTIZADOR_CONFIG?.dataUrls || {}),
       },
+      catalogApi: {
+        ...DEFAULT_CONFIG.catalogApi,
+        ...(window.COTIZADOR_CONFIG?.catalogApi || {}),
+      },
       quoteLogging: {
         ...DEFAULT_CONFIG.quoteLogging,
         ...(window.COTIZADOR_CONFIG?.quoteLogging || {}),
@@ -33,19 +41,59 @@ window.CotizadorApp = window.CotizadorApp || {};
     if (!response.ok) {
       throw new Error(`No se pudo cargar ${url}`);
     }
-    return response.json();
+    const data = await response.json();
+    if (data && data.ok === false) {
+      throw new Error(data.message || `El endpoint devolvió un error: ${url}`);
+    }
+    return data;
   }
 
-  async function loadCatalogs(config) {
+  async function loadCatalogsFromApi(config) {
+    const endpointUrl = config.catalogApi?.endpointUrl;
+    if (!(config.catalogApi?.enabled && endpointUrl)) return null;
+
+    const url = new URL(endpointUrl);
+    url.searchParams.set("mode", "all");
+    url.searchParams.set("_ts", String(Date.now()));
+
+    const data = await loadJson(url.toString());
+    return {
+      pricing: data.pricing || data.pricingRules || [],
+      specialists: data.specialists || null,
+      courses: data.courses || null,
+    };
+  }
+
+  async function loadCatalogsFromStaticJson(config) {
     const [pricingData, specialistsData, coursesData] = await Promise.all([
       loadJson(config.dataUrls.pricing),
       loadJson(config.dataUrls.specialists),
       loadJson(config.dataUrls.courses),
     ]);
 
-    window.pricingRules = pricingData;
-    window.specialists = specialistsData;
-    window.courseData = coursesData;
+    return {
+      pricing: pricingData,
+      specialists: specialistsData,
+      courses: coursesData,
+    };
+  }
+
+  async function loadCatalogs(config) {
+    let catalogs = null;
+
+    try {
+      catalogs = await loadCatalogsFromApi(config);
+    } catch (error) {
+      console.warn("No se pudieron cargar catálogos desde Sheets. Se usará respaldo JSON.", error);
+    }
+
+    if (!catalogs) {
+      catalogs = await loadCatalogsFromStaticJson(config);
+    }
+
+    window.pricingRules = catalogs.pricing || [];
+    window.specialists = catalogs.specialists || {};
+    window.courseData = catalogs.courses || {};
   }
 
   function populateSpecialists() {
