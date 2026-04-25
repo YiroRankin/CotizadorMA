@@ -48,12 +48,20 @@ window.CotizadorApp = window.CotizadorApp || {};
     return data;
   }
 
+  function hasObjectData(value) {
+    return value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length > 0;
+  }
+
+  function hasArrayData(value) {
+    return Array.isArray(value) && value.length > 0;
+  }
+
   async function loadCatalogsFromApi(config) {
     const endpointUrl = config.catalogApi?.endpointUrl;
     if (!(config.catalogApi?.enabled && endpointUrl)) return null;
 
     const url = new URL(endpointUrl);
-    url.searchParams.set("mode", "all");
+    url.searchParams.set("type", "all");
     url.searchParams.set("_ts", String(Date.now()));
 
     const data = await loadJson(url.toString());
@@ -61,6 +69,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       pricing: data.pricing || data.pricingRules || [],
       specialists: data.specialists || null,
       courses: data.courses || null,
+      promotions: data.promotions || [],
     };
   }
 
@@ -75,25 +84,31 @@ window.CotizadorApp = window.CotizadorApp || {};
       pricing: pricingData,
       specialists: specialistsData,
       courses: coursesData,
+      promotions: [],
     };
   }
 
   async function loadCatalogs(config) {
-    let catalogs = null;
+    const staticCatalogs = await loadCatalogsFromStaticJson(config);
+    let apiCatalogs = null;
 
     try {
-      catalogs = await loadCatalogsFromApi(config);
+      apiCatalogs = await loadCatalogsFromApi(config);
     } catch (error) {
       console.warn("No se pudieron cargar catálogos desde Sheets. Se usará respaldo JSON.", error);
     }
 
-    if (!catalogs) {
-      catalogs = await loadCatalogsFromStaticJson(config);
-    }
+    const catalogs = {
+      pricing: hasArrayData(apiCatalogs?.pricing) ? apiCatalogs.pricing : staticCatalogs.pricing,
+      specialists: hasObjectData(apiCatalogs?.specialists) ? apiCatalogs.specialists : staticCatalogs.specialists,
+      courses: hasObjectData(apiCatalogs?.courses) ? apiCatalogs.courses : staticCatalogs.courses,
+      promotions: hasArrayData(apiCatalogs?.promotions) ? apiCatalogs.promotions : staticCatalogs.promotions,
+    };
 
     window.pricingRules = catalogs.pricing || [];
     window.specialists = catalogs.specialists || {};
     window.courseData = catalogs.courses || {};
+    window.promotions = catalogs.promotions || [];
   }
 
   function populateSpecialists() {
