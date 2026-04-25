@@ -56,21 +56,15 @@ window.CotizadorApp = window.CotizadorApp || {};
     return Array.isArray(value) && value.length > 0;
   }
 
-  async function loadCatalogsFromApi(config) {
+  async function loadCatalogFromApi(config, type) {
     const endpointUrl = config.catalogApi?.endpointUrl;
     if (!(config.catalogApi?.enabled && endpointUrl)) return null;
 
     const url = new URL(endpointUrl);
-    url.searchParams.set("type", "all");
+    url.searchParams.set("type", type);
     url.searchParams.set("_ts", String(Date.now()));
 
-    const data = await loadJson(url.toString());
-    return {
-      pricing: data.pricing || data.pricingRules || [],
-      specialists: data.specialists || null,
-      courses: data.courses || null,
-      promotions: data.promotions || [],
-    };
+    return loadJson(url.toString());
   }
 
   async function loadCatalogsFromStaticJson(config) {
@@ -90,19 +84,35 @@ window.CotizadorApp = window.CotizadorApp || {};
 
   async function loadCatalogs(config) {
     const staticCatalogs = await loadCatalogsFromStaticJson(config);
-    let apiCatalogs = null;
+    let apiCourses = null;
+    let apiPricing = null;
+    let apiPromotions = null;
 
-    try {
-      apiCatalogs = await loadCatalogsFromApi(config);
-    } catch (error) {
-      console.warn("No se pudieron cargar catálogos desde Sheets. Se usará respaldo JSON.", error);
+    if (config.catalogApi?.enabled && config.catalogApi?.endpointUrl) {
+      try {
+        apiCourses = await loadCatalogFromApi(config, "courses");
+      } catch (error) {
+        console.warn("No se pudieron cargar cursos desde Sheets. Se usará respaldo JSON.", error);
+      }
+
+      try {
+        apiPricing = await loadCatalogFromApi(config, "pricing");
+      } catch (error) {
+        console.warn("No se pudieron cargar precios desde Sheets. Se usará respaldo JSON.", error);
+      }
+
+      try {
+        apiPromotions = await loadCatalogFromApi(config, "promotions");
+      } catch (error) {
+        console.warn("No se pudieron cargar promociones desde Sheets. Se continuará sin promociones dinámicas.", error);
+      }
     }
 
     const catalogs = {
-      pricing: hasArrayData(apiCatalogs?.pricing) ? apiCatalogs.pricing : staticCatalogs.pricing,
-      specialists: hasObjectData(apiCatalogs?.specialists) ? apiCatalogs.specialists : staticCatalogs.specialists,
-      courses: hasObjectData(apiCatalogs?.courses) ? apiCatalogs.courses : staticCatalogs.courses,
-      promotions: hasArrayData(apiCatalogs?.promotions) ? apiCatalogs.promotions : staticCatalogs.promotions,
+      pricing: hasArrayData(apiPricing) ? apiPricing : staticCatalogs.pricing,
+      specialists: staticCatalogs.specialists,
+      courses: hasObjectData(apiCourses) ? apiCourses : staticCatalogs.courses,
+      promotions: hasArrayData(apiPromotions) ? apiPromotions : staticCatalogs.promotions,
     };
 
     window.pricingRules = catalogs.pricing || [];
