@@ -12,6 +12,7 @@
  *
  * Requiere estas pestañas:
  *   Cursos_Publicables
+ *   Campus_Config
  *   Precios
  *   Promociones
  */
@@ -19,6 +20,7 @@ const SHEET_ID = 'PEGA_AQUI_EL_ID_DE_TU_GOOGLE_SHEET';
 
 const SHEETS = {
   courses: 'Cursos_Publicables',
+  campusConfig: 'Campus_Config',
   pricing: 'Precios',
   promotions: 'Promociones',
 };
@@ -63,21 +65,24 @@ function doGet(e) {
 
 function buildCoursesCatalog_() {
   const rows = readRows_(SHEETS.courses);
+  const campusConfig = readCampusConfig_();
   const catalog = {};
 
   rows.forEach(function(row) {
     if (!isActive_(getValue_(row, ['activo', 'active']))) return;
 
     const temario = clean_(getValue_(row, ['temario', 'syllabus']));
-    const campus = clean_(getValue_(row, ['campus']));
+    const campusFuente = clean_(getValue_(row, ['campusFuente', 'campus fuente', 'campus']));
+    const config = campusConfig[normalizeKey_(campusFuente)] || {};
+    const campus = clean_(getValue_(row, ['campusCotizador', 'campus cotizador'])) || config.campusCotizador || campusFuente;
     const date = formatDate_(getValue_(row, ['fechaInicio', 'date', 'inicio']));
     const endDate = formatDate_(getValue_(row, ['fechaTermino', 'endDate', 'termino']));
     const name = clean_(getValue_(row, ['nombreVisible', 'name', 'curso']));
     const days = clean_(getValue_(row, ['dias', 'days']));
     const schedule = clean_(getValue_(row, ['horario', 'schedule']));
-    const modality = clean_(getValue_(row, ['modalidad', 'modality']));
-    const address = clean_(getValue_(row, ['direccion', 'address']));
-    const locationUrl = clean_(getValue_(row, ['locationUrl', 'locationURL', 'linkUbicacion', 'link de ubicación']));
+    const modality = clean_(getValue_(row, ['modalidad', 'modality'])) || config.modalidad;
+    const address = clean_(getValue_(row, ['direccion', 'address'])) || config.direccion;
+    const locationUrl = clean_(getValue_(row, ['locationUrl', 'locationURL', 'linkUbicacion', 'link de ubicación'])) || config.locationUrl;
     const courseId = clean_(getValue_(row, ['courseId', 'id'])) || buildCourseId_(temario, campus, date, days, schedule, modality);
 
     if (!(temario && campus && date && name && schedule && modality)) return;
@@ -109,6 +114,31 @@ function buildCoursesCatalog_() {
   });
 
   return catalog;
+}
+
+function readCampusConfig_() {
+  try {
+    const rows = readRows_(SHEETS.campusConfig);
+    const map = {};
+
+    rows.forEach(function(row) {
+      if (!isActive_(getValue_(row, ['activo', 'active']))) return;
+
+      const campusFuente = clean_(getValue_(row, ['campusFuente', 'campus fuente', 'campus']));
+      if (!campusFuente) return;
+
+      map[normalizeKey_(campusFuente)] = {
+        campusCotizador: clean_(getValue_(row, ['campusCotizador', 'campus cotizador', 'nombreComercial', 'nombre comercial'])) || campusFuente,
+        modalidad: clean_(getValue_(row, ['modalidad', 'modality'])),
+        direccion: clean_(getValue_(row, ['direccion', 'address'])),
+        locationUrl: clean_(getValue_(row, ['locationUrl', 'locationURL', 'linkUbicacion', 'link de ubicación'])),
+      };
+    });
+
+    return map;
+  } catch (error) {
+    return {};
+  }
 }
 
 function buildPricingCatalog_() {
@@ -190,6 +220,13 @@ function normalizeHeader_(value) {
   return String(value || '')
     .trim()
     .replace(/\s+/g, '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function normalizeKey_(value) {
+  return clean_(value)
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
