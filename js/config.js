@@ -4,6 +4,10 @@ window.COTIZADOR_CONFIG = {
     specialists: "./data/specialists.json",
     courses: "./data/courses.json",
   },
+  catalogApi: {
+    enabled: false,
+    endpointUrl: "",
+  },
   quoteLogging: {
     enabled: true,
     endpointUrl: "https://script.google.com/macros/s/AKfycbxPNCQUolYDZSkAlseM4rp1ghGGx-kR-IZTx86xGbXJrUpq0eJpzbTYyS43kQl1soxW/exec",
