@@ -5,7 +5,7 @@ window.COTIZADOR_CONFIG = {
     courses: "./data/courses.json",
   },
   catalogApi: {
-    enabled: true,
+    enabled: false,
     endpointUrl: "https://script.google.com/macros/s/AKfycbzWmwrMzFduDRJDN2ZM-tLuDWrAcICaxqh-zrH9WDB7ljeyzmEPdSwZ4_ewXGq2gXLNgg/exec",
   },
   quoteLogging: {
