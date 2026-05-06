@@ -193,6 +193,122 @@
         "locationUrl": "A través de Google Meet",
         "endDate": "2027-04-22"
       }
+    ],
+    "Campeche": [
+      {
+        "id": "course_017",
+        "name": "5 SEP CAMPECHE VESP",
+        "date": "2026-09-05",
+        "schedule": "14:30 a 18:50",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Av. Resurgimiento 611, Bosques de Campeche, 24030 San Francisco de Campeche, Camp.",
+        "locationUrl": "https://maps.app.goo.gl/TgJ7vXFxQY3mDBTm7",
+        "endDate": "2027-05-22"
+      },
+      {
+        "id": "course_018",
+        "name": "24 OCT CAMPECHE VESP",
+        "date": "2026-10-24",
+        "schedule": "14:30 a 20:20",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Av. Resurgimiento 611, Bosques de Campeche, 24030 San Francisco de Campeche, Camp.",
+        "locationUrl": "https://maps.app.goo.gl/TgJ7vXFxQY3mDBTm7",
+        "endDate": "2027-05-22"
+      },
+      {
+        "id": "course_019",
+        "name": "12 FEB CAMPECHE VESP",
+        "date": "2027-02-12",
+        "schedule": "V- 16:30 a 19:30 / S- 14:30 a 20:20",
+        "days": "Viernes y sábado",
+        "modality": "Presencial",
+        "address": "Av. Resurgimiento 611, Bosques de Campeche, 24030 San Francisco de Campeche, Camp.",
+        "locationUrl": "https://maps.app.goo.gl/TgJ7vXFxQY3mDBTm7",
+        "endDate": "2027-05-22"
+      }
+    ],
+    "Playa del Carmen": [
+      {
+        "id": "course_020",
+        "name": "12 SEP PLAYA VESP",
+        "date": "2026-09-12",
+        "schedule": "13:00 a 17:30",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Calle Carr. Federal 3730, Gonzalo Guerrero, 77710 Playa del Carmen, Q.R.",
+        "locationUrl": "https://maps.app.goo.gl/tXNAA2PdAGivjAAo6",
+        "endDate": "2027-06-05"
+      },
+      {
+        "id": "course_021",
+        "name": "7 NOV PLAYA VESP",
+        "date": "2026-11-07",
+        "schedule": "13:00 a 19:10",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Calle Carr. Federal 3730, Gonzalo Guerrero, 77710 Playa del Carmen, Q.R.",
+        "locationUrl": "https://maps.app.goo.gl/tXNAA2PdAGivjAAo6",
+        "endDate": "2027-06-05"
+      },
+      {
+        "id": "course_022",
+        "name": "16 ENE PLAYA VESP",
+        "date": "2027-01-16",
+        "schedule": "13:00 a 19:10",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Calle Carr. Federal 3730, Gonzalo Guerrero, 77710 Playa del Carmen, Q.R.",
+        "locationUrl": "https://maps.app.goo.gl/tXNAA2PdAGivjAAo6",
+        "endDate": "2027-06-05"
+      }
+    ],
+    "Veracruz": [
+      {
+        "id": "course_023",
+        "name": "5 SEP VERACRUZ MAT",
+        "date": "2026-09-05",
+        "schedule": "08:00 a 12:30",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Av Lafragua 955, Salvador Díaz Mirón, 91910 Veracruz, Ver.",
+        "locationUrl": "https://maps.app.goo.gl/JZ7DcaXipWAgUFuE7",
+        "endDate": "2027-05-15"
+      },
+      {
+        "id": "course_024",
+        "name": "24 OCT VERACRUZ MAT",
+        "date": "2026-10-24",
+        "schedule": "08:00 a 14:10",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Av Lafragua 955, Salvador Díaz Mirón, 91910 Veracruz, Ver.",
+        "locationUrl": "https://maps.app.goo.gl/JZ7DcaXipWAgUFuE7",
+        "endDate": "2027-05-15"
+      },
+      {
+        "id": "course_025",
+        "name": "16 ENE VERACRUZ MAT",
+        "date": "2027-01-16",
+        "schedule": "08:00 a 14:10",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Av Lafragua 955, Salvador Díaz Mirón, 91910 Veracruz, Ver.",
+        "locationUrl": "https://maps.app.goo.gl/JZ7DcaXipWAgUFuE7",
+        "endDate": "2027-05-15"
+      },
+      {
+        "id": "course_026",
+        "name": "6 MAR VERACRUZ MAT",
+        "date": "2027-03-06",
+        "schedule": "08:00 a 14:10",
+        "days": "Sábados",
+        "modality": "Presencial",
+        "address": "Av Lafragua 955, Salvador Díaz Mirón, 91910 Veracruz, Ver.",
+        "locationUrl": "https://maps.app.goo.gl/JZ7DcaXipWAgUFuE7",
+        "endDate": "2027-05-15"
+      }
     ]
   }
 }
