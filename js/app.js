@@ -151,8 +151,11 @@ window.CotizadorApp = window.CotizadorApp || {};
   function buildLogPayload(quoteData, course, currentPricing, planPricing, eventType) {
     const registration = parseFloat(document.getElementById("registration-fee").value || "0");
     const numPayments = parseInt(document.getElementById("num-payments").value || "0", 10);
+    const customPlan = app.getCustomPlanSummary ? app.getCustomPlanSummary() : null;
     const remaining = Math.max(0, (planPricing?.installment || 0) - registration);
-    const monthly = remaining > 0 ? app.roundUpToNearest(remaining / Math.max(numPayments, 1), 100) : 0;
+    const monthly = customPlan && customPlan.payments.length
+      ? customPlan.payments[0].amount
+      : remaining > 0 ? app.roundUpToNearest(remaining / Math.max(numPayments, 1), 100) : 0;
 
     return {
       createdAt: new Date().toISOString(),
@@ -181,6 +184,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       registration,
       numPayments: Math.max(numPayments || 1, 1),
       monthlyPayment: monthly,
+      customPaymentSchedule: customPlan ? customPlan.paymentsText : "",
     };
   }
 
@@ -328,4 +332,317 @@ window.CotizadorApp = window.CotizadorApp || {};
   }
 
   document.addEventListener("DOMContentLoaded", init);
+})(window.CotizadorApp);
+
+(function (app) {
+  const originalUpdateDisplayPrices = app.updateDisplayPrices;
+  const originalGeneratePDF = app.generatePDF;
+
+  function clamp(value, min, max) {
+    const number = parseInt(value || "0", 10);
+    if (!Number.isFinite(number)) return min;
+    return Math.max(min, Math.min(max, number));
+  }
+
+  function parseMoney(value) {
+    const number = Number(String(value == null ? "" : value).replace(/[$,\s]/g, ""));
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  function getPlanPricing() {
+    return app.getSelectedPlanPricing ? app.getSelectedPlanPricing() || app.state.currentPricing : app.state.currentPricing;
+  }
+
+  function getPlanTotal() {
+    return Number(getPlanPricing()?.installment || 0);
+  }
+
+  function getRegistration() {
+    return parseMoney(document.getElementById("registration-fee")?.value || 0);
+  }
+
+  function getNumPayments() {
+    return clamp(document.getElementById("num-payments")?.value || 1, 1, 5);
+  }
+
+  function ensureCustomPlanUI() {
+    const numPaymentsInput = document.getElementById("num-payments");
+    const registrationInput = document.getElementById("registration-fee");
+    if (!numPaymentsInput || !registrationInput) return false;
+
+    registrationInput.min = "0";
+    registrationInput.step = "100";
+    numPaymentsInput.min = "1";
+    numPaymentsInput.max = "5";
+    numPaymentsInput.step = "1";
+
+    const label = document.querySelector('label[for="num-payments"]');
+    if (label) label.textContent = "Número de mensualidades (1 a 5)";
+
+    const oldMonthly = document.getElementById("monthly-payment");
+    const oldMonthlyBox = oldMonthly ? oldMonthly.closest(".rounded-2xl") : null;
+    if (oldMonthlyBox) oldMonthlyBox.style.display = "none";
+
+    const oldNote = oldMonthlyBox?.nextElementSibling;
+    if (oldNote && oldNote.classList.contains("mini-copy")) {
+      oldNote.textContent = "* La suma de inscripción y mensualidades no debe sobrepasar el total del plan de pagos.";
+    }
+
+    if (!document.getElementById("custom-payments-wrapper")) {
+      const wrapper = document.createElement("div");
+      wrapper.id = "custom-payments-wrapper";
+      wrapper.innerHTML = `
+        <label class="label-title !mb-1">Montos por mensualidad</label>
+        <div id="custom-payments-container" class="grid gap-2"></div>
+        <div id="custom-plan-summary" class="rounded-2xl border border-dashed border-[var(--ma-border-strong)] bg-white px-3 py-3 mt-3 mini-copy"></div>
+        <p id="custom-plan-warning" class="hidden text-[11px] text-[var(--ma-err-text)] mt-1 font-semibold"></p>
+      `;
+      const numBlock = numPaymentsInput.closest("div");
+      numBlock.insertAdjacentElement("afterend", wrapper);
+    }
+
+    if (!registrationInput.dataset.customPlanListener) {
+      registrationInput.dataset.customPlanListener = "true";
+      registrationInput.addEventListener("input", () => renderPaymentRows(true));
+    }
+
+    if (!numPaymentsInput.dataset.customPlanListener) {
+      numPaymentsInput.dataset.customPlanListener = "true";
+      numPaymentsInput.addEventListener("input", () => renderPaymentRows(true));
+    }
+
+    return true;
+  }
+
+  function buildDefaultPayments(total, registration, count) {
+    const remaining = Math.max(0, total - registration);
+    if (!count) return [];
+    const base = Math.floor(remaining / count / 100) * 100;
+    const payments = Array(count).fill(base);
+    payments[count - 1] = Math.max(0, remaining - base * (count - 1));
+    return payments;
+  }
+
+  function renderPaymentRows(reset = false) {
+    if (!ensureCustomPlanUI()) return;
+
+    const container = document.getElementById("custom-payments-container");
+    const count = getNumPayments();
+    const planTotal = getPlanTotal();
+    const registration = getRegistration();
+    const existing = Array.from(container.querySelectorAll(".custom-payment-amount")).map((input) => parseMoney(input.value));
+    const shouldRebuild = reset || Number(container.dataset.count || 0) !== count || existing.length !== count;
+    const values = shouldRebuild ? buildDefaultPayments(planTotal, registration, count) : existing;
+
+    if (shouldRebuild) {
+      container.innerHTML = "";
+      values.forEach((amount, index) => {
+        const row = document.createElement("div");
+        row.className = "grid grid-cols-[1fr_120px] gap-2 items-center";
+        row.innerHTML = `
+          <span class="mini-copy font-semibold text-slate-700">Mensualidad ${index + 1}</span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-700 font-semibold">$</span>
+            <input type="number" class="custom-payment-amount field-control !py-3 text-xs" min="0" step="100" value="${amount}" data-index="${index}" />
+          </div>
+        `;
+        container.appendChild(row);
+      });
+      container.dataset.count = String(count);
+
+      container.querySelectorAll(".custom-payment-amount").forEach((input) => {
+        input.addEventListener("input", () => app.calculateInstallments());
+      });
+    }
+
+    app.calculateInstallments();
+  }
+
+  function getCustomPlanSummary() {
+    ensureCustomPlanUI();
+    const planTotal = getPlanTotal();
+    const registration = getRegistration();
+    const payments = Array.from(document.querySelectorAll(".custom-payment-amount")).map((input, index) => ({
+      label: `Mensualidad ${index + 1}`,
+      amount: parseMoney(input.value),
+    }));
+    const monthlyTotal = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    const capturedTotal = registration + monthlyTotal;
+    const difference = planTotal - capturedTotal;
+    const exceeds = capturedTotal > planTotal + 0.01;
+    const paymentsText = payments.length
+      ? payments.map((payment, index) => `${index + 1}) ${app.formatCurrencyMXN(payment.amount)}`).join(" · ")
+      : "Sin mensualidades capturadas";
+
+    return {
+      planTotal,
+      registration,
+      payments,
+      monthlyTotal,
+      capturedTotal,
+      difference,
+      exceeds,
+      paymentsText,
+    };
+  }
+
+  function validateCustomPlan() {
+    const summary = getCustomPlanSummary();
+    const warning = document.getElementById("custom-plan-warning");
+    const summaryBox = document.getElementById("custom-plan-summary");
+    const paymentsError = document.getElementById("payments-error");
+    const paymentsErrorText = document.getElementById("payments-error-text");
+    const registrationError = document.getElementById("registration-error");
+    const monthlySpan = document.getElementById("monthly-payment");
+
+    if (monthlySpan) monthlySpan.textContent = app.formatCurrencyMXN(summary.monthlyTotal);
+    if (registrationError) registrationError.classList.add("hidden");
+
+    const differenceLabel = summary.exceeds
+      ? `Excedente: ${app.formatCurrencyMXN(Math.abs(summary.difference))}`
+      : `Disponible por asignar: ${app.formatCurrencyMXN(Math.max(0, summary.difference))}`;
+
+    if (summaryBox) {
+      summaryBox.innerHTML = `
+        <div class="grid gap-1">
+          <div>Total del plan: <strong>${app.formatCurrencyMXN(summary.planTotal)}</strong></div>
+          <div>Total capturado: <strong>${app.formatCurrencyMXN(summary.capturedTotal)}</strong></div>
+          <div>${differenceLabel}</div>
+        </div>
+      `;
+    }
+
+    if (summary.exceeds) {
+      const message = "La inscripción y mensualidades no deben sobrepasar el total del plan.";
+      if (warning) {
+        warning.textContent = message;
+        warning.classList.remove("hidden");
+      }
+      if (paymentsError && paymentsErrorText) {
+        paymentsErrorText.textContent = message;
+        paymentsError.classList.remove("hidden");
+      }
+      return false;
+    }
+
+    if (warning) warning.classList.add("hidden");
+    if (paymentsError) paymentsError.classList.add("hidden");
+    return true;
+  }
+
+  app.getCustomPlanSummary = getCustomPlanSummary;
+
+  app.updatePaymentLimits = function () {
+    ensureCustomPlanUI();
+    validateCustomPlan();
+  };
+
+  app.calculateInstallments = function () {
+    ensureCustomPlanUI();
+    validateCustomPlan();
+  };
+
+  app.updateDisplayPrices = function () {
+    if (typeof originalUpdateDisplayPrices === "function") originalUpdateDisplayPrices();
+    renderPaymentRows(true);
+  };
+
+  app.generatePDF = function () {
+    const { quoteData, currentPricing } = app.state;
+
+    if (!quoteData) {
+      app.showToast("Primero genera una cotización.", "error");
+      return;
+    }
+
+    if (!currentPricing) {
+      app.showToast("No se encontró información de precios para esta cotización.", "error");
+      return;
+    }
+
+    const summary = getCustomPlanSummary();
+    if (summary.exceeds) {
+      app.showToast("Corrige el plan de pagos: el total capturado sobrepasa el monto del plan.", "error", 4200);
+      return;
+    }
+
+    const course = app.getSelectedCourseDetails();
+    const planPricing = getPlanPricing() || currentPricing;
+    const showDiagnostic = app.shouldShowCashDiagnosticBenefit(currentPricing);
+    const onlySixMSI = quoteData.syllabus === "EXANI I";
+    const today = new Date();
+    const issueDate = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
+    const validityDate = app.getVigenciaQuincena(today);
+    const validity = `Vigencia hasta el ${String(validityDate.getDate()).padStart(2, "0")}/${String(validityDate.getMonth() + 1).padStart(2, "0")}/${validityDate.getFullYear()}`;
+    const specialistWhatsapp = quoteData.specialistPhone ? `https://wa.me/52${quoteData.specialistPhone}` : "#";
+
+    const alternativeCourses = app.getAlternativeCourses(3).map((alt) => ({
+      title: app.formatCourseDisplayName(alt.name),
+      sub: app.buildAlternativeSubtitle(quoteData.syllabus, alt.modality, alt.campus),
+      days: alt.days || "-",
+      schedule: alt.schedule || "-",
+      start: app.formatIsoToDMY(alt.date) || "-",
+      end: app.formatIsoToDMY(alt.endDate) || "-",
+    }));
+
+    const pendingText = summary.difference > 0.01 ? ` · Pendiente por asignar: ${app.formatCurrencyMXN(summary.difference)}` : "";
+
+    const printData = {
+      studentName: quoteData.studentName || "Alumno(a)",
+      temario: quoteData.syllabus || "-",
+      campus: quoteData.campus || "-",
+      modality: course ? course.modality : "-",
+      start: course ? app.formatIsoToDMY(course.date) : "-",
+      end: course ? app.formatIsoToDMY(course.endDate) : "-",
+      schedule: course ? course.schedule || "-" : "-",
+      days: course ? course.days || "-" : "-",
+      issueDate,
+      validity,
+      specialist: {
+        name: quoteData.specialistName || "Especialista académica",
+        whatsappUrl: specialistWhatsapp,
+      },
+      copy: {
+        hero: "Curso propedéutico EXANI diseñado para impulsar la mejor decisión de inscripción.",
+        intro: "Le compartimos una propuesta clara y flexible para su curso de preparación EXANI, con esquemas de pago y beneficios vigentes.",
+        highlight: "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos.",
+      },
+      pricing: {
+        list: app.formatCurrencyMXN(currentPricing.listPrice),
+        cash: app.formatCurrencyMXN(currentPricing.cash),
+        cashDiscount: `${currentPricing.cashDiscount || 0}% de descuento`,
+        plan: app.formatCurrencyMXN(planPricing.installment),
+        planDiscount: `${planPricing.installmentDiscount || 0}% de descuento`,
+        planVigencia: app.getMonthYearLabelFromRule(planPricing),
+        inscription: app.formatCurrencyMXN(summary.registration),
+        paymentsLabel: "Mensualidades capturadas",
+        paymentAmount: `${summary.paymentsText}${pendingText}`,
+        msi6: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 6),
+        msi9: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 9),
+        msi12: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 12),
+      },
+      alternatives: alternativeCourses,
+      showDiagnostic,
+      onlySixMSI,
+    };
+
+    const html = app.buildPrintableQuoteHtml(printData);
+    const previewWindow = window.open("", "_blank");
+
+    if (!previewWindow) {
+      app.showToast("Tu navegador bloqueó la nueva ventana. Permite pop-ups para abrir la vista del PDF.", "error", 4500);
+      return;
+    }
+
+    previewWindow.document.open();
+    previewWindow.document.write(html);
+    previewWindow.document.close();
+    previewWindow.focus();
+    app.showToast("Se abrió la vista premium para guardar como PDF.", "success", 3500);
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    ensureCustomPlanUI();
+    renderPaymentRows(true);
+  });
 })(window.CotizadorApp);
