@@ -75,6 +75,9 @@ window.COTIZADOR_CONFIG = {
 - inscripción
 - número de mensualidades
 - pago mensual estimado
+- calendario personalizado de mensualidades, cuando se captura manualmente
+
+Si ya existe la hoja `HistorialCotizaciones`, el logger agrega automáticamente los encabezados nuevos que falten sin borrar registros anteriores.
 
 ## Nota importante
 

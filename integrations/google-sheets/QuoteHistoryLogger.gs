@@ -3,6 +3,36 @@
  */
 const SHEET_ID = 'PEGA_AQUI_EL_ID_DE_TU_GOOGLE_SHEET';
 const SHEET_NAME = 'HistorialCotizaciones';
+const HISTORY_HEADERS = [
+  'timestampServidor',
+  'createdAtCliente',
+  'source',
+  'eventType',
+  'studentName',
+  'syllabus',
+  'campus',
+  'courseId',
+  'courseName',
+  'specialistName',
+  'specialistPhone',
+  'courseDate',
+  'courseEndDate',
+  'schedule',
+  'days',
+  'modality',
+  'address',
+  'locationUrl',
+  'listPrice',
+  'cashPrice',
+  'cashDiscount',
+  'planPrice',
+  'planDiscount',
+  'planVigencia',
+  'registration',
+  'numPayments',
+  'monthlyPayment',
+  'customPaymentSchedule',
+];
 
 function doGet(e) {
   try {
@@ -86,6 +116,7 @@ function appendPayload_(sheet, payload) {
     payload.registration || 0,
     payload.numPayments || 0,
     payload.monthlyPayment || 0,
+    payload.customPaymentSchedule || '',
   ]);
 }
 
@@ -100,35 +131,26 @@ function getSheet_() {
 }
 
 function ensureHeaders_(sheet) {
-  if (sheet.getLastRow() > 0) return;
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(HISTORY_HEADERS);
+    return;
+  }
 
-  sheet.appendRow([
-    'timestampServidor',
-    'createdAtCliente',
-    'source',
-    'eventType',
-    'studentName',
-    'syllabus',
-    'campus',
-    'courseId',
-    'courseName',
-    'specialistName',
-    'specialistPhone',
-    'courseDate',
-    'courseEndDate',
-    'schedule',
-    'days',
-    'modality',
-    'address',
-    'locationUrl',
-    'listPrice',
-    'cashPrice',
-    'cashDiscount',
-    'planPrice',
-    'planDiscount',
-    'planVigencia',
-    'registration',
-    'numPayments',
-    'monthlyPayment',
-  ]);
+  const headerRange = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1));
+  const existingHeaders = headerRange.getValues()[0].map(function(header) {
+    return String(header || '').trim();
+  });
+  const existingSet = {};
+
+  existingHeaders.forEach(function(header) {
+    if (header) existingSet[header] = true;
+  });
+
+  const missingHeaders = HISTORY_HEADERS.filter(function(header) {
+    return !existingSet[header];
+  });
+
+  if (missingHeaders.length) {
+    sheet.getRange(1, existingHeaders.length + 1, 1, missingHeaders.length).setValues([missingHeaders]);
+  }
 }

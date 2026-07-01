@@ -36,12 +36,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       match = genericMatches.find((rule) => date >= rule.from && date <= rule.to);
     }
 
-    if (!match && exactMatches.length) {
-      exactMatches = exactMatches.sort((a, b) => (a.to < b.to ? -1 : a.to > b.to ? 1 : 0));
-      match = exactMatches[exactMatches.length - 1];
-    }
-
-    return match || pricingRules[0];
+    return match || null;
   }
 
   function getRuleKey(rule) {

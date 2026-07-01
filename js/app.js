@@ -336,7 +336,6 @@ window.CotizadorApp = window.CotizadorApp || {};
 
 (function (app) {
   const originalUpdateDisplayPrices = app.updateDisplayPrices;
-  const originalGeneratePDF = app.generatePDF;
 
   function clamp(value, min, max) {
     const number = parseInt(value || "0", 10);

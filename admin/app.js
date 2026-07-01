@@ -92,6 +92,7 @@ const AdminApp = (() => {
       registration: Number(row.registration || 0),
       numPayments: Number(row.numPayments || 0),
       monthlyPayment: Number(row.monthlyPayment || 0),
+      customPaymentSchedule: row.customPaymentSchedule || '',
       dateObj: row.timestampServidor ? new Date(row.timestampServidor) : null,
     };
   }
@@ -361,7 +362,20 @@ const AdminApp = (() => {
   }
 
   function downloadCsv() {
-    const headers = ['timestampServidor', 'eventType', 'studentName', 'specialistName', 'syllabus', 'campus', 'courseName', 'modality'];
+    const headers = [
+      'timestampServidor',
+      'eventType',
+      'studentName',
+      'specialistName',
+      'syllabus',
+      'campus',
+      'courseName',
+      'modality',
+      'registration',
+      'numPayments',
+      'monthlyPayment',
+      'customPaymentSchedule',
+    ];
     const lines = [headers.join(',')];
 
     state.filteredRows.forEach((row) => {

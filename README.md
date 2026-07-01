@@ -136,6 +136,7 @@ X  planVigencia
 Y  registration
 Z  numPayments
 AA monthlyPayment
+AB customPaymentSchedule
 ```
 
 ## Cómo resetear el histórico
