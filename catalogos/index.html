@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catalogos | Cotizador MA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260630-3" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">Cotizador MA</div>
+          <h1>Catalogos comerciales</h1>
+        </div>
+        <div class="status-card">
+          <span id="connection-label">Sin endpoint</span>
+          <button id="health-btn" type="button" class="icon-btn" title="Probar conexion">↻</button>
+        </div>
+      </header>
+
+      <section class="panel grid gap-4 lg:grid-cols-[1.4fr_.8fr]">
+        <div class="grid gap-4 md:grid-cols-2">
+          <label>
+            <span>Endpoint Apps Script</span>
+            <input id="endpoint-url" class="field" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
+          </label>
+          <label>
+            <span>Clave de edicion</span>
+            <input id="admin-token" class="field" type="password" autocomplete="off" placeholder="Clave temporal" />
+          </label>
+        </div>
+        <div class="actions">
+          <button id="save-config-btn" type="button" class="btn btn-primary">Guardar sesion</button>
+          <button id="setup-btn" type="button" class="btn btn-light">Preparar hojas</button>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="Catalogos">
+        <button type="button" class="tab is-active" data-tab="courses">Cursos</button>
+        <button type="button" class="tab" data-tab="pricing">Precios</button>
+        <button type="button" class="tab" data-tab="promotions">Promociones</button>
+        <button type="button" class="tab" data-tab="validate">Validacion</button>
+      </nav>
+
+      <section id="alert-box" class="alert hidden"></section>
+
+      <section class="tab-panel is-active" data-panel="courses">
+        <form id="course-form" class="panel form-grid">
+          <label><span>Temario</span><select class="field" name="temario" required><option value="EXANI I">EXANI I</option><option value="EXANI II">EXANI II</option></select></label>
+          <label><span>Campus fuente</span><input class="field" name="campusFuente" required placeholder="Merida - Centro" /></label>
+          <label><span>Campus cotizador</span><input class="field" name="campusCotizador" placeholder="Merida - Centro" /></label>
+          <label><span>Nombre visible</span><input class="field" name="nombreVisible" required placeholder="26 DE SEPTIEMBRE" /></label>
+          <label><span>Fecha inicio</span><input class="field" type="date" name="fechaInicio" required /></label>
+          <label><span>Fecha termino</span><input class="field" type="date" name="fechaTermino" required /></label>
+          <label><span>Dias</span><input class="field" name="dias" required placeholder="Sabados" /></label>
+          <label><span>Horario</span><input class="field" name="horario" required placeholder="08:00 a 12:30" /></label>
+          <label><span>Modalidad</span><select class="field" name="modalidad" required><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></label>
+          <label><span>Direccion</span><input class="field" name="direccion" placeholder="Direccion o Virtual" /></label>
+          <label><span>Link ubicacion</span><input class="field" name="locationUrl" placeholder="https://maps.app.goo.gl/..." /></label>
+          <label><span>ID opcional</span><input class="field" name="courseId" placeholder="Se genera automaticamente" /></label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar curso</button>
+            <button type="button" class="btn btn-light" data-list="courses">Ver ultimos</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="tab-panel" data-panel="pricing">
+        <form id="pricing-form" class="panel form-grid">
+          <label><span>Temario</span><select class="field" name="temario" required><option value="EXANI I">EXANI I</option><option value="EXANI II">EXANI II</option></select></label>
+          <label><span>Modalidad</span><select class="field" name="modalidad" required><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></label>
+          <label><span>Vigencia desde</span><input class="field" type="date" name="vigenciaDesde" required /></label>
+          <label><span>Vigencia hasta</span><input class="field" type="date" name="vigenciaHasta" required /></label>
+          <label><span>Precio lista</span><input class="field" type="number" min="0" step="1" name="precioLista" required /></label>
+          <label><span>Precio contado</span><input class="field" type="number" min="0" step="1" name="precioContado" required /></label>
+          <label><span>Descuento contado %</span><input class="field" type="number" min="0" max="100" step="1" name="descuentoContado" required /></label>
+          <label><span>Precio plan</span><input class="field" type="number" min="0" step="1" name="precioPlan" required /></label>
+          <label><span>Descuento plan %</span><input class="field" type="number" min="0" max="100" step="1" name="descuentoPlan" required /></label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar precio</button>
+            <button type="button" class="btn btn-light" data-list="pricing">Ver ultimos</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="tab-panel" data-panel="promotions">
+        <form id="promotion-form" class="panel form-grid">
+          <label><span>Nombre promocion</span><input class="field" name="nombrePromo" required placeholder="Talleres incluidos" /></label>
+          <label><span>ID opcional</span><input class="field" name="promoId" placeholder="Se genera automaticamente" /></label>
+          <label><span>Vigencia desde</span><input class="field" type="date" name="vigenciaDesde" required /></label>
+          <label><span>Vigencia hasta</span><input class="field" type="date" name="vigenciaHasta" required /></label>
+          <label><span>Temario</span><select class="field" name="temario"><option value="*">Todos</option><option value="EXANI I">EXANI I</option><option value="EXANI II">EXANI II</option></select></label>
+          <label><span>Campus</span><input class="field" name="campus" value="*" /></label>
+          <label><span>Modalidad</span><select class="field" name="modalidad"><option value="*">Todas</option><option value="Presencial">Presencial</option><option value="Virtual">Virtual</option></select></label>
+          <label><span>Forma de pago</span><select class="field" name="formaPago"><option value="*">Todas</option><option value="cash">Contado</option><option value="installment">Plan</option><option value="msi">MSI</option></select></label>
+          <label><span>Prioridad</span><input class="field" type="number" step="1" name="prioridad" value="0" /></label>
+          <label class="span-2"><span>Beneficio</span><textarea class="field" name="beneficio" rows="2" required placeholder="Incluye talleres de diagnostico"></textarea></label>
+          <label class="span-2"><span>Texto PDF</span><textarea class="field" name="textoPDF" rows="2" placeholder="Texto corto para mostrar en PDF cuando se active"></textarea></label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar promocion</button>
+            <button type="button" class="btn btn-light" data-list="promotions">Ver ultimas</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="tab-panel" data-panel="validate">
+        <div class="panel">
+          <div class="toolbar">
+            <button id="validate-btn" type="button" class="btn btn-primary">Validar catalogos</button>
+            <button id="list-all-btn" type="button" class="btn btn-light">Resumen de hojas</button>
+          </div>
+          <div id="validation-summary" class="summary-grid"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="table-head">
+          <h2>Resultado</h2>
+          <span id="result-count">Sin datos</span>
+        </div>
+        <pre id="result-box" class="result-box">Configura el endpoint para comenzar.</pre>
+      </section>
+    </main>
+
+    <script src="./config.js?v=20260630-3"></script>
+    <script src="./app.js?v=20260630-3"></script>
+  </body>
+</html>

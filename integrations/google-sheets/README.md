@@ -12,6 +12,8 @@ Esta carpeta deja lista una integración sencilla para registrar cotizaciones de
 ## Archivos relevantes
 
 - `QuoteHistoryLogger.gs`: Apps Script para pegar dentro de un proyecto nuevo.
+- `CatalogsApi.gs`: Apps Script de lectura de catálogos, conservado como referencia.
+- `CatalogManagerApi.gs`: Apps Script para altas controladas desde `/catalogos/` y lectura pública hacia el cotizador.
 - `../../js/config.js`: aquí activarás el envío desde el cotizador.
 
 ## Pasos de activación
@@ -87,3 +89,30 @@ La ruta segura y práctica es:
 GitHub Pages -> Apps Script Web App -> Google Sheet
 
 Así evitas exponer llaves sensibles en el frontend público.
+
+## Administración de catálogos
+
+Para cargar cursos, precios y promociones sin tocar GitHub:
+
+1. Crear un proyecto de Apps Script asociado al Sheet de catálogos.
+2. Pegar `CatalogManagerApi.gs`.
+3. Cambiar:
+
+```javascript
+const SHEET_ID = 'PEGA_AQUI_EL_ID_DE_TU_GOOGLE_SHEET';
+const ADMIN_TOKEN = 'CAMBIA_ESTA_CLAVE';
+```
+
+4. Desplegar como Web App.
+5. Copiar la URL en `catalogos/config.js`.
+6. Abrir `/catalogos/`, ingresar la clave y presionar `Preparar hojas`.
+7. Copiar la misma URL en `js/config.js` dentro de `catalogApi.endpointUrl`.
+8. Dejar `catalogApi.enabled` en `true` para que el cotizador combine Sheets con los JSON locales.
+
+Pestañas que se preparan:
+- `Cursos_Publicables`
+- `Campus_Config`
+- `Precios`
+- `Promociones`
+
+El cotizador usa los JSON locales como base. Cuando `catalogApi.enabled` está activo, agrega cursos, precios y promociones de Sheets; si el endpoint falla, conserva el respaldo local. La lectura pública soporta JSON y JSONP para evitar bloqueos CORS del navegador.

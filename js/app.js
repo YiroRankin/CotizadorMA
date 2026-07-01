@@ -10,6 +10,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     catalogApi: {
       enabled: false,
       endpointUrl: "",
+      jsonpFallback: true,
     },
     quoteLogging: {
       enabled: false,
@@ -48,12 +49,133 @@ window.CotizadorApp = window.CotizadorApp || {};
     return data;
   }
 
+  function loadJsonp(url, timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+      const callbackName = `cotizadorCatalogCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const script = document.createElement("script");
+      const cleanup = () => {
+        delete window[callbackName];
+        script.remove();
+      };
+      const timer = window.setTimeout(() => {
+        cleanup();
+        reject(new Error(`No se pudo cargar ${url.toString()} por JSONP`));
+      }, timeoutMs);
+
+      window[callbackName] = (data) => {
+        window.clearTimeout(timer);
+        cleanup();
+
+        if (data && data.ok === false) {
+          reject(new Error(data.message || `El endpoint devolvio un error: ${url.toString()}`));
+          return;
+        }
+
+        resolve(data);
+      };
+
+      url.searchParams.set("callback", callbackName);
+      script.src = url.toString();
+      script.async = true;
+      script.onerror = () => {
+        window.clearTimeout(timer);
+        cleanup();
+        reject(new Error(`No se pudo cargar ${url.toString()} por JSONP`));
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
   function hasObjectData(value) {
     return value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length > 0;
   }
 
   function hasArrayData(value) {
     return Array.isArray(value) && value.length > 0;
+  }
+
+  function clonePlain(value, fallback) {
+    return JSON.parse(JSON.stringify(value || fallback));
+  }
+
+  function getCourseKey(course) {
+    if (!course) return "";
+    return course.id || [course.name, course.date, course.days, course.schedule, course.modality].join("|");
+  }
+
+  function mergeCourseCatalogs(baseCatalog, apiCatalog) {
+    const merged = clonePlain(baseCatalog, {});
+
+    Object.entries(apiCatalog || {}).forEach(([syllabus, campuses]) => {
+      if (!merged[syllabus]) merged[syllabus] = {};
+
+      Object.entries(campuses || {}).forEach(([campus, courses]) => {
+        if (!Array.isArray(courses)) return;
+        if (!Array.isArray(merged[syllabus][campus])) merged[syllabus][campus] = [];
+
+        const indexByKey = new Map(
+          merged[syllabus][campus].map((course, index) => [getCourseKey(course), index])
+        );
+
+        courses.forEach((course) => {
+          const key = getCourseKey(course);
+          if (key && indexByKey.has(key)) {
+            merged[syllabus][campus][indexByKey.get(key)] = course;
+          } else {
+            merged[syllabus][campus].push(course);
+          }
+        });
+      });
+    });
+
+    return merged;
+  }
+
+  function getPricingKey(rule) {
+    if (!rule) return "";
+    return [rule.temario, rule.modality, rule.from, rule.to].join("|");
+  }
+
+  function mergePricingRules(baseRules, apiRules) {
+    const byKey = new Map();
+
+    (baseRules || []).forEach((rule) => {
+      const key = getPricingKey(rule);
+      if (key) byKey.set(key, rule);
+    });
+
+    (apiRules || []).forEach((rule) => {
+      const key = getPricingKey(rule);
+      if (key) byKey.set(key, rule);
+    });
+
+    return [...byKey.values()].sort((a, b) => {
+      if (a.temario !== b.temario) return a.temario.localeCompare(b.temario, "es", { sensitivity: "base" });
+      if (a.modality !== b.modality) return a.modality.localeCompare(b.modality, "es", { sensitivity: "base" });
+      return a.from < b.from ? -1 : a.from > b.from ? 1 : 0;
+    });
+  }
+
+  function getPromotionKey(promotion) {
+    if (!promotion) return "";
+    return promotion.id || [promotion.name, promotion.from, promotion.to, promotion.temario, promotion.campus, promotion.modality].join("|");
+  }
+
+  function mergePromotions(basePromotions, apiPromotions) {
+    const byKey = new Map();
+
+    (basePromotions || []).forEach((promotion) => {
+      const key = getPromotionKey(promotion);
+      if (key) byKey.set(key, promotion);
+    });
+
+    (apiPromotions || []).forEach((promotion) => {
+      const key = getPromotionKey(promotion);
+      if (key) byKey.set(key, promotion);
+    });
+
+    return [...byKey.values()].sort((a, b) => Number(b.priority || 0) - Number(a.priority || 0));
   }
 
   async function loadCatalogFromApi(config, type) {
@@ -64,7 +186,13 @@ window.CotizadorApp = window.CotizadorApp || {};
     url.searchParams.set("type", type);
     url.searchParams.set("_ts", String(Date.now()));
 
-    return loadJson(url.toString());
+    try {
+      return await loadJson(url.toString());
+    } catch (error) {
+      if (!config.catalogApi?.jsonpFallback) throw error;
+      console.warn(`No se pudo cargar ${type} con fetch. Intentando JSONP.`, error);
+      return loadJsonp(url);
+    }
   }
 
   async function loadCatalogsFromStaticJson(config) {
@@ -109,10 +237,10 @@ window.CotizadorApp = window.CotizadorApp || {};
     }
 
     const catalogs = {
-      pricing: hasArrayData(apiPricing) ? apiPricing : staticCatalogs.pricing,
+      pricing: hasArrayData(apiPricing) ? mergePricingRules(staticCatalogs.pricing, apiPricing) : staticCatalogs.pricing,
       specialists: staticCatalogs.specialists,
-      courses: hasObjectData(apiCourses) ? apiCourses : staticCatalogs.courses,
-      promotions: hasArrayData(apiPromotions) ? apiPromotions : staticCatalogs.promotions,
+      courses: hasObjectData(apiCourses) ? mergeCourseCatalogs(staticCatalogs.courses, apiCourses) : staticCatalogs.courses,
+      promotions: hasArrayData(apiPromotions) ? mergePromotions(staticCatalogs.promotions, apiPromotions) : staticCatalogs.promotions,
     };
 
     window.pricingRules = catalogs.pricing || [];

@@ -14,7 +14,7 @@ Ubicado en la raíz del proyecto.
 
 Funciones principales:
 - selección de especialista, temario, campus, curso y horario
-- lectura de catálogos desde `data/*.json`
+- lectura de catálogos desde `data/*.json`, con extensión opcional desde Google Sheets
 - cotización con contado, plan de pagos y MSI
 - vista premium para guardar como PDF
 - registro automático de eventos:
@@ -55,20 +55,25 @@ Ubicadas en `integrations/google-sheets/`.
 Scripts disponibles:
 - `QuoteHistoryLogger.gs`: registra eventos del cotizador en la hoja
 - `QuoteHistoryReadApi.gs`: expone el histórico como JSON para el panel
+- `CatalogsApi.gs`: API de lectura de catálogos, conservada como referencia
+- `CatalogManagerApi.gs`: permite altas controladas desde `/catalogos/` y publica catálogos al cotizador
 
 ## Arquitectura general
 
 ```txt
 GitHub Pages
 ├─ /                 -> cotizador público
-└─ /admin/           -> panel comercial interno
+├─ /admin/           -> panel comercial interno
+└─ /catalogos/       -> panel de carga de catálogos
 
 Google Apps Script
 ├─ Logger Web App    -> recibe eventos y escribe en Google Sheets
-└─ Read API Web App  -> lee Google Sheets y devuelve JSON al panel
+├─ Read API Web App  -> lee Google Sheets y devuelve JSON al panel
+└─ Catalog Manager   -> recibe altas y publica catálogos
 
 Google Sheets
-└─ HistorialCotizaciones
+├─ HistorialCotizaciones
+└─ Cursos_Publicables / Precios / Promociones
 ```
 
 ## Flujo actual de datos
@@ -78,6 +83,7 @@ Google Sheets
 2. Se registra un evento `quote_generated`.
 3. Si genera la vista PDF, se registra `pdf_generated`.
 4. El logger guarda ambas filas en `HistorialCotizaciones`.
+5. Los catálogos locales siguen como base; si `catalogApi.enabled` está activo, los registros válidos de Sheets se agregan encima.
 
 ### Panel
 1. El panel llama al Read API.
@@ -103,6 +109,17 @@ Campo importante:
 - `historyEndpointUrl`
 
 Ese endpoint debe apuntar al Web App de lectura del panel.
+
+### Catalog API del cotizador
+Archivo:
+- `js/config.js`
+
+Campos importantes:
+- `catalogApi.enabled`
+- `catalogApi.endpointUrl`
+- `catalogApi.jsonpFallback`
+
+Cuando `catalogApi.enabled` está en `true`, el cotizador carga cursos, precios y promociones desde Apps Script y los combina con los JSON locales. Si Apps Script no responde, si hay bloqueo CORS o si no hay datos válidos, el cotizador conserva el respaldo local del repo.
 
 ## Estructura esperada de la hoja `HistorialCotizaciones`
 
@@ -151,7 +168,11 @@ El cotizador y el panel volverán a poblarse con nuevos eventos.
 ## Mantenimiento operativo
 
 ### Para cambiar catálogos del cotizador hoy
-Editar:
+Usar preferentemente:
+- `/catalogos/`
+- Google Sheets conectado a `CatalogManagerApi.gs`
+
+Los JSON locales siguen siendo el respaldo operativo:
 - `data/pricing.json`
 - `data/specialists.json`
 - `data/courses.json`
@@ -185,3 +206,23 @@ Administración de catálogos desde Sheets/App Script para que Coordinación Com
 - editar vigencias y precios
 
 sin tocar GitHub ni archivos JSON manualmente.
+
+## Panel alterno de catálogos
+
+Ubicado en:
+- `/catalogos/`
+
+Esta página permite capturar cursos, precios y promociones hacia Google Sheets usando `CatalogManagerApi.gs`.
+
+Estado recomendado de despliegue:
+1. Crear o elegir el Google Sheet de catálogos.
+2. Pegar `integrations/google-sheets/CatalogManagerApi.gs` en Apps Script.
+3. Configurar `SHEET_ID` y `ADMIN_TOKEN`.
+4. Desplegar como Web App.
+5. Pegar la URL en `catalogos/config.js`.
+6. Abrir `/catalogos/`, ingresar la clave de edición y usar `Preparar hojas`.
+7. Cargar registros y correr `Validar catálogos`.
+8. Probar la URL pública con `?type=all`.
+9. Publicar los cambios del repo para que GitHub Pages tome `catalogApi.enabled`.
+
+Con `catalogApi.enabled` en `true`, Sheets no reemplaza por completo al repo: agrega o sobrescribe registros equivalentes y deja los JSON como respaldo.
