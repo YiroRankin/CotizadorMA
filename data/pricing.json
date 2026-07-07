@@ -181,8 +181,8 @@
     "from": "2026-07-01",
     "to": "2026-07-31",
     "listPrice": 6700.0,
-    "cash": 5025.0,
-    "cashDiscount": 25.0,
+    "cash": 5360.0,
+    "cashDiscount": 20.0,
     "installment": 5695.0,
     "installmentDiscount": 15.0
   },
@@ -192,8 +192,8 @@
     "from": "2026-07-01",
     "to": "2026-07-31",
     "listPrice": 5700.0,
-    "cash": 4275.0,
-    "cashDiscount": 25.0,
+    "cash": 4560.0,
+    "cashDiscount": 20.0,
     "installment": 4845.0,
     "installmentDiscount": 15.0
   },
@@ -225,8 +225,8 @@
     "from": "2026-08-01",
     "to": "2026-08-31",
     "listPrice": 6700.0,
-    "cash": 5025.0,
-    "cashDiscount": 25.0,
+    "cash": 5360.0,
+    "cashDiscount": 20.0,
     "installment": 5695.0,
     "installmentDiscount": 15.0
   },
@@ -236,8 +236,8 @@
     "from": "2026-08-01",
     "to": "2026-08-31",
     "listPrice": 5700.0,
-    "cash": 4275.0,
-    "cashDiscount": 25.0,
+    "cash": 4560.0,
+    "cashDiscount": 20.0,
     "installment": 4845.0,
     "installmentDiscount": 15.0
   },
