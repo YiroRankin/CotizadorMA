@@ -34,8 +34,6 @@
           <div class="row"><span>12 MSI</span><span>${app.escapeHtml(printData.pricing.msi12)}</span></div>
         `;
 
-    const workshopLi = printData.showDiagnostic ? `<li>Talleres de diagnóstico</li>` : "";
-
     return `<!doctype html>
 <html lang="es">
 <head>
@@ -392,7 +390,6 @@
           <div class="box gold equal">
             <div class="section-kicker" style="color:#7A6200">Recomendación destacada</div>
             <div style="font-size:14px;line-height:1.85;color:#433a16">${app.escapeHtml(printData.copy.highlight)}</div>
-            ${printData.showDiagnostic ? `<div class="promo-note"><span class="dot"></span><span>Promoción vigente con talleres incluidos</span></div>` : ``}
           </div>
         </div>
 
@@ -406,7 +403,6 @@
             <ul class="list">
               <li>Pago único</li>
               <li>Mejor precio disponible</li>
-              ${workshopLi}
             </ul>
           </div>
           <div class="box equal-pay">

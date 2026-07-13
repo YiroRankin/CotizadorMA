@@ -75,10 +75,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   }
 
   function shouldShowCashDiagnosticBenefit(rule) {
-    if (!rule) return false;
-    const month = parseIsoDate(rule.from).getMonth() + 1;
-    if ([4, 5, 6].includes(month)) return true;
-    return month === 3 && isWithinLast3DaysOfMonth(new Date());
+    return false;
   }
 
   function roundUpToNearest(value, step) {
@@ -350,7 +347,6 @@ window.CotizadorApp = window.CotizadorApp || {};
     const msi6El = document.getElementById("msi-6");
     const msi9El = document.getElementById("msi-9");
     const msi12El = document.getElementById("msi-12");
-    const cashDiagnosticBenefitEl = document.getElementById("cash-benefit-diagnostic");
 
     cashPriceEl.textContent = formatCurrencyMXN(state.currentPricing.cash);
     totalInstallmentEl.textContent = formatCurrencyMXN(state.selectedPlanPricing.installment);
@@ -362,13 +358,6 @@ window.CotizadorApp = window.CotizadorApp || {};
     msi6El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 6);
     msi9El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 9);
     msi12El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 12);
-
-    if (cashDiagnosticBenefitEl) {
-      cashDiagnosticBenefitEl.classList.toggle(
-        "hidden",
-        !shouldShowCashDiagnosticBenefit(state.currentPricing)
-      );
-    }
 
     const onlySixMSI = state.quoteData && state.quoteData.syllabus === "EXANI I";
     if (msi6El && msi6El.parentElement) msi6El.parentElement.style.display = "";
