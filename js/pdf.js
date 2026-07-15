@@ -14,6 +14,7 @@
                   <div><div class="field-label">Inicio</div><div class="field-value">${app.escapeHtml(alt.start)}</div></div>
                   <div><div class="field-label">Término</div><div class="field-value">${app.escapeHtml(alt.end)}</div></div>
                 </div>
+                ${alt.note ? `<div class="alt-note">${app.escapeHtml(alt.note)}</div>` : ``}
               </div>
             `
           )
@@ -289,6 +290,16 @@
       border-top: 1px solid var(--line);
       font-size: 13px;
     }
+    .alt-note {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      font-size: 12px;
+      font-weight: 700;
+    }
     .bottom-grid {
       margin-top: 18px;
       display: grid;
@@ -395,14 +406,14 @@
 
         <div class="grid-3">
           <div class="box brand equal-pay">
-            <div class="pill">Mejor opción</div>
+            <div class="pill">${printData.noCashDiscountNotice ? "Pago único" : "Mejor opción"}</div>
             <div class="section-kicker" style="color:rgba(255,255,255,.75);padding-right:90px">Pago de contado</div>
             <div class="strike">${app.escapeHtml(printData.pricing.list)}</div>
             <div class="price">${app.escapeHtml(printData.pricing.cash)}</div>
             <div class="discount">${app.escapeHtml(printData.pricing.cashDiscount)}</div>
             <ul class="list">
               <li>Pago único</li>
-              <li>Mejor precio disponible</li>
+              ${printData.noCashDiscountNotice ? `<li>${app.escapeHtml(printData.noCashDiscountNotice)}</li>` : `<li>Mejor precio disponible</li>`}
             </ul>
           </div>
           <div class="box equal-pay">
@@ -537,6 +548,7 @@
     const alternativeCourses = app.getAlternativeCourses(3).map((alt) => ({
       title: app.formatCourseDisplayName(alt.name),
       sub: app.buildAlternativeSubtitle(quoteData.syllabus, alt.modality, alt.campus),
+      note: app.getCashDiscountNoticeForCampus ? app.getCashDiscountNoticeForCampus(alt.campus) : "",
       days: alt.days || "-",
       schedule: alt.schedule || "-",
       start: app.formatIsoToDMY(alt.date) || "-",
@@ -568,7 +580,7 @@
       pricing: {
         list: app.formatCurrencyMXN(currentPricing.listPrice),
         cash: app.formatCurrencyMXN(currentPricing.cash),
-        cashDiscount: `${currentPricing.cashDiscount || 0}% de descuento`,
+        cashDiscount: currentPricing.cashDiscountExcluded ? "Sin descuento de contado" : `${currentPricing.cashDiscount || 0}% de descuento`,
         plan: app.formatCurrencyMXN(planPricing.installment),
         planDiscount: `${planPricing.installmentDiscount || 0}% de descuento`,
         planVigencia: app.getMonthYearLabelFromRule(planPricing),
@@ -580,6 +592,7 @@
         msi12: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 12),
       },
       alternatives: alternativeCourses,
+      noCashDiscountNotice: currentPricing.cashDiscountNotice || "",
       showDiagnostic,
       onlySixMSI,
     };

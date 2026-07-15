@@ -706,6 +706,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     const alternativeCourses = app.getAlternativeCourses(3).map((alt) => ({
       title: app.formatCourseDisplayName(alt.name),
       sub: app.buildAlternativeSubtitle(quoteData.syllabus, alt.modality, alt.campus),
+      note: app.getCashDiscountNoticeForCampus ? app.getCashDiscountNoticeForCampus(alt.campus) : "",
       days: alt.days || "-",
       schedule: alt.schedule || "-",
       start: app.formatIsoToDMY(alt.date) || "-",
@@ -737,7 +738,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       pricing: {
         list: app.formatCurrencyMXN(currentPricing.listPrice),
         cash: app.formatCurrencyMXN(currentPricing.cash),
-        cashDiscount: `${currentPricing.cashDiscount || 0}% de descuento`,
+        cashDiscount: currentPricing.cashDiscountExcluded ? "Sin descuento de contado" : `${currentPricing.cashDiscount || 0}% de descuento`,
         plan: app.formatCurrencyMXN(planPricing.installment),
         planDiscount: `${planPricing.installmentDiscount || 0}% de descuento`,
         planVigencia: app.getMonthYearLabelFromRule(planPricing),
@@ -749,6 +750,7 @@ window.CotizadorApp = window.CotizadorApp || {};
         msi12: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 12),
       },
       alternatives: alternativeCourses,
+      noCashDiscountNotice: currentPricing.cashDiscountNotice || "",
       showDiagnostic,
       onlySixMSI,
     };

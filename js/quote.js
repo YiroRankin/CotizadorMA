@@ -12,6 +12,39 @@ window.CotizadorApp = window.CotizadorApp || {};
 
   app.state = state;
 
+  const CASH_DISCOUNT_EXCLUDED_CAMPUSES = ["Mérida - Caucel"];
+  const CASH_DISCOUNT_EXCLUDED_NOTICE = "No aplica descuento por pago de contado";
+
+  function normalizeText(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  }
+
+  function isCashDiscountExcludedCampus(campus) {
+    const normalizedCampus = normalizeText(campus);
+    return CASH_DISCOUNT_EXCLUDED_CAMPUSES.some((item) => normalizeText(item) === normalizedCampus);
+  }
+
+  function getCashDiscountNoticeForCampus(campus) {
+    return isCashDiscountExcludedCampus(campus) ? CASH_DISCOUNT_EXCLUDED_NOTICE : "";
+  }
+
+  function applyCashDiscountPolicy(pricing, campus) {
+    if (!pricing) return null;
+    if (!isCashDiscountExcludedCampus(campus)) return pricing;
+
+    return {
+      ...pricing,
+      cash: pricing.listPrice,
+      cashDiscount: 0,
+      cashDiscountExcluded: true,
+      cashDiscountNotice: CASH_DISCOUNT_EXCLUDED_NOTICE,
+    };
+  }
+
   function todayIso() {
     const d = new Date();
     const y = d.getFullYear();
@@ -248,7 +281,8 @@ window.CotizadorApp = window.CotizadorApp || {};
     if (!state.quoteData) return null;
     const course = getSelectedCourseDetails();
     if (!course) return null;
-    return findPricing(state.quoteData.syllabus, course.modality, todayIso());
+    const pricing = findPricing(state.quoteData.syllabus, course.modality, todayIso());
+    return applyCashDiscountPolicy(pricing, state.quoteData.campus);
   }
 
   function getPlanPricingOptions() {
@@ -347,17 +381,22 @@ window.CotizadorApp = window.CotizadorApp || {};
     const msi6El = document.getElementById("msi-6");
     const msi9El = document.getElementById("msi-9");
     const msi12El = document.getElementById("msi-12");
+    const cashBestPriceBenefitEl = document.getElementById("cash-best-price-benefit");
+    const cashNoDiscountNoticeEl = document.getElementById("cash-no-discount-notice");
+    const cashDiscountExcluded = Boolean(state.currentPricing.cashDiscountExcluded);
 
     cashPriceEl.textContent = formatCurrencyMXN(state.currentPricing.cash);
     totalInstallmentEl.textContent = formatCurrencyMXN(state.selectedPlanPricing.installment);
     listPriceCashEl.textContent = formatCurrencyMXN(state.currentPricing.listPrice);
     listPricePlanEl.textContent = formatCurrencyMXN(state.selectedPlanPricing.listPrice);
-    cashDiscountEl.textContent = `${state.currentPricing.cashDiscount || 0}%`;
+    cashDiscountEl.textContent = cashDiscountExcluded ? "No aplica" : `${state.currentPricing.cashDiscount || 0}%`;
     planDiscountEl.textContent = `${state.selectedPlanPricing.installmentDiscount || 0}%`;
     msiListPriceEl.textContent = formatCurrencyMXN(state.currentPricing.listPrice);
     msi6El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 6);
     msi9El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 9);
     msi12El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 12);
+    if (cashBestPriceBenefitEl) cashBestPriceBenefitEl.classList.toggle("hidden", cashDiscountExcluded);
+    if (cashNoDiscountNoticeEl) cashNoDiscountNoticeEl.classList.toggle("hidden", !cashDiscountExcluded);
 
     const onlySixMSI = state.quoteData && state.quoteData.syllabus === "EXANI I";
     if (msi6El && msi6El.parentElement) msi6El.parentElement.style.display = "";
@@ -684,6 +723,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   app.updatePaymentLimits = updatePaymentLimits;
   app.calculateInstallments = calculateInstallments;
   app.getAlternativeCourses = getAlternativeCourses;
+  app.getCashDiscountNoticeForCampus = getCashDiscountNoticeForCampus;
   app.escapeHtml = escapeHtml;
   app.escapeAttr = escapeAttr;
   app.formatCourseDisplayName = formatCourseDisplayName;
