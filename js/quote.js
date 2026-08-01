@@ -28,13 +28,17 @@ window.CotizadorApp = window.CotizadorApp || {};
     return CASH_DISCOUNT_EXCLUDED_CAMPUSES.some((item) => normalizeText(item) === normalizedCampus);
   }
 
-  function getCashDiscountNoticeForCampus(campus) {
-    return isCashDiscountExcludedCampus(campus) ? CASH_DISCOUNT_EXCLUDED_NOTICE : "";
+  function shouldApplyCashDiscountExclusion(temario, campus) {
+    return temario !== "EXANI II" && isCashDiscountExcludedCampus(campus);
   }
 
-  function applyCashDiscountPolicy(pricing, campus) {
+  function getCashDiscountNoticeForCampus(campus, temario) {
+    return shouldApplyCashDiscountExclusion(temario, campus) ? CASH_DISCOUNT_EXCLUDED_NOTICE : "";
+  }
+
+  function applyCashDiscountPolicy(pricing, campus, temario) {
     if (!pricing) return null;
-    if (!isCashDiscountExcludedCampus(campus)) return pricing;
+    if (!shouldApplyCashDiscountExclusion(temario, campus)) return pricing;
 
     return {
       ...pricing,
@@ -282,7 +286,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     const course = getSelectedCourseDetails();
     if (!course) return null;
     const pricing = findPricing(state.quoteData.syllabus, course.modality, todayIso());
-    return applyCashDiscountPolicy(pricing, state.quoteData.campus);
+    return applyCashDiscountPolicy(pricing, state.quoteData.campus, state.quoteData.syllabus);
   }
 
   function getPlanPricingOptions() {

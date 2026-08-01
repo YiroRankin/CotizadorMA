@@ -548,7 +548,7 @@
     const alternativeCourses = app.getAlternativeCourses(3).map((alt) => ({
       title: app.formatCourseDisplayName(alt.name),
       sub: app.buildAlternativeSubtitle(quoteData.syllabus, alt.modality, alt.campus),
-      note: app.getCashDiscountNoticeForCampus ? app.getCashDiscountNoticeForCampus(alt.campus) : "",
+      note: app.getCashDiscountNoticeForCampus ? app.getCashDiscountNoticeForCampus(alt.campus, quoteData.syllabus) : "",
       days: alt.days || "-",
       schedule: alt.schedule || "-",
       start: app.formatIsoToDMY(alt.date) || "-",
