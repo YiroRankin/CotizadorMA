@@ -539,10 +539,7 @@
     const issueDate = `${String(today.getDate()).padStart(2, "0")}/${String(
       today.getMonth() + 1
     ).padStart(2, "0")}/${today.getFullYear()}`;
-    const validityDate = app.getVigenciaQuincena(today);
-    const validity = `Vigencia hasta el ${String(validityDate.getDate()).padStart(2, "0")}/${String(
-      validityDate.getMonth() + 1
-    ).padStart(2, "0")}/${validityDate.getFullYear()}`;
+    const validity = app.getQuoteValidityLabel ? app.getQuoteValidityLabel() : "";
     const specialistWhatsapp = quoteData.specialistPhone ? `https://wa.me/52${quoteData.specialistPhone}` : "#";
 
     const alternativeCourses = app.getAlternativeCourses(3).map((alt) => ({

@@ -128,6 +128,14 @@ window.CotizadorApp = window.CotizadorApp || {};
     return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
   }
 
+  function formatDateToInputValue(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
   function formatCurrencyMXN(value) {
     return Number(value || 0).toLocaleString("es-MX", {
       style: "currency",
@@ -144,6 +152,23 @@ window.CotizadorApp = window.CotizadorApp || {};
     if (day < 15) return new Date(year, month, 15);
     if (day < lastDay) return new Date(year, month, lastDay);
     return new Date(year, month + 1, 15);
+  }
+
+  function getDefaultQuoteValidityDateIso(date = new Date()) {
+    return formatDateToInputValue(getVigenciaQuincena(date));
+  }
+
+  function getQuoteValidityDateIso() {
+    const fallback = getDefaultQuoteValidityDateIso(new Date());
+    if (typeof document === "undefined") return fallback;
+
+    const input = document.getElementById("quote-validity-date");
+    return input?.value || fallback;
+  }
+
+  function getQuoteValidityLabel() {
+    const validityDate = getQuoteValidityDateIso();
+    return `Vigencia hasta el ${formatIsoToDMY(validityDate)}`;
   }
 
   function showToast(message, type = "error", duration = 3000) {
@@ -709,6 +734,9 @@ window.CotizadorApp = window.CotizadorApp || {};
   app.shouldShowCashDiagnosticBenefit = shouldShowCashDiagnosticBenefit;
   app.roundUpToNearest = roundUpToNearest;
   app.formatIsoToDMY = formatIsoToDMY;
+  app.getDefaultQuoteValidityDateIso = getDefaultQuoteValidityDateIso;
+  app.getQuoteValidityDateIso = getQuoteValidityDateIso;
+  app.getQuoteValidityLabel = getQuoteValidityLabel;
   app.formatCurrencyMXN = formatCurrencyMXN;
   app.getVigenciaQuincena = getVigenciaQuincena;
   app.showToast = showToast;

@@ -341,10 +341,15 @@ window.CotizadorApp = window.CotizadorApp || {};
     const scheduleSelect = document.getElementById("course-schedule");
     const quoteForm = document.getElementById("quote-form");
     const quoteResults = document.getElementById("quote-results");
+    const validityInput = document.getElementById("quote-validity-date");
     const registrationInput = document.getElementById("registration-fee");
     const numPaymentsInput = document.getElementById("num-payments");
     const planDiscountSelector = document.getElementById("plan-discount-selector");
     const exportBtn = document.getElementById("export-pdf");
+
+    if (validityInput && !validityInput.value) {
+      validityInput.value = app.getDefaultQuoteValidityDateIso ? app.getDefaultQuoteValidityDateIso() : "";
+    }
 
     app.setRecommendationPriority(prioritySelect.value);
 
@@ -699,8 +704,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     const onlySixMSI = quoteData.syllabus === "EXANI I";
     const today = new Date();
     const issueDate = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
-    const validityDate = app.getVigenciaQuincena(today);
-    const validity = `Vigencia hasta el ${String(validityDate.getDate()).padStart(2, "0")}/${String(validityDate.getMonth() + 1).padStart(2, "0")}/${validityDate.getFullYear()}`;
+    const validity = app.getQuoteValidityLabel ? app.getQuoteValidityLabel() : "";
     const specialistWhatsapp = quoteData.specialistPhone ? `https://wa.me/52${quoteData.specialistPhone}` : "#";
 
     const alternativeCourses = app.getAlternativeCourses(3).map((alt) => ({
