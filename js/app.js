@@ -12,6 +12,11 @@ window.CotizadorApp = window.CotizadorApp || {};
       endpointUrl: "",
       jsonpFallback: true,
     },
+    capacityApi: {
+      enabled: false,
+      endpointUrl: "",
+      timeoutMs: 8000,
+    },
     quoteLogging: {
       enabled: false,
       endpointUrl: "",
@@ -30,6 +35,10 @@ window.CotizadorApp = window.CotizadorApp || {};
         ...DEFAULT_CONFIG.catalogApi,
         ...(window.COTIZADOR_CONFIG?.catalogApi || {}),
       },
+      capacityApi: {
+        ...DEFAULT_CONFIG.capacityApi,
+        ...(window.COTIZADOR_CONFIG?.capacityApi || {}),
+      },
       quoteLogging: {
         ...DEFAULT_CONFIG.quoteLogging,
         ...(window.COTIZADOR_CONFIG?.quoteLogging || {}),
@@ -37,8 +46,8 @@ window.CotizadorApp = window.CotizadorApp || {};
     };
   }
 
-  async function loadJson(url) {
-    const response = await fetch(url, { cache: "no-store" });
+  async function loadJson(url, options = {}) {
+    const response = await fetch(url, { cache: "no-store", ...options });
     if (!response.ok) {
       throw new Error(`No se pudo cargar ${url}`);
     }
@@ -97,6 +106,124 @@ window.CotizadorApp = window.CotizadorApp || {};
 
   function clonePlain(value, fallback) {
     return JSON.parse(JSON.stringify(value || fallback));
+  }
+
+  function normalizeComparable(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  }
+
+  const CAPACITY_CAMPUS_ALIASES = {
+    "merida - centro": "centro",
+    "merida - chuminopolis": "lab / chuminopolis",
+    "merida - norte": "norte / patria",
+    "merida - caucel": "caucel / cedu noel / humanitas",
+  };
+
+  const EXACT_CAPACITY_SOURCES = new Set(["group_id", "group_name"]);
+
+  function getCapacityCampusKey(campus) {
+    const normalized = normalizeComparable(campus);
+    return CAPACITY_CAMPUS_ALIASES[normalized] || normalized;
+  }
+
+  function getShiftFromText(value) {
+    const text = normalizeComparable(value);
+    if (/\bvesp\b/.test(text)) return "VESP";
+    if (/\bmat\b/.test(text)) return "MAT";
+    return "";
+  }
+
+  function getShiftFromSchedule(schedule) {
+    const match = String(schedule || "").match(/(\d{1,2}):(\d{2})/);
+    if (!match) return "";
+    const minutes = Number(match[1]) * 60 + Number(match[2]);
+    if (!Number.isFinite(minutes)) return "";
+    return minutes >= 12 * 60 ? "VESP" : "MAT";
+  }
+
+  function getCourseShift(course) {
+    return getShiftFromText(course?.name) || getShiftFromSchedule(course?.schedule);
+  }
+
+  function getStartShift(start) {
+    return getShiftFromText(`${start?.groupId || ""} ${start?.groupName || ""}`);
+  }
+
+  function isExactCapacitySource(source) {
+    return EXACT_CAPACITY_SOURCES.has(normalizeComparable(source));
+  }
+
+  function buildCapacityMeta(start) {
+    if (!start) return null;
+    const goal = Number(start.goal);
+    const real = Number(start.real);
+    const exact = isExactCapacitySource(start.realSource);
+
+    return {
+      groupId: start.groupId || "",
+      groupName: start.groupName || "",
+      goal: Number.isFinite(goal) ? goal : 0,
+      real: Number.isFinite(real) ? real : 0,
+      gap: Number(start.gap || 0),
+      realSource: start.realSource || "",
+      exact,
+      full: exact && Number.isFinite(goal) && Number.isFinite(real) && goal > 0 && real >= goal,
+    };
+  }
+
+  function findCapacityStart(course, campus, temario, starts) {
+    const explicitGroupId = course?.capacityGroupId || course?.groupId;
+    if (explicitGroupId) {
+      const directMatch = starts.find((start) => start.groupId === explicitGroupId);
+      if (directMatch) return directMatch;
+    }
+
+    const candidates = starts.filter(
+      (start) =>
+        normalizeComparable(start.temario) === normalizeComparable(temario) &&
+        getCapacityCampusKey(start.campus) === getCapacityCampusKey(campus) &&
+        String(start.startDate || "") === String(course?.date || "")
+    );
+
+    if (candidates.length <= 1) return candidates[0] || null;
+
+    const courseShift = getCourseShift(course);
+    if (courseShift) {
+      const shifted = candidates.filter((start) => getStartShift(start) === courseShift);
+      if (shifted.length === 1) return shifted[0];
+    }
+
+    const withoutShift = candidates.filter((start) => !getStartShift(start));
+    return withoutShift.length === 1 ? withoutShift[0] : null;
+  }
+
+  function applyCapacityToCourses(coursesCatalog, capacityData) {
+    const starts = Array.isArray(capacityData?.starts) ? capacityData.starts : [];
+    if (!starts.length) return coursesCatalog;
+
+    const annotated = clonePlain(coursesCatalog, {});
+
+    Object.entries(annotated).forEach(([temario, campuses]) => {
+      Object.entries(campuses || {}).forEach(([campus, courses]) => {
+        if (!Array.isArray(courses)) return;
+
+        courses.forEach((course) => {
+          const start = findCapacityStart(course, campus, temario, starts);
+          const capacity = buildCapacityMeta(start);
+          if (!capacity) return;
+
+          course.capacity = capacity;
+          course.capacityGroupId = capacity.groupId;
+          course.isClosedByCapacity = Boolean(capacity.full);
+        });
+      });
+    });
+
+    return annotated;
   }
 
   function getCourseKey(course) {
@@ -195,6 +322,25 @@ window.CotizadorApp = window.CotizadorApp || {};
     }
   }
 
+  async function loadCapacityFromApi(config) {
+    const endpointUrl = config.capacityApi?.endpointUrl;
+    if (!(config.capacityApi?.enabled && endpointUrl)) return null;
+
+    if (typeof AbortController === "undefined") {
+      return loadJson(endpointUrl);
+    }
+
+    const controller = new AbortController();
+    const timeoutMs = Number(config.capacityApi?.timeoutMs || 8000);
+    const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      return await loadJson(endpointUrl, { signal: controller.signal });
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
   async function loadCatalogsFromStaticJson(config) {
     const [pricingData, specialistsData, coursesData] = await Promise.all([
       loadJson(config.dataUrls.pricing),
@@ -215,6 +361,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     let apiCourses = null;
     let apiPricing = null;
     let apiPromotions = null;
+    let capacityData = null;
 
     if (config.catalogApi?.enabled && config.catalogApi?.endpointUrl) {
       try {
@@ -236,10 +383,20 @@ window.CotizadorApp = window.CotizadorApp || {};
       }
     }
 
+    try {
+      capacityData = await loadCapacityFromApi(config);
+    } catch (error) {
+      console.warn("No se pudo cargar la capacidad de grupos. Se mostraran todos los cursos.", error);
+    }
+
+    const mergedCourses = hasObjectData(apiCourses)
+      ? mergeCourseCatalogs(staticCatalogs.courses, apiCourses)
+      : staticCatalogs.courses;
+
     const catalogs = {
       pricing: hasArrayData(apiPricing) ? mergePricingRules(staticCatalogs.pricing, apiPricing) : staticCatalogs.pricing,
       specialists: staticCatalogs.specialists,
-      courses: hasObjectData(apiCourses) ? mergeCourseCatalogs(staticCatalogs.courses, apiCourses) : staticCatalogs.courses,
+      courses: applyCapacityToCourses(mergedCourses, capacityData),
       promotions: hasArrayData(apiPromotions) ? mergePromotions(staticCatalogs.promotions, apiPromotions) : staticCatalogs.promotions,
     };
 
@@ -247,6 +404,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     window.specialists = catalogs.specialists || {};
     window.courseData = catalogs.courses || {};
     window.promotions = catalogs.promotions || [];
+    window.capacityData = capacityData || {};
   }
 
   function populateSpecialists() {
@@ -428,6 +586,11 @@ window.CotizadorApp = window.CotizadorApp || {};
       };
 
       const course = app.getSelectedCourseDetails();
+      if (!course || !app.isCourseAvailable?.(course)) {
+        app.showToast("Este grupo ya aparece como lleno. Selecciona otra opcion disponible.", "error");
+        return;
+      }
+
       updateSummary(app.state.quoteData, course);
 
       app.state.currentPricing = app.getPricingForQuote();

@@ -213,7 +213,9 @@ window.CotizadorApp = window.CotizadorApp || {};
   function getCoursesForTemario(temario) {
     const campuses = courseData[temario] || {};
     return Object.entries(campuses).flatMap(([campusName, campusCourses]) =>
-      campusCourses.map((course) => ({ ...course, campus: campusName }))
+      campusCourses
+        .filter(isCourseAvailable)
+        .map((course) => ({ ...course, campus: campusName }))
     );
   }
 
@@ -225,6 +227,10 @@ window.CotizadorApp = window.CotizadorApp || {};
 
   function getScheduleKey(course) {
     return `${course?.days || "-"} · ${course?.schedule || "-"}`;
+  }
+
+  function isCourseAvailable(course) {
+    return !course?.isClosedByCapacity;
   }
 
   function getScheduleSimilarityScore(baseCourse, candidateCourse) {
@@ -266,7 +272,10 @@ window.CotizadorApp = window.CotizadorApp || {};
     if (priority === "campus") {
       helperLabel.textContent = "Campus preferido";
       helperCopy.textContent = "Te mostraremos primero los cursos de ese campus y sus horarios disponibles.";
-      const campuses = Object.keys(courseData[syllabus] || {}).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+      const campuses = Object.entries(courseData[syllabus] || {})
+        .filter(([, courses]) => Array.isArray(courses) && courses.some(isCourseAvailable))
+        .map(([campus]) => campus)
+        .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
       helperSelect.innerHTML = '<option value="">Selecciona un campus</option>';
       campuses.forEach((campus) => {
         const option = document.createElement("option");
@@ -452,7 +461,9 @@ window.CotizadorApp = window.CotizadorApp || {};
       return;
     }
 
-    let campuses = Object.keys(courseData[syllabus]);
+    let campuses = Object.entries(courseData[syllabus])
+      .filter(([, courses]) => Array.isArray(courses) && courses.some(isCourseAvailable))
+      .map(([campus]) => campus);
 
     if (priority === "campus") {
       if (!helperValue) {
@@ -503,7 +514,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       return;
     }
 
-    let courses = courseData[syllabus][campus].slice();
+    let courses = courseData[syllabus][campus].filter(isCourseAvailable);
 
     if (priority === "schedule" && helperValue) {
       courses = courses.filter((course) => getScheduleKey(course) === helperValue);
@@ -552,7 +563,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     }
 
     let matches = courseData[syllabus][campus]
-      .filter((course) => `${course.name}|${course.date}` === selectedCourseKey);
+      .filter((course) => isCourseAvailable(course) && `${course.name}|${course.date}` === selectedCourseKey);
 
     if (priority === "schedule" && helperValue) {
       matches = matches.filter((course) => getScheduleKey(course) === helperValue);
@@ -648,10 +659,12 @@ window.CotizadorApp = window.CotizadorApp || {};
 
     const campuses = courseData[temario] || {};
     const allCourses = Object.entries(campuses).flatMap(([campusName, campusCourses]) =>
-      campusCourses.map((course) => ({
-        ...course,
-        campus: campusName,
-      }))
+      campusCourses
+        .filter(isCourseAvailable)
+        .map((course) => ({
+          ...course,
+          campus: campusName,
+        }))
     );
 
     const baseCourses = allCourses.filter(
@@ -748,6 +761,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   app.updateDisplayPrices = updateDisplayPrices;
   app.setRecommendationPriority = setRecommendationPriority;
   app.getRecommendationPriority = getRecommendationPriority;
+  app.isCourseAvailable = isCourseAvailable;
   app.updateRecommendationHelper = updateRecommendationHelper;
   app.updateCampusOptions = updateCampusOptions;
   app.updateCourseOptions = updateCourseOptions;

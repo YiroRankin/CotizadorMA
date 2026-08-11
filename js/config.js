@@ -9,6 +9,11 @@ window.COTIZADOR_CONFIG = {
     endpointUrl: "https://script.google.com/macros/s/AKfycbz7bTbb0iSyx3z-pNTioTK-WDX_Teim-Wu_jAeq2nlygGutblgCL7BXdlgMfJGgSH1T4w/exec",
     jsonpFallback: true,
   },
+  capacityApi: {
+    enabled: true,
+    endpointUrl: "https://yirorankin.github.io/campus.json",
+    timeoutMs: 8000,
+  },
   quoteLogging: {
     enabled: true,
     endpointUrl: "https://script.google.com/macros/s/AKfycbxPNCQUolYDZSkAlseM4rp1ghGGx-kR-IZTx86xGbXJrUpq0eJpzbTYyS43kQl1soxW/exec",
