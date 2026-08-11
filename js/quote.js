@@ -233,6 +233,12 @@ window.CotizadorApp = window.CotizadorApp || {};
     return !course?.isClosedByCapacity;
   }
 
+  function getCourseAvailabilityLabel(course) {
+    const status = String(course?.capacity?.status || "").toLowerCase();
+    if (status === "unknown") return "disponibilidad por confirmar";
+    return "";
+  }
+
   function getScheduleSimilarityScore(baseCourse, candidateCourse) {
     if (!baseCourse || !candidateCourse) return 0;
 
@@ -573,8 +579,9 @@ window.CotizadorApp = window.CotizadorApp || {};
 
     matches.forEach((course) => {
       const opt = document.createElement("option");
+      const availabilityLabel = getCourseAvailabilityLabel(course);
       opt.value = course.id;
-      opt.textContent = `${course.days || "-"} · ${course.schedule || "-"}`;
+      opt.textContent = `${course.days || "-"} - ${course.schedule || "-"}${availabilityLabel ? ` - ${availabilityLabel}` : ""}`;
       opt.dataset.courseName = course.name;
       scheduleSelect.appendChild(opt);
     });
@@ -762,6 +769,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   app.setRecommendationPriority = setRecommendationPriority;
   app.getRecommendationPriority = getRecommendationPriority;
   app.isCourseAvailable = isCourseAvailable;
+  app.getCourseAvailabilityLabel = getCourseAvailabilityLabel;
   app.updateRecommendationHelper = updateRecommendationHelper;
   app.updateCampusOptions = updateCampusOptions;
   app.updateCourseOptions = updateCourseOptions;

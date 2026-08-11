@@ -30,6 +30,7 @@ const HEADERS = {
     'direccion',
     'locationUrl',
     'createdAt',
+    'groupId',
   ],
   campusConfig: [
     'activo',
@@ -172,6 +173,7 @@ function buildCoursesCatalog_() {
     const address = clean_(row.direccion) || config.direccion;
     const locationUrl = clean_(row.locationUrl) || config.locationUrl;
     const courseId = clean_(row.courseId) || buildCourseId_(temario, campus, date, days, schedule, modality);
+    const groupId = clean_(row.groupId);
 
     if (!(temario && campus && date && name && schedule && modality)) return;
 
@@ -187,6 +189,7 @@ function buildCoursesCatalog_() {
       modality: modality,
       address: address,
       locationUrl: locationUrl,
+      groupId: groupId,
       endDate: endDate,
     });
   });

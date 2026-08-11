@@ -84,6 +84,7 @@ function buildCoursesCatalog_() {
     const address = clean_(getValue_(row, ['direccion', 'address'])) || config.direccion;
     const locationUrl = clean_(getValue_(row, ['locationUrl', 'locationURL', 'linkUbicacion', 'link de ubicación'])) || config.locationUrl;
     const courseId = clean_(getValue_(row, ['courseId', 'id'])) || buildCourseId_(temario, campus, date, days, schedule, modality);
+    const groupId = clean_(getValue_(row, ['groupId', 'group id', 'capacityGroupId']));
 
     if (!(temario && campus && date && name && schedule && modality)) return;
 
@@ -99,6 +100,7 @@ function buildCoursesCatalog_() {
       modality: modality,
       address: address,
       locationUrl: locationUrl,
+      groupId: groupId,
       endDate: endDate,
     });
   });

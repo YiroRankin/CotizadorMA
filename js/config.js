@@ -11,7 +11,7 @@ window.COTIZADOR_CONFIG = {
   },
   capacityApi: {
     enabled: true,
-    endpointUrl: "https://yirorankin.github.io/campus.json",
+    endpointUrl: "https://yirorankin.github.io/groupAvailability.json",
     timeoutMs: 8000,
   },
   quoteLogging: {

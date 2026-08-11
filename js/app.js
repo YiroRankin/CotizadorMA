@@ -108,116 +108,60 @@ window.CotizadorApp = window.CotizadorApp || {};
     return JSON.parse(JSON.stringify(value || fallback));
   }
 
-  function normalizeComparable(value) {
-    return String(value || "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
+  function getCourseGroupId(course) {
+    return String(course?.groupId || course?.capacityGroupId || "").trim();
   }
 
-  const CAPACITY_CAMPUS_ALIASES = {
-    "merida - centro": "centro",
-    "merida - chuminopolis": "lab / chuminopolis",
-    "merida - norte": "norte / patria",
-    "merida - caucel": "caucel / cedu noel / humanitas",
-  };
+  function isCapacityDataFresh(capacityData) {
+    const generatedAt = Date.parse(capacityData?.generatedAt || "");
+    if (!Number.isFinite(generatedAt)) return false;
 
-  const EXACT_CAPACITY_SOURCES = new Set(["group_id", "group_name"]);
-
-  function getCapacityCampusKey(campus) {
-    const normalized = normalizeComparable(campus);
-    return CAPACITY_CAMPUS_ALIASES[normalized] || normalized;
+    const maxAgeMinutes = Number(capacityData?.policy?.maxAgeMinutes || 30);
+    const maxAgeMs = Math.max(1, maxAgeMinutes) * 60 * 1000;
+    return Date.now() - generatedAt <= maxAgeMs;
   }
 
-  function getShiftFromText(value) {
-    const text = normalizeComparable(value);
-    if (/\bvesp\b/.test(text)) return "VESP";
-    if (/\bmat\b/.test(text)) return "MAT";
-    return "";
-  }
-
-  function getShiftFromSchedule(schedule) {
-    const match = String(schedule || "").match(/(\d{1,2}):(\d{2})/);
-    if (!match) return "";
-    const minutes = Number(match[1]) * 60 + Number(match[2]);
-    if (!Number.isFinite(minutes)) return "";
-    return minutes >= 12 * 60 ? "VESP" : "MAT";
-  }
-
-  function getCourseShift(course) {
-    return getShiftFromText(course?.name) || getShiftFromSchedule(course?.schedule);
-  }
-
-  function getStartShift(start) {
-    return getShiftFromText(`${start?.groupId || ""} ${start?.groupName || ""}`);
-  }
-
-  function isExactCapacitySource(source) {
-    return EXACT_CAPACITY_SOURCES.has(normalizeComparable(source));
-  }
-
-  function buildCapacityMeta(start) {
-    if (!start) return null;
-    const goal = Number(start.goal);
-    const real = Number(start.real);
-    const exact = isExactCapacitySource(start.realSource);
+  function buildCapacityMeta(group, capacityDataIsFresh) {
+    if (!group) return null;
+    const capacity = Number(group.capacity);
+    const enrolled = Number(group.enrolled);
+    const availablePlaces = Number(group.availablePlaces);
+    const status = String(group.status || "unknown").toLowerCase().trim();
 
     return {
-      groupId: start.groupId || "",
-      groupName: start.groupName || "",
-      goal: Number.isFinite(goal) ? goal : 0,
-      real: Number.isFinite(real) ? real : 0,
-      gap: Number(start.gap || 0),
-      realSource: start.realSource || "",
-      exact,
-      full: exact && Number.isFinite(goal) && Number.isFinite(real) && goal > 0 && real >= goal,
+      groupId: group.groupId || "",
+      groupName: group.groupName || "",
+      capacity: Number.isFinite(capacity) ? capacity : 0,
+      enrolled: Number.isFinite(enrolled) ? enrolled : 0,
+      availablePlaces: Number.isFinite(availablePlaces) ? availablePlaces : null,
+      status,
+      statusReason: group.statusReason || "",
+      countMethod: group.countMethod || "",
+      fresh: capacityDataIsFresh,
+      full: capacityDataIsFresh && (status === "full" || status === "over_capacity"),
     };
   }
 
-  function findCapacityStart(course, campus, temario, starts) {
-    const explicitGroupId = course?.capacityGroupId || course?.groupId;
-    if (explicitGroupId) {
-      const directMatch = starts.find((start) => start.groupId === explicitGroupId);
-      if (directMatch) return directMatch;
-    }
-
-    const candidates = starts.filter(
-      (start) =>
-        normalizeComparable(start.temario) === normalizeComparable(temario) &&
-        getCapacityCampusKey(start.campus) === getCapacityCampusKey(campus) &&
-        String(start.startDate || "") === String(course?.date || "")
-    );
-
-    if (candidates.length <= 1) return candidates[0] || null;
-
-    const courseShift = getCourseShift(course);
-    if (courseShift) {
-      const shifted = candidates.filter((start) => getStartShift(start) === courseShift);
-      if (shifted.length === 1) return shifted[0];
-    }
-
-    const withoutShift = candidates.filter((start) => !getStartShift(start));
-    return withoutShift.length === 1 ? withoutShift[0] : null;
-  }
-
   function applyCapacityToCourses(coursesCatalog, capacityData) {
-    const starts = Array.isArray(capacityData?.starts) ? capacityData.starts : [];
-    if (!starts.length) return coursesCatalog;
+    const groups = Array.isArray(capacityData?.groups) ? capacityData.groups : [];
+    if (!groups.length) return coursesCatalog;
 
     const annotated = clonePlain(coursesCatalog, {});
+    const capacityDataIsFresh = isCapacityDataFresh(capacityData);
+    const groupById = new Map(groups.map((group) => [String(group.groupId || "").trim(), group]));
 
     Object.entries(annotated).forEach(([temario, campuses]) => {
       Object.entries(campuses || {}).forEach(([campus, courses]) => {
         if (!Array.isArray(courses)) return;
 
         courses.forEach((course) => {
-          const start = findCapacityStart(course, campus, temario, starts);
-          const capacity = buildCapacityMeta(start);
+          const groupId = getCourseGroupId(course);
+          if (!groupId) return;
+
+          const capacity = buildCapacityMeta(groupById.get(groupId), capacityDataIsFresh);
           if (!capacity) return;
 
           course.capacity = capacity;
-          course.capacityGroupId = capacity.groupId;
           course.isClosedByCapacity = Boolean(capacity.full);
         });
       });
@@ -248,7 +192,13 @@ window.CotizadorApp = window.CotizadorApp || {};
         courses.forEach((course) => {
           const key = getCourseKey(course);
           if (key && indexByKey.has(key)) {
-            merged[syllabus][campus][indexByKey.get(key)] = course;
+            const previousCourse = merged[syllabus][campus][indexByKey.get(key)] || {};
+            merged[syllabus][campus][indexByKey.get(key)] = {
+              ...previousCourse,
+              ...course,
+              groupId: course.groupId || previousCourse.groupId,
+              capacityGroupId: course.capacityGroupId || previousCourse.capacityGroupId,
+            };
           } else {
             merged[syllabus][campus].push(course);
           }
