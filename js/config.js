@@ -13,6 +13,7 @@ window.COTIZADOR_CONFIG = {
     enabled: true,
     endpointUrl: "https://yirorankin.github.io/groupAvailability.json",
     timeoutMs: 8000,
+    forceClosedGroupIds: ["C_EXANI_I_20260905"],
   },
   quoteLogging: {
     enabled: true,

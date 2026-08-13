@@ -16,6 +16,7 @@ window.CotizadorApp = window.CotizadorApp || {};
       enabled: false,
       endpointUrl: "",
       timeoutMs: 8000,
+      forceClosedGroupIds: [],
     },
     quoteLogging: {
       enabled: false,
@@ -142,9 +143,13 @@ window.CotizadorApp = window.CotizadorApp || {};
     };
   }
 
-  function applyCapacityToCourses(coursesCatalog, capacityData) {
+  function applyCapacityToCourses(coursesCatalog, capacityData, config) {
     const groups = Array.isArray(capacityData?.groups) ? capacityData.groups : [];
-    if (!groups.length) return coursesCatalog;
+    const forceClosedGroupIds = new Set(
+      (config.capacityApi?.forceClosedGroupIds || []).map((groupId) => String(groupId || "").trim()).filter(Boolean)
+    );
+
+    if (!groups.length && !forceClosedGroupIds.size) return coursesCatalog;
 
     const annotated = clonePlain(coursesCatalog, {});
     const capacityDataIsFresh = isCapacityDataFresh(capacityData);
@@ -159,10 +164,16 @@ window.CotizadorApp = window.CotizadorApp || {};
           if (!groupId) return;
 
           const capacity = buildCapacityMeta(groupById.get(groupId), capacityDataIsFresh);
-          if (!capacity) return;
+          if (!capacity && !forceClosedGroupIds.has(groupId)) return;
 
-          course.capacity = capacity;
-          course.isClosedByCapacity = Boolean(capacity.full);
+          course.capacity = capacity || {
+            groupId,
+            status: "force_closed",
+            statusReason: "configured_force_closed",
+            fresh: false,
+            full: true,
+          };
+          course.isClosedByCapacity = Boolean(course.capacity.full || forceClosedGroupIds.has(groupId));
         });
       });
     });
@@ -346,7 +357,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     const catalogs = {
       pricing: hasArrayData(apiPricing) ? mergePricingRules(staticCatalogs.pricing, apiPricing) : staticCatalogs.pricing,
       specialists: staticCatalogs.specialists,
-      courses: applyCapacityToCourses(mergedCourses, capacityData),
+      courses: applyCapacityToCourses(mergedCourses, capacityData, config),
       promotions: hasArrayData(apiPromotions) ? mergePromotions(staticCatalogs.promotions, apiPromotions) : staticCatalogs.promotions,
     };
 
