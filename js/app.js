@@ -868,6 +868,9 @@ window.CotizadorApp = window.CotizadorApp || {};
       },
       alternatives: alternativeCourses,
       noCashDiscountNotice: currentPricing.cashDiscountNotice || "",
+      hideCashPaymentOption: app.shouldHideCashPaymentOption
+        ? app.shouldHideCashPaymentOption(quoteData.syllabus, quoteData.campus)
+        : false,
       showDiagnostic,
       onlySixMSI,
     };

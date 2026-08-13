@@ -32,6 +32,10 @@ window.CotizadorApp = window.CotizadorApp || {};
     return temario !== "EXANI II" && isCashDiscountExcludedCampus(campus);
   }
 
+  function shouldHideCashPaymentOption(temario, campus) {
+    return temario === "EXANI II" && isCashDiscountExcludedCampus(campus);
+  }
+
   function getCashDiscountNoticeForCampus(campus, temario) {
     return shouldApplyCashDiscountExclusion(temario, campus) ? CASH_DISCOUNT_EXCLUDED_NOTICE : "";
   }
@@ -428,6 +432,9 @@ window.CotizadorApp = window.CotizadorApp || {};
     const cashBestPriceBenefitEl = document.getElementById("cash-best-price-benefit");
     const cashNoDiscountNoticeEl = document.getElementById("cash-no-discount-notice");
     const cashDiscountExcluded = Boolean(state.currentPricing.cashDiscountExcluded);
+    const hideCashPaymentOption = shouldHideCashPaymentOption(state.quoteData?.syllabus, state.quoteData?.campus);
+    const paymentOptionsGridEl = document.getElementById("payment-options-grid");
+    const cashPaymentCardEl = document.getElementById("cash-payment-card");
 
     cashPriceEl.textContent = formatCurrencyMXN(state.currentPricing.cash);
     totalInstallmentEl.textContent = formatCurrencyMXN(state.selectedPlanPricing.installment);
@@ -441,6 +448,11 @@ window.CotizadorApp = window.CotizadorApp || {};
     msi12El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 12);
     if (cashBestPriceBenefitEl) cashBestPriceBenefitEl.classList.toggle("hidden", cashDiscountExcluded);
     if (cashNoDiscountNoticeEl) cashNoDiscountNoticeEl.classList.toggle("hidden", !cashDiscountExcluded);
+    if (cashPaymentCardEl) cashPaymentCardEl.classList.toggle("hidden", hideCashPaymentOption);
+    if (paymentOptionsGridEl) {
+      paymentOptionsGridEl.classList.toggle("lg:grid-cols-3", !hideCashPaymentOption);
+      paymentOptionsGridEl.classList.toggle("lg:grid-cols-2", hideCashPaymentOption);
+    }
 
     const onlySixMSI = state.quoteData && state.quoteData.syllabus === "EXANI I";
     if (msi6El && msi6El.parentElement) msi6El.parentElement.style.display = "";
@@ -770,6 +782,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   app.getRecommendationPriority = getRecommendationPriority;
   app.isCourseAvailable = isCourseAvailable;
   app.getCourseAvailabilityLabel = getCourseAvailabilityLabel;
+  app.shouldHideCashPaymentOption = shouldHideCashPaymentOption;
   app.updateRecommendationHelper = updateRecommendationHelper;
   app.updateCampusOptions = updateCampusOptions;
   app.updateCourseOptions = updateCourseOptions;

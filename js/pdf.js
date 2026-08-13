@@ -34,6 +34,21 @@
           <div class="row"><span>9 MSI</span><span>${app.escapeHtml(printData.pricing.msi9)}</span></div>
           <div class="row"><span>12 MSI</span><span>${app.escapeHtml(printData.pricing.msi12)}</span></div>
         `;
+    const cashPaymentHtml = printData.hideCashPaymentOption
+      ? ""
+      : `
+          <div class="box brand equal-pay">
+            <div class="pill">${printData.noCashDiscountNotice ? "Pago &uacute;nico" : "Mejor opci&oacute;n"}</div>
+            <div class="section-kicker" style="color:rgba(255,255,255,.75);padding-right:90px">Pago de contado</div>
+            <div class="strike">${app.escapeHtml(printData.pricing.list)}</div>
+            <div class="price">${app.escapeHtml(printData.pricing.cash)}</div>
+            <div class="discount">${app.escapeHtml(printData.pricing.cashDiscount)}</div>
+            <ul class="list">
+              <li>Pago &uacute;nico</li>
+              ${printData.noCashDiscountNotice ? `<li>${app.escapeHtml(printData.noCashDiscountNotice)}</li>` : `<li>Mejor precio disponible</li>`}
+            </ul>
+          </div>
+        `;
 
     return `<!doctype html>
 <html lang="es">
@@ -166,6 +181,7 @@
     .temario .value { font-size: 19px; font-weight: 800; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; align-items: stretch; }
+    .grid-3.no-cash { grid-template-columns: 1fr 1fr; }
     .equal { min-height: 168px; }
     .equal-pay { min-height: 188px; }
     .box {
@@ -404,18 +420,8 @@
           </div>
         </div>
 
-        <div class="grid-3">
-          <div class="box brand equal-pay">
-            <div class="pill">${printData.noCashDiscountNotice ? "Pago único" : "Mejor opción"}</div>
-            <div class="section-kicker" style="color:rgba(255,255,255,.75);padding-right:90px">Pago de contado</div>
-            <div class="strike">${app.escapeHtml(printData.pricing.list)}</div>
-            <div class="price">${app.escapeHtml(printData.pricing.cash)}</div>
-            <div class="discount">${app.escapeHtml(printData.pricing.cashDiscount)}</div>
-            <ul class="list">
-              <li>Pago único</li>
-              ${printData.noCashDiscountNotice ? `<li>${app.escapeHtml(printData.noCashDiscountNotice)}</li>` : `<li>Mejor precio disponible</li>`}
-            </ul>
-          </div>
+        <div class="grid-3 ${printData.hideCashPaymentOption ? "no-cash" : ""}">
+          ${cashPaymentHtml}
           <div class="box equal-pay">
             <div class="section-kicker" style="color:#667085">Plan de pagos</div>
             <div class="strike" style="color:#98a2b3">${app.escapeHtml(printData.pricing.list)}</div>
@@ -590,6 +596,9 @@
       },
       alternatives: alternativeCourses,
       noCashDiscountNotice: currentPricing.cashDiscountNotice || "",
+      hideCashPaymentOption: app.shouldHideCashPaymentOption
+        ? app.shouldHideCashPaymentOption(quoteData.syllabus, quoteData.campus)
+        : false,
       showDiagnostic,
       onlySixMSI,
     };
