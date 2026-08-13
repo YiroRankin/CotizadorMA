@@ -11,9 +11,9 @@ window.COTIZADOR_CONFIG = {
   },
   capacityApi: {
     enabled: true,
-    endpointUrl: "https://yirorankin.github.io/groupAvailability.json",
+    endpointUrl: "https://mision-admision-cupos.mision-admision-leads.workers.dev/groupAvailability.json",
     timeoutMs: 8000,
-    forceClosedGroupIds: ["C_EXANI_I_20260905"],
+    forceClosedGroupIds: [],
   },
   quoteLogging: {
     enabled: true,
