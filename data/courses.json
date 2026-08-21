@@ -649,7 +649,8 @@
         "modality": "Presencial",
         "address": "Padre Mier 410, Centro, 64000 Monterrey, N.L.",
         "locationUrl": "https://maps.app.goo.gl/HQyoiaKoEqrubdfDA",
-        "endDate": "2027-05-22"
+        "endDate": "2027-05-22",
+        "groupId": "M_EXANI_II_20261128"
       },
       {
         "id": "exani-ii-monterrey-2027-01-16-viernes-y-sabado-v-16-00-a-19-00-s-13-00-a-19-10-presencial",
@@ -674,7 +675,8 @@
         "modality": "Presencial",
         "address": "Av. Juárez 168, Centro, 77000 Chetumal, Q.R.",
         "locationUrl": "https://maps.app.goo.gl/LFD8RmrXtfCyCbgg6",
-        "endDate": "2027-06-05"
+        "endDate": "2027-06-05",
+        "groupId": "CH_EXANI_II_20261107"
       },
       {
         "id": "exani-ii-chetumal-2027-01-16-sabados-13-00-a-19-10-presencial",
