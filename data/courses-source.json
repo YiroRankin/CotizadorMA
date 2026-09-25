@@ -1,0 +1,11 @@
+{
+  "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1366FrgjrK87rKNqKTeKkw_wYsPdeoVU5YYGytE3Q1Ko/edit?gid=1696129465#gid=1696129465",
+  "sheet": "LOOKER 26",
+  "range": "A2:AB64",
+  "syncedOn": "2026-09-25",
+  "courseCount": 63,
+  "mode": "verified_snapshot",
+  "endDatePolicy": "REV 3 (AB); cuando no existe, Fecha de término clases (T).",
+  "classEndDateColumn": "T",
+  "notes": "Los cambios en la hoja requieren actualizar y publicar data/courses.json. Direcciones y enlaces conservados del catálogo existente: LOOKER 26 no contiene esos datos. Los cupos se consultan en capacityApi, sin usar Meta como cupo disponible."
+}

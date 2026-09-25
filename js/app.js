@@ -325,10 +325,12 @@ window.CotizadorApp = window.CotizadorApp || {};
     let capacityData = null;
 
     if (config.catalogApi?.enabled && config.catalogApi?.endpointUrl) {
-      try {
-        apiCourses = await loadCatalogFromApi(config, "courses");
-      } catch (error) {
-        console.warn("No se pudieron cargar cursos desde Sheets. Se usará respaldo JSON.", error);
+      if (config.catalogApi.coursesEnabled !== false) {
+        try {
+          apiCourses = await loadCatalogFromApi(config, "courses");
+        } catch (error) {
+          console.warn("No se pudieron cargar cursos desde Sheets. Se usará respaldo JSON.", error);
+        }
       }
 
       try {

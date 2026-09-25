@@ -78,12 +78,28 @@ Google Sheets
 
 ## Flujo actual de datos
 
+### Fuente oficial de cursos: LOOKER 26
+
+Los cursos se basan en [Clases académicas 2026-2027 · LOOKER 26](https://docs.google.com/spreadsheets/d/1366FrgjrK87rKNqKTeKkw_wYsPdeoVU5YYGytE3Q1Ko/edit?gid=1696129465#gid=1696129465).
+`data/courses.json` es una copia verificada de sus 63 cursos, actualizada el 25 de septiembre de 2026; no hay sincronización automática con esa hoja.
+La procedencia y el criterio de fechas están en `data/courses-source.json`; cada curso conserva `sourceRow` y `classEndDate`.
+
+- Nivel, campus, inicio, días y horario proceden de LOOKER 26.
+- `endDate`, usado en la cotización y el PDF, incluye la última revisión (columna AB, REV 3). Si no hay revisión, usa el fin de clases (columna T).
+- `classEndDate` conserva por separado el fin de clases de la columna T.
+- Las direcciones y los enlaces se conservan del catálogo existente porque LOOKER 26 no los contiene.
+- Los identificadores existentes se mantienen para conservar el historial y la conexión con cupos. Los nuevos se vinculan solo a grupos verificados del servicio de disponibilidad.
+- `Meta` e `Inscritos` de la hoja no reemplazan el servicio de cupos en vivo. El intensivo virtual del 22/03/2027 aún no tiene un grupo verificado en ese servicio.
+
+Para actualizar cursos, leer nuevamente LOOKER 26, comparar los 63 registros (o el nuevo total), actualizar el JSON y publicar. No usar `/catalogos/` ni `Cursos_Publicables` como fuente de cursos.
+`catalogApi.coursesEnabled: false` evita que el catálogo anterior agregue o sobrescriba cursos; esa API sigue aportando precios y promociones, que LOOKER 26 no incluye.
+
 ### Cotizador
 1. La especialista genera una cotización.
 2. Se registra un evento `quote_generated`.
 3. Si genera la vista PDF, se registra `pdf_generated`.
 4. El logger guarda ambas filas en `HistorialCotizaciones`.
-5. Los catálogos locales siguen como base; si `catalogApi.enabled` está activo, los registros válidos de Sheets se agregan encima.
+5. Los cursos se cargan desde la copia publicada de LOOKER 26. Precios y promociones se complementan desde la API de catálogos.
 
 ### Panel
 1. El panel llama al Read API.
@@ -119,7 +135,7 @@ Campos importantes:
 - `catalogApi.endpointUrl`
 - `catalogApi.jsonpFallback`
 
-Cuando `catalogApi.enabled` está en `true`, el cotizador carga cursos, precios y promociones desde Apps Script y los combina con los JSON locales. Si Apps Script no responde, si hay bloqueo CORS o si no hay datos válidos, el cotizador conserva el respaldo local del repo.
+Cuando `catalogApi.enabled` está en `true`, el cotizador complementa precios y promociones desde Apps Script. Los cursos solo se consultan allí si `catalogApi.coursesEnabled` no es `false`; actualmente está en `false` para respetar LOOKER 26. Si Apps Script no responde, el cotizador conserva el respaldo local del repo.
 
 ## Estructura esperada de la hoja `HistorialCotizaciones`
 
@@ -168,7 +184,7 @@ El cotizador y el panel volverán a poblarse con nuevos eventos.
 ## Mantenimiento operativo
 
 ### Para cambiar catálogos del cotizador hoy
-Usar preferentemente:
+Para cursos, usar LOOKER 26 y actualizar `data/courses.json` siguiendo la sección de fuente oficial. Para precios y promociones, usar:
 - `/catalogos/`
 - Google Sheets conectado a `CatalogManagerApi.gs`
 
@@ -225,4 +241,4 @@ Estado recomendado de despliegue:
 8. Probar la URL pública con `?type=all`.
 9. Publicar los cambios del repo para que GitHub Pages tome `catalogApi.enabled`.
 
-Con `catalogApi.enabled` en `true`, Sheets no reemplaza por completo al repo: agrega o sobrescribe registros equivalentes y deja los JSON como respaldo.
+Con `catalogApi.enabled` en `true`, la API agrega o sobrescribe precios y promociones equivalentes y deja los JSON como respaldo. Los cursos de esa API están deshabilitados mediante `catalogApi.coursesEnabled: false`.

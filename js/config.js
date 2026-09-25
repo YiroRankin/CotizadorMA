@@ -6,6 +6,8 @@ window.COTIZADOR_CONFIG = {
   },
   catalogApi: {
     enabled: true,
+    // Los cursos se publican desde LOOKER 26; la API anterior conserva precios y promociones.
+    coursesEnabled: false,
     endpointUrl: "https://script.google.com/macros/s/AKfycbz7bTbb0iSyx3z-pNTioTK-WDX_Teim-Wu_jAeq2nlygGutblgCL7BXdlgMfJGgSH1T4w/exec",
     jsonpFallback: true,
   },
