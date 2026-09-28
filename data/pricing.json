@@ -262,5 +262,49 @@
     "cashDiscount": 40.0,
     "installment": 6790.0,
     "installmentDiscount": 30.0
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Presencial",
+    "from": "2026-09-01",
+    "to": "2026-10-31",
+    "listPrice": 6700,
+    "cash": 5360,
+    "cashDiscount": 20,
+    "installment": 6030,
+    "installmentDiscount": 10
+  },
+  {
+    "temario": "EXANI I",
+    "modality": "Virtual",
+    "from": "2026-09-01",
+    "to": "2026-10-31",
+    "listPrice": 5700,
+    "cash": 4560,
+    "cashDiscount": 20,
+    "installment": 5130,
+    "installmentDiscount": 10
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Presencial",
+    "from": "2026-09-01",
+    "to": "2026-11-30",
+    "listPrice": 11500,
+    "cash": 6900,
+    "cashDiscount": 40,
+    "installment": 8625,
+    "installmentDiscount": 25
+  },
+  {
+    "temario": "EXANI II",
+    "modality": "Virtual",
+    "from": "2026-09-01",
+    "to": "2026-11-30",
+    "listPrice": 9700,
+    "cash": 5820,
+    "cashDiscount": 40,
+    "installment": 7275,
+    "installmentDiscount": 25
   }
 ]
