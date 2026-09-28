@@ -8,10 +8,10 @@ const app = context.window.CotizadorApp;
 const all = Object.entries(courseData['EXANI II']).flatMap(([campus, rows]) => rows.map(c => ({ ...c, campus })));
 const run = (date, courses = all, selected = '') => Array.from(app.getMonterreyAlternatives(courses, selected, new Date(date)));
 const dates = result => result.map(c => c.date);
-assert.deepEqual(dates(run('2026-09-28T12:00:00Z')), ['2027-01-16', '2026-10-01', '2026-11-14']);
-assert.deepEqual(dates(run('2026-10-01T06:00:00Z')), ['2027-01-16', '2026-11-14', '2026-12-02', '2026-12-02']);
-assert.deepEqual(dates(run('2026-10-01T05:59:59Z')), ['2027-01-16', '2026-10-01', '2026-11-14']);
-assert.deepEqual(dates(run('2026-11-15T12:00:00Z')), ['2027-01-16', '2026-12-02', '2026-12-02', '2027-01-16']);
+assert.deepEqual(dates(run('2026-09-28T12:00:00Z')), ['2026-10-01', '2026-11-14', '2027-01-16']);
+assert.deepEqual(dates(run('2026-10-01T06:00:00Z')), ['2026-11-14', '2026-12-02', '2026-12-02', '2027-01-16']);
+assert.deepEqual(dates(run('2026-10-01T05:59:59Z')), ['2026-10-01', '2026-11-14', '2027-01-16']);
+assert.deepEqual(dates(run('2026-11-15T12:00:00Z')), ['2026-12-02', '2026-12-02', '2027-01-16', '2027-01-16']);
 assert.deepEqual(dates(run('2026-12-15T12:00:00Z')), ['2027-01-16', '2027-01-16']);
 assert.equal(run('2027-01-17T12:00:00Z').length, 0);
 assert.equal(run('2027-02-01T12:00:00Z').length, 0); // Nunca agrega virtuales de marzo.

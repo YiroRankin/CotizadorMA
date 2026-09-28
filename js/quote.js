@@ -692,7 +692,7 @@ window.CotizadorApp = window.CotizadorApp || {};
         month > currentMonth && month <= currentMonth + 2;
     }).sort(sortCourses);
     // Puede haber cuatro alternativas: enero presencial y tres horarios virtuales.
-    return [...presencial.sort(sortCourses), ...virtual];
+    return [...presencial, ...virtual].sort(sortCourses);
   }
 
   function getAlternativeCourses(limit = 3) {
