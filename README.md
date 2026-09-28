@@ -78,6 +78,12 @@ Google Sheets
 
 ## Flujo actual de datos
 
+### Alternativas para Monterrey
+
+Para cotizaciones EXANI II del campus Monterrey, las alternativas del PDF incluyen el presencial del 16/01/2027 y los virtuales autorizados que inicien en los dos meses calendario siguientes al actual (zona America/Monterrey). La lista virtual autorizada es: 01/10/2026 16:00–19:00; 14/11/2026 08:00–14:20; 02/12/2026 08:00–11:00 y 16:00–19:00; 16/01/2027 08:00–14:20.
+
+En septiembre se recomiendan octubre y noviembre; en octubre, noviembre y ambos turnos de diciembre; en noviembre, diciembre y enero; en diciembre, solo enero. No se completan meses vacíos con otros cursos. Se excluyen cursos iniciados, cerrados por cupo y el curso ya cotizado. Esta regla prevalece sobre la prioridad general de recomendaciones y admite hasta cuatro alternativas para conservar ambos turnos. Los demás campus mantienen su comportamiento. Validación: `node tests/monterrey-recommendations.cjs`.
+
 ### Fuente oficial de cursos: LOOKER 26
 
 Los cursos se basan en [Clases académicas 2026-2027 · LOOKER 26](https://docs.google.com/spreadsheets/d/1366FrgjrK87rKNqKTeKkw_wYsPdeoVU5YYGytE3Q1Ko/edit?gid=1696129465#gid=1696129465).

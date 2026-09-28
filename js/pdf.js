@@ -295,7 +295,7 @@
       color: #6a5200;
       font-weight: 700;
     }
-    .alt-card { padding: 16px 24px; }
+    .alt-card { padding: 16px 24px; break-inside: avoid; }
     .alt-title { font-size: 22px; line-height: 1.15; font-weight: 700; margin-bottom: 4px; }
     .alt-sub { color: #667085; font-size: 14px; margin-bottom: 18px; }
     .alt-grid {

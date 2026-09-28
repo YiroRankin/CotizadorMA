@@ -665,6 +665,36 @@ window.CotizadorApp = window.CotizadorApp || {};
     totalSpan.textContent = formatCurrencyMXN(pricing.installment);
   }
 
+  function getMonterreyAlternatives(allCourses, selectedId, now = new Date()) {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Monterrey", year: "numeric", month: "2-digit", day: "2-digit",
+    }).formatToParts(now);
+    const value = (type) => parts.find((part) => part.type === type).value;
+    const today = `${value("year")}-${value("month")}-${value("day")}`;
+    const currentMonth = Number(value("year")) * 12 + Number(value("month")) - 1;
+    const allowedVirtual = new Set([
+      "2026-10-01|16:00 a 19:00",
+      "2026-11-14|08:00 a 14:20",
+      "2026-12-02|08:00 a 11:00",
+      "2026-12-02|16:00 a 19:00",
+      "2027-01-16|08:00 a 14:20",
+    ]);
+    const eligible = allCourses.filter((course) =>
+      course.id !== selectedId && isCourseAvailable(course) && course.date >= today
+    );
+    const presencial = eligible.filter((course) =>
+      course.campus === "Monterrey" && course.modality === "Presencial" && course.date === "2027-01-16"
+    );
+    const virtual = eligible.filter((course) => {
+      const month = Number(course.date.slice(0, 4)) * 12 + Number(course.date.slice(5, 7)) - 1;
+      return course.campus === "Virtual" && course.modality === "Virtual" &&
+        allowedVirtual.has(`${course.date}|${course.schedule}`) &&
+        month > currentMonth && month <= currentMonth + 2;
+    }).sort(sortCourses);
+    // Puede haber cuatro alternativas: enero presencial y tres horarios virtuales.
+    return [...presencial.sort(sortCourses), ...virtual];
+  }
+
   function getAlternativeCourses(limit = 3) {
     const selectedCourse = getSelectedCourseDetails();
     if (!state.quoteData || !selectedCourse) return [];
@@ -685,6 +715,10 @@ window.CotizadorApp = window.CotizadorApp || {};
           campus: campusName,
         }))
     );
+
+    if (temario === "EXANI II" && selectedCampus === "Monterrey") {
+      return getMonterreyAlternatives(allCourses, selectedId);
+    }
 
     const baseCourses = allCourses.filter(
       (course) =>
@@ -790,6 +824,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   app.updatePaymentLimits = updatePaymentLimits;
   app.calculateInstallments = calculateInstallments;
   app.getAlternativeCourses = getAlternativeCourses;
+  app.getMonterreyAlternatives = getMonterreyAlternatives;
   app.getCashDiscountNoticeForCampus = getCashDiscountNoticeForCampus;
   app.escapeHtml = escapeHtml;
   app.escapeAttr = escapeAttr;
