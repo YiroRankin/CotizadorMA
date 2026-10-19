@@ -33,7 +33,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   }
 
   function shouldHideCashPaymentOption(temario, campus) {
-    return temario === "EXANI II" && isCashDiscountExcludedCampus(campus);
+    return temario === "UNAM" || (temario === "EXANI II" && isCashDiscountExcludedCampus(campus));
   }
 
   function getCashDiscountNoticeForCampus(campus, temario) {
@@ -426,6 +426,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     const cashDiscountEl = document.getElementById("cash-discount");
     const planDiscountEl = document.getElementById("plan-discount");
     const msiListPriceEl = document.getElementById("msi-list-price");
+    const msi3El = document.getElementById("msi-3");
     const msi6El = document.getElementById("msi-6");
     const msi9El = document.getElementById("msi-9");
     const msi12El = document.getElementById("msi-12");
@@ -443,6 +444,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     cashDiscountEl.textContent = cashDiscountExcluded ? "No aplica" : `${state.currentPricing.cashDiscount || 0}%`;
     planDiscountEl.textContent = `${state.selectedPlanPricing.installmentDiscount || 0}%`;
     msiListPriceEl.textContent = formatCurrencyMXN(state.currentPricing.listPrice);
+    if (msi3El) msi3El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 3);
     msi6El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 6);
     msi9El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 9);
     msi12El.textContent = formatCurrencyMXN((state.currentPricing.listPrice || 0) / 12);
@@ -455,9 +457,11 @@ window.CotizadorApp = window.CotizadorApp || {};
     }
 
     const onlySixMSI = state.quoteData && state.quoteData.syllabus === "EXANI I";
+    const isUnam = state.quoteData && state.quoteData.syllabus === "UNAM";
+    if (msi3El && msi3El.parentElement) msi3El.parentElement.style.display = isUnam ? "" : "none";
     if (msi6El && msi6El.parentElement) msi6El.parentElement.style.display = "";
-    if (msi9El && msi9El.parentElement) msi9El.parentElement.style.display = onlySixMSI ? "none" : "";
-    if (msi12El && msi12El.parentElement) msi12El.parentElement.style.display = onlySixMSI ? "none" : "";
+    if (msi9El && msi9El.parentElement) msi9El.parentElement.style.display = onlySixMSI || isUnam ? "none" : "";
+    if (msi12El && msi12El.parentElement) msi12El.parentElement.style.display = onlySixMSI || isUnam ? "none" : "";
   }
 
   function updateCampusOptions() {
@@ -698,6 +702,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   function getAlternativeCourses(limit = 3) {
     const selectedCourse = getSelectedCourseDetails();
     if (!state.quoteData || !selectedCourse) return [];
+    if (state.quoteData.syllabus === "UNAM") return [];
 
     const temario = state.quoteData.syllabus;
     const selectedDate = selectedCourse.date;

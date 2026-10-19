@@ -1,4 +1,19 @@
 {
+  "UNAM": {
+    "Virtual": [
+      {
+        "id": "unam-virtual-2027-01-29",
+        "name": "29 DE ENERO",
+        "date": "2027-01-29",
+        "schedule": "16:00 a 20:30",
+        "days": "Lunes, miércoles y viernes",
+        "modality": "Virtual",
+        "address": "Virtual",
+        "locationUrl": "",
+        "endDate": "2027-05-12"
+      }
+    ]
+  },
   "EXANI I": {
     "Mérida - Centro": [
       {

@@ -27,13 +27,10 @@
           </div>
         `;
 
-    const msiRows = printData.onlySixMSI
-      ? `<div class="row"><span>6 MSI</span><span>${app.escapeHtml(printData.pricing.msi6)}</span></div>`
-      : `
-          <div class="row"><span>6 MSI</span><span>${app.escapeHtml(printData.pricing.msi6)}</span></div>
-          <div class="row"><span>9 MSI</span><span>${app.escapeHtml(printData.pricing.msi9)}</span></div>
-          <div class="row"><span>12 MSI</span><span>${app.escapeHtml(printData.pricing.msi12)}</span></div>
-        `;
+    const msiTerms = printData.msiTerms || (printData.onlySixMSI ? [6] : [6, 9, 12]);
+    const msiRows = msiTerms
+      .map((term) => `<div class="row"><span>${term} MSI</span><span>${app.escapeHtml(printData.pricing[`msi${term}`])}</span></div>`)
+      .join("");
     const cashPaymentHtml = printData.hideCashPaymentOption
       ? ""
       : `
@@ -345,6 +342,8 @@
       font-size: 12px;
       line-height: 1.55;
     }
+    .single-course .alternatives-page { display: none; }
+    .single-course .page:first-child { page-break-after: auto; }
     @media print {
       @page { size: A4; margin: 0; }
       html, body { background: white; }
@@ -363,7 +362,7 @@
     }
   </style>
 </head>
-<body>
+<body class="${printData.hideAlternatives ? "single-course" : ""}">
   <div class="toolbar">
     <button class="btn" onclick="window.print()">Generar PDF para enviar</button>
     <div class="hint"><strong>Instrucciones para especialistas:</strong> al hacer clic se abrirá la ventana de impresión. Selecciona <strong>Guardar como PDF</strong> y después haz clic en <strong>Guardar</strong>. Este aviso no aparecerá en el PDF final.</div>
@@ -415,7 +414,7 @@
             </div>
           </div>
           <div class="box gold equal">
-            <div class="section-kicker" style="color:#7A6200">Recomendación destacada</div>
+            <div class="section-kicker" style="color:#7A6200">${printData.hideAlternatives ? "Condiciones del plan" : "Recomendación destacada"}</div>
             <div style="font-size:14px;line-height:1.85;color:#433a16">${app.escapeHtml(printData.copy.highlight)}</div>
           </div>
         </div>
@@ -466,7 +465,7 @@
       </div>
     </section>
 
-    <section class="page">
+    <section class="page alternatives-page">
       <div class="topband"></div>
       <div class="hero-mini">
         <img class="logo" src="https://misionadmision-assets.s3.amazonaws.com/img/website/logo-misionadmision.png" alt="Misión Admisión" />
@@ -541,6 +540,7 @@
     const monthly = remaining > 0 ? app.roundUpToNearest(remaining / numPayments, 100) : 0;
     const showDiagnostic = app.shouldShowCashDiagnosticBenefit(currentPricing);
     const onlySixMSI = quoteData.syllabus === "EXANI I";
+    const isUnam = quoteData.syllabus === "UNAM";
     const today = new Date();
     const issueDate = `${String(today.getDate()).padStart(2, "0")}/${String(
       today.getMonth() + 1
@@ -574,11 +574,9 @@
         whatsappUrl: specialistWhatsapp,
       },
       copy: {
-        hero: "Curso propedéutico EXANI diseñado para impulsar la mejor decisión de inscripción.",
-        intro:
-          "Le compartimos una propuesta clara y flexible para su curso de preparación EXANI, con esquemas de pago y beneficios vigentes.",
-        highlight:
-          "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos.",
+        hero: isUnam ? "Prepárate para tu ingreso a la UNAM con nuestro curso virtual." : "Curso propedéutico EXANI diseñado para impulsar la mejor decisión de inscripción.",
+        intro: isUnam ? "Te compartimos la propuesta para el curso UNAM que inicia el 29 de enero de 2027, con sus opciones de pago vigentes." : "Le compartimos una propuesta clara y flexible para su curso de preparación EXANI, con esquemas de pago y beneficios vigentes.",
+        highlight: isUnam ? "Inscripción de $1,500 y hasta 3 pagos. El plan tiene 30% de descuento durante la vigencia indicada." : "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos.",
       },
       pricing: {
         list: app.formatCurrencyMXN(currentPricing.listPrice),
@@ -590,11 +588,14 @@
         inscription: app.formatCurrencyMXN(registration),
         paymentsLabel: `${numPayments} mensualidades`,
         paymentAmount: app.formatCurrencyMXN(monthly),
+        msi3: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 3),
         msi6: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 6),
         msi9: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 9),
         msi12: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 12),
       },
       alternatives: alternativeCourses,
+      hideAlternatives: isUnam,
+      msiTerms: isUnam ? [3, 6] : onlySixMSI ? [6] : [6, 9, 12],
       noCashDiscountNotice: currentPricing.cashDiscountNotice || "",
       hideCashPaymentOption: app.shouldHideCashPaymentOption
         ? app.shouldHideCashPaymentOption(quoteData.syllabus, quoteData.campus)

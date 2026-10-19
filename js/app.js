@@ -475,6 +475,13 @@ window.CotizadorApp = window.CotizadorApp || {};
     app.setRecommendationPriority(prioritySelect.value);
 
     syllabusSelect.addEventListener("change", () => {
+      const isUnam = syllabusSelect.value === "UNAM";
+      const priorityField = prioritySelect.closest("div");
+      if (priorityField) priorityField.classList.toggle("hidden", isUnam);
+      if (isUnam) {
+        prioritySelect.value = "none";
+        app.setRecommendationPriority("none");
+      }
       app.updateRecommendationHelper();
       app.updateCampusOptions();
       app.updateCourseOptions();
@@ -562,6 +569,16 @@ window.CotizadorApp = window.CotizadorApp || {};
         return;
       }
 
+      const isUnam = syllabus === "UNAM";
+      registrationInput.value = "1500";
+      registrationInput.readOnly = isUnam;
+      numPaymentsInput.value = isUnam ? "3" : "4";
+      const priorityField = prioritySelect.closest("div");
+      if (priorityField) priorityField.classList.toggle("hidden", isUnam);
+      if (isUnam) {
+        prioritySelect.value = "none";
+        app.setRecommendationPriority("none");
+      }
       app.updatePlanDiscountOptions();
       app.updateDisplayPrices();
       quoteResults.classList.remove("hidden");
@@ -620,7 +637,7 @@ window.CotizadorApp = window.CotizadorApp || {};
   }
 
   function getNumPayments() {
-    return clamp(document.getElementById("num-payments")?.value || 1, 1, 5);
+    return clamp(document.getElementById("num-payments")?.value || 1, 1, app.state.quoteData?.syllabus === "UNAM" ? 3 : 5);
   }
 
   function ensureCustomPlanUI() {
@@ -631,11 +648,13 @@ window.CotizadorApp = window.CotizadorApp || {};
     registrationInput.min = "0";
     registrationInput.step = "100";
     numPaymentsInput.min = "1";
-    numPaymentsInput.max = "5";
+    const isUnam = app.state.quoteData?.syllabus === "UNAM";
+    numPaymentsInput.max = isUnam ? "3" : "5";
     numPaymentsInput.step = "1";
+    if (isUnam && Number(numPaymentsInput.value) > 3) numPaymentsInput.value = "3";
 
     const label = document.querySelector('label[for="num-payments"]');
-    if (label) label.textContent = "Número de mensualidades (1 a 5)";
+    if (label) label.textContent = isUnam ? "Número de mensualidades (1 a 3)" : "Número de mensualidades (1 a 5)";
 
     const oldMonthly = document.getElementById("monthly-payment");
     const oldMonthlyBox = oldMonthly ? oldMonthly.closest(".rounded-2xl") : null;
@@ -643,7 +662,9 @@ window.CotizadorApp = window.CotizadorApp || {};
 
     const oldNote = oldMonthlyBox?.nextElementSibling;
     if (oldNote && oldNote.classList.contains("mini-copy")) {
-      oldNote.textContent = "* La suma de inscripción y mensualidades no debe sobrepasar el total del plan de pagos.";
+      oldNote.textContent = isUnam
+        ? "* La inscripción es de $1,500 y puedes distribuir el resto en un máximo de 3 pagos."
+        : "* La suma de inscripción y mensualidades no debe sobrepasar el total del plan de pagos.";
     }
 
     if (!document.getElementById("custom-payments-wrapper")) {
@@ -675,6 +696,9 @@ window.CotizadorApp = window.CotizadorApp || {};
   function buildDefaultPayments(total, registration, count) {
     const remaining = Math.max(0, total - registration);
     if (!count) return [];
+    if (app.state.quoteData?.syllabus === "UNAM" && Number.isInteger(remaining / count)) {
+      return Array(count).fill(remaining / count);
+    }
     const base = Math.floor(remaining / count / 100) * 100;
     const payments = Array(count).fill(base);
     payments[count - 1] = Math.max(0, remaining - base * (count - 1));
@@ -701,7 +725,7 @@ window.CotizadorApp = window.CotizadorApp || {};
           <span class="mini-copy font-semibold text-slate-700">Mensualidad ${index + 1}</span>
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-700 font-semibold">$</span>
-            <input type="number" class="custom-payment-amount field-control !py-3 text-xs" min="0" step="100" value="${amount}" data-index="${index}" />
+            <input type="number" class="custom-payment-amount field-control !py-3 text-xs" min="0" step="${app.state.quoteData?.syllabus === "UNAM" ? 1 : 100}" value="${amount}" data-index="${index}" />
           </div>
         `;
         container.appendChild(row);
@@ -783,6 +807,19 @@ window.CotizadorApp = window.CotizadorApp || {};
       return false;
     }
 
+    if (app.state.quoteData?.syllabus === "UNAM" && (summary.registration !== 1500 || summary.payments.length > 3)) {
+      const message = "Para UNAM la inscripción es de $1,500 y el máximo es de 3 pagos.";
+      if (warning) {
+        warning.textContent = message;
+        warning.classList.remove("hidden");
+      }
+      if (paymentsError && paymentsErrorText) {
+        paymentsErrorText.textContent = message;
+        paymentsError.classList.remove("hidden");
+      }
+      return false;
+    }
+
     if (warning) warning.classList.add("hidden");
     if (paymentsError) paymentsError.classList.add("hidden");
     return true;
@@ -819,8 +856,8 @@ window.CotizadorApp = window.CotizadorApp || {};
     }
 
     const summary = getCustomPlanSummary();
-    if (summary.exceeds) {
-      app.showToast("Corrige el plan de pagos: el total capturado sobrepasa el monto del plan.", "error", 4200);
+    if (!validateCustomPlan()) {
+      app.showToast("Corrige el plan de pagos antes de generar el PDF.", "error", 4200);
       return;
     }
 
@@ -828,6 +865,7 @@ window.CotizadorApp = window.CotizadorApp || {};
     const planPricing = getPlanPricing() || currentPricing;
     const showDiagnostic = app.shouldShowCashDiagnosticBenefit(currentPricing);
     const onlySixMSI = quoteData.syllabus === "EXANI I";
+    const isUnam = quoteData.syllabus === "UNAM";
     const today = new Date();
     const issueDate = `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
     const validity = app.getQuoteValidityLabel ? app.getQuoteValidityLabel() : "";
@@ -861,9 +899,9 @@ window.CotizadorApp = window.CotizadorApp || {};
         whatsappUrl: specialistWhatsapp,
       },
       copy: {
-        hero: "Curso propedéutico EXANI diseñado para impulsar la mejor decisión de inscripción.",
-        intro: "Le compartimos una propuesta clara y flexible para su curso de preparación EXANI, con esquemas de pago y beneficios vigentes.",
-        highlight: "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos.",
+        hero: isUnam ? "Prepárate para tu ingreso a la UNAM con nuestro curso virtual." : "Curso propedéutico EXANI diseñado para impulsar la mejor decisión de inscripción.",
+        intro: isUnam ? "Te compartimos la propuesta para el curso UNAM que inicia el 29 de enero de 2027, con sus opciones de pago vigentes." : "Le compartimos una propuesta clara y flexible para su curso de preparación EXANI, con esquemas de pago y beneficios vigentes.",
+        highlight: isUnam ? "Inscripción de $1,500 y hasta 3 pagos. El plan tiene 30% de descuento durante la vigencia indicada." : "Por disponibilidad y estructura de beneficios, esta propuesta prioriza el mejor valor inmediato y una lectura simple de los costos.",
       },
       pricing: {
         list: app.formatCurrencyMXN(currentPricing.listPrice),
@@ -875,11 +913,14 @@ window.CotizadorApp = window.CotizadorApp || {};
         inscription: app.formatCurrencyMXN(summary.registration),
         paymentsLabel: "Mensualidades capturadas",
         paymentAmount: `${summary.paymentsText}${pendingText}`,
+        msi3: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 3),
         msi6: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 6),
         msi9: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 9),
         msi12: app.formatCurrencyMXN((currentPricing.listPrice || 0) / 12),
       },
       alternatives: alternativeCourses,
+      hideAlternatives: isUnam,
+      msiTerms: isUnam ? [3, 6] : onlySixMSI ? [6] : [6, 9, 12],
       noCashDiscountNotice: currentPricing.cashDiscountNotice || "",
       hideCashPaymentOption: app.shouldHideCashPaymentOption
         ? app.shouldHideCashPaymentOption(quoteData.syllabus, quoteData.campus)

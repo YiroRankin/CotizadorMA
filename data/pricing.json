@@ -1,5 +1,16 @@
 [
   {
+    "temario": "UNAM",
+    "modality": "Virtual",
+    "from": "2026-10-01",
+    "to": "2027-01-31",
+    "listPrice": 7800,
+    "cash": 0,
+    "cashDiscount": 0,
+    "installment": 5460,
+    "installmentDiscount": 30
+  },
+  {
     "temario": "EXANI II",
     "modality": "Presencial",
     "from": "2026-03-01",

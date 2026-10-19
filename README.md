@@ -87,7 +87,7 @@ En septiembre se recomiendan octubre y noviembre; en octubre, noviembre y ambos 
 ### Fuente oficial de cursos: LOOKER 26
 
 Los cursos se basan en [Clases académicas 2026-2027 · LOOKER 26](https://docs.google.com/spreadsheets/d/1366FrgjrK87rKNqKTeKkw_wYsPdeoVU5YYGytE3Q1Ko/edit?gid=1696129465#gid=1696129465).
-`data/courses.json` es una copia verificada de sus 63 cursos, actualizada el 25 de septiembre de 2026; no hay sincronización automática con esa hoja.
+`data/courses.json` incluye una copia verificada de sus 63 cursos, actualizada el 25 de septiembre de 2026, más un curso UNAM virtual cargado directamente en el repositorio; no hay sincronización automática con esa hoja.
 La procedencia y el criterio de fechas están en `data/courses-source.json`; cada curso conserva `sourceRow` y `classEndDate`.
 
 - Nivel, campus, inicio, días y horario proceden de LOOKER 26.
@@ -99,6 +99,10 @@ La procedencia y el criterio de fechas están en `data/courses-source.json`; cad
 
 Para actualizar cursos, leer nuevamente LOOKER 26, comparar los 63 registros (o el nuevo total), actualizar el JSON y publicar. No usar `/catalogos/` ni `Cursos_Publicables` como fuente de cursos.
 `catalogApi.coursesEnabled: false` evita que el catálogo anterior agregue o sobrescriba cursos; esa API sigue aportando precios y promociones, que LOOKER 26 no incluye.
+
+### Curso UNAM virtual
+
+El curso UNAM inicia el 29/01/2027 y termina el 12/05/2027. Se imparte lunes, miércoles y viernes de 16:00 a 20:30. Se agregó como curso independiente en `data/courses.json`, sin `groupId` de cupos hasta verificar el identificador de Rhino. Su precio de lista es $7,800. El plan tiene 30% de descuento ($5,460) para cotizaciones emitidas del 01/10/2026 al 31/01/2027; la inscripción es de $1,500 y se permite un máximo de tres pagos. La oferta no incluye precio de contado y muestra 3 y 6 MSI calculados sobre el precio de lista. El PDF se presenta en una página, sin cursos alternativos. La regla local está en `data/pricing.json`; la API de precios puede sobrescribirla si se publica una regla con el mismo temario, modalidad y vigencia.
 
 ### Cotizador
 1. La especialista genera una cotización.
